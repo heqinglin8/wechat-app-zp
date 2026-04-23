@@ -62,127 +62,72 @@ Page({
   //获取信息
   getinfor:function(){
     var that = this
-    var imgsrc = Bmob.Object.extend("UserInfo");
-    var query = new Bmob.Query(imgsrc);
+    var query = Bmob.Query("UserInfo");
 
-    query.equalTo("imgSrc", app.userinfor.img_src);
-    query.find({
-      success: function (results) {
-        ////console.log("个人中心判断:共查询到 " + results.length + " 条记录");
-          //用户已注册
-          that.setData({
-            username: results[0].get("username"),
-            userphone: results[0].get("userphone"),
-            initphone: results[0].get("userphone"),
-            objectId: results[0].id,
-          });
-
-      },
-      error: function (error) {
-        //console.log("查询失败: " + error.code + " " + error.message);
-      }
+    query.equalTo("imgSrc", "==", app.userinfor.img_src);
+    query.find().then(function(results) {
+      ////console.log("个人中心判断:共查询到 " + results.length + " 条记录");
+        //用户已注册
+        that.setData({
+          username: results[0].username,
+          userphone: results[0].userphone,
+          initphone: results[0].userphone,
+          objectId: results[0].objectId,
+        });
+    }).catch(function(error) {
+      //console.log("查询失败: " + error.code + " " + error.message);
     });
   },
   //更新信息
   bindViewPut:function(){
     var that=this;
-    var Diary = Bmob.Object.extend("UserInfo");
-    var query = new Bmob.Query(Diary);
     if (that.isusername(that.data.username) != false && that.validatemobile(that.data.userphone) != false ){
       if (that.data.initphone == that.data.userphone){
         //手机号未修改
-        query.get(that.data.objectId, {
-          success: function (result) {
-            // 回调中可以取得这个 GameScore 对象的一个实例，然后就可以修改它了
-            // result.set('username', that.data.username);
-            result.set('userphone', that.data.userphone);
-            result.save();
-            wx.switchTab({
-              url: '../personal/personal'
-            })
-            wx.showToast({
-              title: '修改成功',
-              icon: 'success',
-              duration: 2000
-            })
-            //console.log('修改成功');
-            // The object was retrieved successfully.
-          },
-          error: function (object, error) {
-
-          }
-        });
+        var query = Bmob.Query("UserInfo");
+        query.get(that.data.objectId).then(function(result) {
+          result.set('userphone', that.data.userphone);
+          result.save();
+          wx.switchTab({
+            url: '../personal/personal'
+          });
+          wx.showToast({
+            title: '修改成功',
+            icon: 'success',
+            duration: 2000
+          });
+        }).catch(function(error) {});
       }else{
         //查询手机号是否存在
-        query.equalTo("userphone", that.data.userphone);
+        var query = Bmob.Query("UserInfo");
+        query.equalTo("userphone", "==", that.data.userphone);
         //console.log('手机号：' + that.data.userphone)
         // 查询所有数据
-        query.find({
-          success: function (results) {
-            //console.log('查询结果：'+results.length)
-            if (results.length == 0) {
-              var GameScore = Bmob.Object.extend("UserInfo");
-              var query = new Bmob.Query(GameScore);
-              query.get(that.data.objectId, {
-                success: function (userinfo) {
-                  // 回调中可以取得这个 GameScore 对象的一个实例，然后就可以修改它了
-                  userinfo.set("username", that.data.username);
-                  userinfo.set("userphone", that.data.userphone);
-                  userinfo.save();
-                  wx.showToast({
-                    title: "修改成功",
-                    icon: 'success',
-                    duration: 2000
-
-                  });
-                  // The object was retrieved successfully.
-                },
-                error: function (object, error) {
-
-                }
-              });
-
-              // //添加数据，第一个入口参数是null
-              // User.save(null, {
-              //   success: function (result) {
-
-              //     //添加成功，返回成功之后的objectId（注意：返回的属性名字是id，不是objectId），你还可以在Bmob的Web管理后台看到对应的数据
-              //     //console.log("上传成功, objectId:" + result.id);
-
-              //     wx.switchTab({
-              //       url: '../personal/personal',
-              //     });
-              //     wx.showToast({
-              //       title: "修改成功",
-              //       icon: 'success',
-              //       duration: 2000
-
-              //     });
-              //   },
-
-              //   error: function (result, error) {
-              //     // 添加失败
-              //     //console.log('上传失败');
-
-              //   }
-              // });
-            }
-            else {
+        query.find().then(function(results) {
+          //console.log('查询结果：'+results.length)
+          if (results.length == 0) {
+            var innerQuery = Bmob.Query("UserInfo");
+            innerQuery.get(that.data.objectId).then(function(userinfo) {
+              userinfo.set("username", that.data.username);
+              userinfo.set("userphone", that.data.userphone);
+              userinfo.save();
               wx.showToast({
-                title: "该手机号已注册",
-                image: "../../images/warning.png",
+                title: "修改成功",
+                icon: 'success',
                 duration: 2000
               });
-            }
-
+            }).catch(function(error) {});
+          }
+          else {
+            wx.showToast({
+              title: "该手机号已注册",
+              image: "../../images/warning.png",
+              duration: 2000
+            });
           }
         });
-
       }
-
     }
-
-
   },
   /**
    * 生命周期函数--监听页面初次渲染完成

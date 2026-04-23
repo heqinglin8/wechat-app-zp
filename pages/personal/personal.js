@@ -73,32 +73,23 @@ Page({
    
     //console.log("onShow")
     var that = this
-    var imgsrc = Bmob.Object.extend("UserInfo");
-    var query = new Bmob.Query(imgsrc);
-    query.equalTo("imgSrc", app.userinfor.img_src);
+    var query = Bmob.Query("UserInfo");
+    query.equalTo("imgSrc", "==", app.userinfor.img_src);
     // 查询用户是否注册
-    query.find({
-      success: function (results) {
-        //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
-        if (results.length == 0) {
-          wx.redirectTo({
-            url: '../register/register',
-          })
-        } else {
-          //用户已注册
-          that.setData({
-            username: results[0].get("username")
-          });
-          // //console.log( data.username);
-          wx.redirectTo({
-            url: '../personal/personal',
-          })
-        }
-
-      },
-      error: function (error) {
-        //console.log("查询失败: " + error.code + " " + error.message);
+    query.find().then(function(results) {
+      //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
+      if (results.length == 0) {
+        wx.redirectTo({
+          url: '../register/register',
+        })
+      } else {
+        //用户已注册
+        that.setData({
+          username: results[0].username
+        });
       }
+    }).catch(function(error) {
+      //console.log("查询失败: " + error.code + " " + error.message);
     });
 
   },

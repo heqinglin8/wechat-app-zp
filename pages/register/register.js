@@ -126,57 +126,42 @@ Page({
 
     }else{
       //console.log('查询手机号是否存在');
-      var userphone = Bmob.Object.extend("UserInfo");
-      var query = new Bmob.Query(userphone);
-      query.equalTo("userphone", this.data.userPhone);
+      var query = Bmob.Query("UserInfo");
+      query.equalTo("userphone", "==", this.data.userPhone);
       var name = this.data.userName
       var phone = this.data.userPhone
       var pir_src = this.data.userInfo.avatarUrl
       var time = this.getdate();
       // 查询所有数据
-      query.find({
-        success: function (results) {
-          //console.log("共查询到 " + results.length + "条记录");
-          if (results.length == 0) {
-            //console.log("用户名：" + name + " 密码：" + phone);
-            var User = new userphone();
-            User.set("username", name);
-            User.set("userphone", phone);
-            User.set("imgSrc", pir_src);
-            User.set("regtime", time);
-            //添加数据，第一个入口参数是null
-            User.save(null, {
-              success: function (result) {
-
-                //添加成功，返回成功之后的objectId（注意：返回的属性名字是id，不是objectId），你还可以在Bmob的Web管理后台看到对应的数据
-                //console.log("上传成功, objectId:" + result.id);
-                
-                wx.switchTab({
-                  url: '../personal/personal',
-                });
-                wx.showToast({
-                  title: "注册成功",
-                  icon: 'success',
-                  duration: 2000
-
-                });
-              },
-
-              error: function (result, error) {
-                // 添加失败
-                // //console.log('上传失败');
-
-              }
+      query.find().then(function(results) {
+        //console.log("共查询到 " + results.length + "条记录");
+        if (results.length == 0) {
+          //console.log("用户名：" + name + " 密码：" + phone);
+          var User = Bmob.Query("UserInfo");
+          User.set("username", name);
+          User.set("userphone", phone);
+          User.set("imgSrc", pir_src);
+          User.set("regtime", time);
+          User.save().then(function(result) {
+            //console.log("上传成功, objectId:" + result.objectId);
+            wx.switchTab({
+              url: '../personal/personal',
             });
-            }
-          else{
             wx.showToast({
-              title: "该手机号已注册",
-              image:"../../images/warning.png",
+              title: "注册成功",
+              icon: 'success',
               duration: 2000
             });
-          }
-          
+          }).catch(function(error) {
+            // 添加失败
+          });
+        }
+        else{
+          wx.showToast({
+            title: "该手机号已注册",
+            image:"../../images/warning.png",
+            duration: 2000
+          });
         }
       });
     }

@@ -30,21 +30,17 @@ Page({
   getinfor: function () {
     var that = this;
     //获取报名信息
-    var Diary = Bmob.Object.extend("MyRecommend");
-    var query = new Bmob.Query(Diary);
-    query.equalTo("recoName", that.data.username);
+    var query = Bmob.Query("MyRecommend");
+    query.equalTo("recoName", "==", that.data.username);
     // 查询所有数据
-    query.find({
-      success: function (results) {
-        //console.log("共查询到 " + results.length + " 条记录");
-        that.setData({
-          infor: results,
-          num: results.length
-        })
-      },
-      error: function (error) {
-        //console.log("查询失败: " + error.code + " " + error.message);
-      }
+    query.find().then(function(results) {
+      //console.log("共查询到 " + results.length + " 条记录");
+      that.setData({
+        infor: results,
+        num: results.length
+      });
+    }).catch(function(error) {
+      //console.log("查询失败: " + error.code + " " + error.message);
     });
   },
   /**

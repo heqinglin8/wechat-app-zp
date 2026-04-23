@@ -45,7 +45,7 @@ Page({
     var index = e.currentTarget.dataset.index;
     //console.log("1111111" + index);
     // 取出objectId
-    var objectId = that.data.detailInfo[index].id;
+    var objectId = that.data.detailInfo[index].objectId;
     ////console.log("1111111" + objectId);
     // 跳转到详情页
     wx.navigateTo({
@@ -108,31 +108,27 @@ Page({
     ////console.log('分页传值:' + this.data.currentTab);
     var that = this;
     var page_size = 10;
-    var DetailInfo = Bmob.Object.extend("DetailInfo");
-    var query = new Bmob.Query(DetailInfo);
+    var query = Bmob.Query("DetailInfo");
     ////console.log('分页传值:' + currentTaB);
     //列表判断
     switch (that.data.currentTab) {
       case 0:
         //console.log('全部职位');
-        //this.qbzwLoad();
-        query.descending('updatedAt');
+        query.order('-updatedAt');
         break;
       case 1:
         //console.log('高薪资');
-        query.equalTo("payType", 0);
-        query.descending('detPayMax');
-
+        query.equalTo("payType", "==", 0);
+        query.order('-detPayMax');
         break;
       case 2:
         //console.log('临时工');
-        query.equalTo("payType", 1);
-        query.descending('detPayMax');
-
+        query.equalTo("payType", "==", 1);
+        query.order('-detPayMax');
         break;
       case 3:
         //console.log('推荐');
-        query.descending('entNum');
+        query.order('-entNum');
         break;
     }
     // 分页
@@ -141,33 +137,28 @@ Page({
     var aaa = that.data.page_index * page_size
     //console.log('跳过:' + aaa)
     // 查询所有数据
-    query.find({
-      success: function (results) {
-        // 请求成功将数据存入article_list
-        that.setData({
-          detailInfo: that.data.detailInfo.concat(results)
-        });
-        //console.log('查询数量:' + results.length + '加载数量' + page_size)
+    query.find().then(function(results) {
+      // 请求成功将数据存入article_list
+      that.setData({
+        detailInfo: that.data.detailInfo.concat(results)
+      });
+      //console.log('查询数量:' + results.length + '加载数量' + page_size)
 
-        if (results.length < page_size) {
-          //如果数据库中剩余的条数 不够下次分页加载则全部加载
-          query.skip(that.data.page_index * page_size);
-          query.find({
-            success: function (results) {
-              //console.log('最后剩余数量：' + results.length)
-              that.setData({
-                detailInfo: that.data.detailInfo.concat(results)
-              })
-            }
-          });
-
+      if (results.length < page_size) {
+        //如果数据库中剩余的条数 不够下次分页加载则全部加载
+        var innerQuery = Bmob.Query("DetailInfo");
+        innerQuery.skip(that.data.page_index * page_size);
+        innerQuery.find().then(function(results) {
+          //console.log('最后剩余数量：' + results.length)
           that.setData({
-            loadingTip: '没有更多内容'
+            detailInfo: that.data.detailInfo.concat(results)
           });
+        });
 
-        }
+        that.setData({
+          loadingTip: '没有更多内容'
+        });
       }
-
     });
   },
   /**
@@ -229,30 +220,27 @@ Page({
     var that = this;
     //清空列表数据
     this.cleardata();
-    var DetailInfo = Bmob.Object.extend("DetailInfo");
-    var query = new Bmob.Query(DetailInfo);
+    var query = Bmob.Query("DetailInfo");
     var e=e+''
 
     switch (e) {
       case '0':
         //console.log('全部职位');
-        //this.qbzwLoad();
-        query.descending('updatedAt');
+        query.order('-updatedAt');
         break;
       case '1':
         //console.log('高薪资');
-        query.equalTo("payType", 0);
-        query.descending('detPayMax');
+        query.equalTo("payType", "==", 0);
+        query.order('-detPayMax');
         break;
       case '2':
         //console.log('临时工');
-        query.equalTo("payType", 1);
-        query.descending('detPayMax');
-
+        query.equalTo("payType", "==", 1);
+        query.order('-detPayMax');
         break;
       case '3':
         //console.log('推荐');
-        query.descending('entNum');
+        query.order('-entNum');
         break;
     }
     query.limit(10);
@@ -262,19 +250,16 @@ Page({
       duration: 1000
     });
     // 查询数据
-    query.find({
-      success: function (results) {
-        //console.log("分类第一次加载 " + results.length + "条记录");
-        //请求将数据存入detailInfo
-        that.setData({
-          detailInfo: results,
-          page_index: 0,
-          loadingTip: "上拉加载更多"
-        });
-      },
-      error: function (error) {
-        //console.log("查询失败: " + error.code + " " + error.message);
-      }
+    query.find().then(function(results) {
+      //console.log("分类第一次加载 " + results.length + "条记录");
+      //请求将数据存入detailInfo
+      that.setData({
+        detailInfo: results,
+        page_index: 0,
+        loadingTip: "上拉加载更多"
+      });
+    }).catch(function(error) {
+      //console.log("查询失败: " + error.code + " " + error.message);
     });
 
   },
@@ -283,9 +268,8 @@ Page({
   qbzwLoad: function () {
     var that = this;
     // 动态添加列表详情
-    var DetailInfo = Bmob.Object.extend("DetailInfo");
-    var query = new Bmob.Query(DetailInfo);
-    query.descending('updatedAt');
+    var query = Bmob.Query("DetailInfo");
+    query.order('-updatedAt');
     query.limit(10);
     wx.showToast({
       title: "正在加载",
@@ -293,17 +277,14 @@ Page({
       duration: 1000
     });
     // 查询所有数据
-    query.find({
-      success: function (results) {
-        //console.log("全部职位第一次加载 " + results.length + "条记录");
-        //请求将数据存入detailInfo
-        that.setData({
-          detailInfo: results
-        });
-      },
-      error: function (error) {
-        //console.log("查询失败: " + error.code + " " + error.message);
-      }
+    query.find().then(function(results) {
+      //console.log("全部职位第一次加载 " + results.length + "条记录");
+      //请求将数据存入detailInfo
+      that.setData({
+        detailInfo: results
+      });
+    }).catch(function(error) {
+      //console.log("查询失败: " + error.code + " " + error.message);
     });
   },
   //清空招聘列表

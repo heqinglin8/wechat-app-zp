@@ -30,33 +30,28 @@ Page({
   loadinfor: function(){
     var that=this;
     // 动态添加列表详情
-    var DetailInfo = Bmob.Object.extend("DetailInfo");
-    var query = new Bmob.Query(DetailInfo);
+    var query = Bmob.Query("DetailInfo");
     ////console.log('aaaa' + this.data.searchValue);
-    query.equalTo("detAddr", that.data.searchValue);
-    query.descending('updatedAt');
+    query.equalTo("detAddr", "==", that.data.searchValue);
+    query.order('-updatedAt');
     wx.showToast({
       title: "正在查询",
       icon: 'loading',
       duration: 1500
     });
     // 查询所有数据
-    query.find({
-      success: function (results) {
-        //console.log("查询到的信息 " + results.length + "条记录");
-        if (results.length!=0)
-        {
-          //请求将数据存入detailInfo
-          that.setData({
-            detailInfo: results,
-            isnull:1
-          });
-        }
-
-      },
-      error: function (error) {
-        //console.log("查询失败: " + error.code + " " + error.message);
+    query.find().then(function(results) {
+      //console.log("查询到的信息 " + results.length + "条记录");
+      if (results.length!=0)
+      {
+        //请求将数据存入detailInfo
+        that.setData({
+          detailInfo: results,
+          isnull:1
+        });
       }
+    }).catch(function(error) {
+      //console.log("查询失败: " + error.code + " " + error.message);
     });
 
   },
@@ -67,7 +62,7 @@ Page({
     var index = e.currentTarget.dataset.index;
     //console.log("1111111" + index);
     // 取出objectId
-    var objectId = that.data.detailInfo[index].id;
+    var objectId = that.data.detailInfo[index].objectId;
     ////console.log("1111111" + objectId);
     // 跳转到详情页
     wx.navigateTo({

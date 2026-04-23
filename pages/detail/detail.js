@@ -60,23 +60,17 @@ Page({
     }
    
     // 向Bmob请求详情页数据
-    var DetailInfo = Bmob.Object.extend("DetailInfo");
-    //创建查询对象，入口参数是对象类的实例
-    var query = new Bmob.Query(DetailInfo);
+    var query = Bmob.Query("DetailInfo");
     //查询单条数据，第一个参数是这条数据的objectId值
-    query.get(that.data.objectId, {
-      success: function (results) {
-        that.setData({
-          content: results,
-          detName: results.get("detName"),
-          detSrc: results.get("detSrc"),
-          num: results.get("entNum"),
-          
-        });
-      },
-      error: function (object, error) {
-        // 查询失败
-      }
+    query.get(that.data.objectId).then(function(results) {
+      that.setData({
+        content: results,
+        detName: results.detName,
+        detSrc: results.detSrc,
+        num: results.entNum,
+      });
+    }).catch(function(error) {
+      // 查询失败
     });
   
   },
@@ -95,73 +89,55 @@ Page({
       })  
     }
     else{
-    var MyJoinInfo = Bmob.Object.extend("MyJoinInfo");
-    var query = new Bmob.Query(MyJoinInfo); 
-    query.equalTo("userPhone", that.data.userphone);
-    query.equalTo("myJoinName", that.data.detName);
+    var query = Bmob.Query("MyJoinInfo"); 
+    query.equalTo("userPhone", "==", that.data.userphone);
+    query.equalTo("myJoinName", "==", that.data.detName);
     // 查询用户是否已经报名过这家公司
-    query.find({
-      success: function (results) {
-        //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
-        if (results.length == 0) {
-         
-         //提交用户信息
-          var MyJoinInfo = Bmob.Object.extend("MyJoinInfo");
-          var diary = new MyJoinInfo();
-          diary.set("userName", that.data.username);
-          diary.set("userPhone",Number( that.data.userphone));
-          diary.set("myJoinName", that.data.detName);
-          diary.set("detSrc", that.data.detSrc);
-          //添加数据，第一个入口参数是null
-          diary.save(null, {
-            success: function (result) {
-              // 报名表添加成功，
-              wx.showToast({
-                title: '报名成功',
-                icon: 'success',
-                duration: 2000
-              })
-              //更新招聘信息表
-              var Diary = Bmob.Object.extend("DetailInfo");
-              var query = new Bmob.Query(Diary);       
-              query.get(that.data.objectId, {
-                success: function (result) {
-                  // 回调中可以取得这个 GameScore 对象的一个实例，然后就可以修改它了
-                  result.set('entNum', (that.data.num + 1));
-                  result.save();
-                  //console.log('+1')
-                  that.setData({
-                  isFist:false,
-                 });
-                 that.onShow();
-                  // The object was retrieved successfully.
-                },
-                error: function (object, error) {
-                  //console.log('添加失败')
-                }
-              });
-
-            },
-            error: function (result, error) {
-              // 添加失败
-              //console.log('创建失败' + error.code + " " + error.message);
-
-            }
-          });
-        } else {
-          //用户已报名
+    query.find().then(function(results) {
+      //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
+      if (results.length == 0) {
+       
+       //提交用户信息
+        var diary = Bmob.Query("MyJoinInfo");
+        diary.set("userName", that.data.username);
+        diary.set("userPhone", Number(that.data.userphone));
+        diary.set("myJoinName", that.data.detName);
+        diary.set("detSrc", that.data.detSrc);
+        diary.save().then(function(result) {
+          // 报名表添加成功，
           wx.showToast({
-            title: '已参加过报名',
-            image: "../../images/warning.png",
+            title: '报名成功',
+            icon: 'success',
             duration: 2000
-          })  
-        }
-
-      },
-      error: function (error) {
-        //console.log("查询失败: " + error.code + " " + error.message);
+          });
+          //更新招聘信息表
+          var detailQuery = Bmob.Query("DetailInfo");
+          detailQuery.get(that.data.objectId).then(function(result) {
+            result.set('entNum', (that.data.num + 1));
+            result.save();
+            //console.log('+1')
+            that.setData({
+              isFist:false,
+            });
+            that.onShow();
+          }).catch(function(error) {
+            //console.log('添加失败')
+          });
+        }).catch(function(error) {
+          // 添加失败
+          //console.log('创建失败' + error.code + " " + error.message);
+        });
+      } else {
+        //用户已报名
+        wx.showToast({
+          title: '已参加过报名',
+          image: "../../images/warning.png",
+          duration: 2000
+        })  
       }
-     });
+    }).catch(function(error) {
+      //console.log("查询失败: " + error.code + " " + error.message);
+    });
     }
   },
   /**
@@ -179,20 +155,14 @@ Page({
     if(that.data.isFist==false)
     {
     // 向Bmob请求详情页数据
-    var DetailInfo = Bmob.Object.extend("DetailInfo");
-    //创建查询对象，入口参数是对象类的实例
-    var query = new Bmob.Query(DetailInfo);
+    var query = Bmob.Query("DetailInfo");
     //查询单条数据，第一个参数是这条数据的objectId值
-    query.get(that.data.objectId, {
-      success: function (results) {
-        that.setData({
-          content: results,
-         
-        });
-      },
-      error: function (object, error) {
-        // 查询失败
-      }
+    query.get(that.data.objectId).then(function(results) {
+      that.setData({
+        content: results,
+      });
+    }).catch(function(error) {
+      // 查询失败
     });
     
     }
@@ -246,33 +216,26 @@ Page({
    */
   isuser:function(){
     var that = this
-    var imgsrc = Bmob.Object.extend("UserInfo");
-    var query = new Bmob.Query(imgsrc);
-    query.equalTo("imgSrc", app.userinfor.img_src);
+    var query = Bmob.Query("UserInfo");
+    query.equalTo("imgSrc", "==", app.userinfor.img_src);
 
     // 查询用户是否存在
-    query.find({
-      success: function (results) {
-        //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
-        if (results.length == 0) {
-          wx.redirectTo({
-            url: '../personal/personal',
-          })
-        } else {
-          //用户存在
-          that.setData({
-            username: results[0].get("username"),
-            userphone: results[0].get("userphone"),
-          });
-          //console.log('用户存在');
-         // //console.log(that.data.userphone + that.data.username);
-
-        }
-
-      },
-      error: function (error) {
-        //console.log("查询失败: " + error.code + " " + error.message);
+    query.find().then(function(results) {
+      //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
+      if (results.length == 0) {
+        wx.redirectTo({
+          url: '../personal/personal',
+        })
+      } else {
+        //用户存在
+        that.setData({
+          username: results[0].username,
+          userphone: results[0].userphone,
+        });
+        //console.log('用户存在');
       }
+    }).catch(function(error) {
+      //console.log("查询失败: " + error.code + " " + error.message);
     });
   }
 
