@@ -1,9 +1,9 @@
 //app.js
 //引入SDK
-var Bmob = require('utils/bmob.js');
+const Bmob = require('/utils/Bmob-2.5.30.min.js');
 //初始化Bmobkey
-Bmob.initialize("", "");
-
+Bmob.initialize("ba87e714fe642a8a", "489509");
+wx.Bmob = Bmob;
 App({
   globalData:{
     tabid:0,

@@ -1,7 +1,7 @@
 // pages/award/award.js
 
 //引入SDK
-var Bmob = require('../../utils/bmob.js');
+var Bmob = wx.Bmob;
 var app = getApp()
 Page({
 

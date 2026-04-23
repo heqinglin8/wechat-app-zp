@@ -1,7 +1,8 @@
 // pages/index/FirstIndex.js
 
 //引入SDK
-var Bmob = require('../../utils/bmob.js');
+var Bmob = require('../../utils/Bmob-2.5.30.min');
+wx.Bmob = Bmob;
 var app=getApp();
 Page({
 

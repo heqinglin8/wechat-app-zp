@@ -1,5 +1,5 @@
 // pages/searchinfor/searchresult.js
-var Bmob = require('../../utils/bmob.js');
+var Bmob = wx.Bmob;
 Page({
 
   /**

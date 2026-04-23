@@ -1,7 +1,7 @@
 // pages/servicephone/servicephone.js
 
 //引入SDK
-var Bmob = require('../../utils/bmob.js');
+var Bmob = wx.Bmob;
 
 Page({
 

@@ -1,5 +1,5 @@
 // pages/myaward/myaward.js
-var Bmob = require('../../utils/bmob.js');
+var Bmob = wx.Bmob;
 Page({
 
   /**

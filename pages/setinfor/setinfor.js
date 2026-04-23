@@ -1,5 +1,5 @@
 // pages/setinfor/setinfor.js
-var Bmob = require('../../utils/bmob.js');
+var Bmob = wx.Bmob;
 var app = getApp()
 Page({
 
