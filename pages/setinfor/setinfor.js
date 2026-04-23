@@ -62,7 +62,7 @@ Page({
   //获取信息
   getinfor:function(){
     var that = this
-    var query = Bmob.Query("UserInfo");
+    var query = Bmob.Query("_User");
 
     query.equalTo("imgSrc", "==", app.userinfor.img_src);
     query.find().then(function(results) {
@@ -84,7 +84,7 @@ Page({
     if (that.isusername(that.data.username) != false && that.validatemobile(that.data.userphone) != false ){
       if (that.data.initphone == that.data.userphone){
         //手机号未修改
-        var query = Bmob.Query("UserInfo");
+        var query = Bmob.Query("_User");
         query.get(that.data.objectId).then(function(result) {
           result.set('userphone', that.data.userphone);
           result.save();
@@ -99,14 +99,14 @@ Page({
         }).catch(function(error) {});
       }else{
         //查询手机号是否存在
-        var query = Bmob.Query("UserInfo");
+        var query = Bmob.Query("_User");
         query.equalTo("userphone", "==", that.data.userphone);
         //console.log('手机号：' + that.data.userphone)
         // 查询所有数据
         query.find().then(function(results) {
           //console.log('查询结果：'+results.length)
           if (results.length == 0) {
-            var innerQuery = Bmob.Query("UserInfo");
+            var innerQuery = Bmob.Query("_User");
             innerQuery.get(that.data.objectId).then(function(userinfo) {
               userinfo.set("username", that.data.username);
               userinfo.set("userphone", that.data.userphone);

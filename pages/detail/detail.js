@@ -216,7 +216,7 @@ Page({
    */
   isuser:function(){
     var that = this
-    var query = Bmob.Query("UserInfo");
+    var query = Bmob.Query("_User");
     query.equalTo("imgSrc", "==", app.userinfor.img_src);
 
     // 查询用户是否存在

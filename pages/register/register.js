@@ -126,7 +126,7 @@ Page({
 
     }else{
       //console.log('查询手机号是否存在');
-      var query = Bmob.Query("UserInfo");
+      var query = Bmob.Query("_User");
       query.equalTo("userphone", "==", this.data.userPhone);
       var name = this.data.userName
       var phone = this.data.userPhone
@@ -137,7 +137,7 @@ Page({
         //console.log("共查询到 " + results.length + "条记录");
         if (results.length == 0) {
           //console.log("用户名：" + name + " 密码：" + phone);
-          var User = Bmob.Query("UserInfo");
+          var User = Bmob.Query("_User");
           User.set("username", name);
           User.set("userphone", phone);
           User.set("imgSrc", pir_src);
