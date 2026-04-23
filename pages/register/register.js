@@ -10,18 +10,22 @@ Page({
   data: {
     userName: "",
     userPhone: "",
+    password: "",
+    confirmPassword: "",
     userInfo: {}
   },
   //获取用户输入的用户名
   userNameInput: function (e) {
-    this.setData({
-      userName: e.detail.value
-    })
+    this.setData({ userName: e.detail.value })
   },
   passWdInput: function (e) {
-    this.setData({
-      userPhone: e.detail.value
-    })
+    this.setData({ userPhone: e.detail.value })
+  },
+  passwordInput: function (e) {
+    this.setData({ password: e.detail.value })
+  },
+  confirmPasswordInput: function (e) {
+    this.setData({ confirmPassword: e.detail.value })
   },
 
   
@@ -121,51 +125,60 @@ Page({
   },
 
   //提交
-  put_infor:function(){
-    if (this.isusername(this.data.userName) == false || this.validatemobile(this.data.userPhone) == false){
-
-    }else{
-      //console.log('查询手机号是否存在');
-      var query = Bmob.Query("_User");
-      query.equalTo("userphone", "==", this.data.userPhone);
-      var name = this.data.userName
-      var phone = this.data.userPhone
-      var pir_src = this.data.userInfo.avatarUrl
-      var time = this.getdate();
-      // 查询所有数据
-      query.find().then(function(results) {
-        //console.log("共查询到 " + results.length + "条记录");
-        if (results.length == 0) {
-          //console.log("用户名：" + name + " 密码：" + phone);
-          var User = Bmob.Query("_User");
-          User.set("username", name);
-          User.set("userphone", phone);
-          User.set("imgSrc", pir_src);
-          User.set("regtime", time);
-          User.save().then(function(result) {
-            //console.log("上传成功, objectId:" + result.objectId);
-            wx.switchTab({
-              url: '../personal/personal',
-            });
-            wx.showToast({
-              title: "注册成功",
-              icon: 'success',
-              duration: 2000
-            });
-          }).catch(function(error) {
-            // 添加失败
-          });
-        }
-        else{
-          wx.showToast({
-            title: "该手机号已注册",
-            image:"../../images/warning.png",
-            duration: 2000
-          });
-        }
-      });
+  put_infor: function () {
+    if (
+      this.isusername(this.data.userName) == false ||
+      this.validatemobile(this.data.userPhone) == false ||
+      this.validatepassword(this.data.password, this.data.confirmPassword) == false
+    ) {
+      return;
     }
-        
+    var query = Bmob.Query("_User");
+    query.equalTo("userphone", "==", this.data.userPhone);
+    var name = this.data.userName;
+    var phone = this.data.userPhone;
+    var password = this.data.password;
+    var pir_src = this.data.userInfo.avatarUrl;
+    var time = this.getdate();
+    query.find().then(function (results) {
+      if (results.length == 0) {
+        Bmob.User.register({
+          username: name,
+          password: password,
+          userphone: phone,
+          imgSrc: pir_src,
+          regtime: time,
+        }).then(function (result) {
+          wx.switchTab({ url: '../personal/personal' });
+          wx.showToast({ title: "注册成功", icon: 'success', duration: 2000 });
+        }).catch(function (error) {
+          wx.showToast({ title: "注册失败", icon: 'none', duration: 2000 });
+        });
+      } else {
+        wx.showToast({
+          title: "该手机号已注册",
+          image: "../../images/warning.png",
+          duration: 2000
+        });
+      }
+    });
+  },
+  // 验证密码
+  validatepassword: function (password, confirmPassword) {
+    if (password.length == 0) {
+      wx.showToast({ title: '请输入密码', icon: 'none', duration: 1500 });
+      return false;
+    }
+    if (password.length < 6) {
+      wx.showToast({ title: '密码不能少于6位', icon: 'none', duration: 1500 });
+      return false;
+    }
+    console.log("password:"+password+" confirmPassword:"+confirmPassword)
+    if (password !== confirmPassword) {
+      wx.showToast({ title: '两次密码输入不一致', icon: 'none', duration: 1500 });
+      return false;
+    }
+    return true;
   },
   //判断用户名是否为空
   isusername: function (user) {

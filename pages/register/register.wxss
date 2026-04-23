@@ -48,12 +48,36 @@
   float: right;
   height: 50%;
 }
+
+.log-mid-list3{
+  width: 90%;
+  float: right;
+  height: 50%;
+}
+
+.log-mid-list4{
+  width: 90%;
+  float: right;
+  height: 50%;
+}
+
 .log-mid-list1 image{
   float: left;
   height: 100%;
   width: 11%;
 }
 .log-mid-list2 image{
+  float: left;
+  height: 100%;
+  width: 11%;
+}
+
+.log-mid-list3 image{
+  float: left;
+  height: 100%;
+  width: 11%;
+}
+.log-mid-list4 image{
   float: left;
   height: 100%;
   width: 11%;
@@ -72,6 +96,19 @@
   float: right;
 }
 
+.log-mid-list3 input{
+  font-size: 13px;
+  height: 100%;
+  width: 80%;
+  float: right;
+}
+.log-mid-list4 input{
+  font-size: 13px;
+  height: 100%;
+  width: 80%;
+  float: right;
+}
+
 
 /* 提交按钮 */
 
@@ -79,7 +116,7 @@
 height:43px;
 line-height:43px;
 text-align:center;
-margin-top:50px;
+margin-top:100px;
 width:80%;
 margin-left:auto;
 margin-right:auto;

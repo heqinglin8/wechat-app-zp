@@ -16,6 +16,16 @@
         <image src='../../images/loginphone.png'/>
         <input type='text' bindinput="passWdInput"  placeholder='请输入手机号码' name="userPhone"/>
       </view> 
+
+      <view class="log-mid-list3">
+      <image src='../../images/loginphone.png'/>
+      <input type='text' placeholder='请输入密码' bindinput ="passwordInput" name="password"/>
+    </view>
+    <view class="log-mid-list4">
+      <!-- <view class="log-mid-list2-one"> -->
+        <image src='../../images/loginphone.png'/>
+        <input type='text' bindinput="confirmPasswordInput"  placeholder='请输入确认密码' name="confirmPassword"/>
+      </view> 
   </view>
   <view class="login-bottom-put" bindtap='put_infor' >提交</view>
   <view class="login-bottom-back" bindtap='goBackIndex' >返回</view>
