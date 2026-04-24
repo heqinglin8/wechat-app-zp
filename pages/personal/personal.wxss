@@ -76,3 +76,15 @@
   height: 100%;
   float: right;
 }
+
+.personal-logout{
+  width: 88%;
+  height: 78rpx;
+  line-height: 78rpx;
+  margin: 48rpx auto 0;
+  border: 1px solid #e54d42;
+  border-radius: 10rpx;
+  color: #e54d42;
+  font-size: 30rpx;
+  text-align: center;
+}

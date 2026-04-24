@@ -73,6 +73,12 @@ Page({
    
     //console.log("onShow")
     var that = this
+    if (!app.userinfor.img_src) {
+      that.setData({
+        username: '未登录'
+      });
+      return;
+    }
     var query = Bmob.Query("_User");
     query.equalTo("imgSrc", "==", app.userinfor.img_src);
     // 查询用户是否注册
@@ -159,6 +165,45 @@ Page({
     wx.navigateTo({
       url: '../myaward/myaward?username=' + user
     })
+  },
+  // 点击退出登录
+  bindLogout: function () {
+    var that = this;
+    wx.showModal({
+      title: '提示',
+      content: '是否退出登录',
+      cancelText: '取消',
+      confirmText: '确认',
+      success: function (res) {
+        if (!res.confirm) {
+          return;
+        }
+
+        app.globalData.userInfo = null;
+        if (app.userinfor) {
+          app.userinfor.img_src = '';
+          app.userinfor.imgsrc = '';
+        }
+
+        try {
+          Bmob.User.logout();
+        } catch (e) {
+        }
+
+        that.setData({
+          userInfo: {},
+          username: '',
+          hasUserInfo: false
+        });
+
+        wx.removeStorageSync('userInfo');
+        wx.showToast({
+          title: '已退出登录',
+          icon: 'success',
+          duration: 1500
+        });
+      }
+    });
   }
 
 })
