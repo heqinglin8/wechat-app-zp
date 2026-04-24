@@ -72,22 +72,17 @@ Page({
   onShow: function () {
    
     //console.log("onShow")
-    var that = this
-    if (!app.userinfor.img_src) {
-      that.setData({
-        username: '未登录'
-      });
-      return;
-    }
+    var that = this;
     var query = Bmob.Query("_User");
     query.equalTo("imgSrc", "==", app.userinfor.img_src);
     // 查询用户是否注册
     query.find().then(function(results) {
       //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
       if (results.length == 0) {
-        wx.redirectTo({
-          url: '../register/register',
-        })
+          //用户没有注册
+          that.setData({
+          username: '未登录'
+        });
       } else {
         //用户已注册
         that.setData({
@@ -133,6 +128,15 @@ Page({
    */
   onShareAppMessage: function () {
   
+  },
+  bindTapPersonalTopText: function () {
+    console.log("点击了个人中心顶部文本")
+    if (!app.globalData.userInfo || !this.data.username || this.data.username === '未登录') {
+        console.log("跳转login")
+      wx.navigateTo({
+        url: '../login/login'
+      })
+    }
   },
   //点击个人中心里我的报名页面跳转
   bindViewMyJoin: function () {

@@ -1,0 +1,10 @@
+<!--pages/award/award.wxml-->
+<view class="award">
+  <view class="award-image">
+    <image src="../../images/topimage.png"/>
+  </view>
+  <view class="text-one">登录：点击就使用微信手机号登录</view>
+  <view class="award-btn" bindtap='put_infor'>手机号快速登录</view>
+  <view class="text-tow">取消登录：跳回到个人中心</view>
+  <view class="award-btn" bindtap='put_infor'>取消登录</view>
+</view>
