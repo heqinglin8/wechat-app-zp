@@ -2,12 +2,12 @@
 <view class="personal">
   <view class="personal-top">
   
-<button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
+<button wx:if="{{!hasUserInfo}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
     <block wx:else>
     <view class="personal-top-image">
       <image src="{{userInfo.avatarUrl}}" background-size="cover"></image>
     </view>
-    <view class="personal-top-text" bindtap="bindTapPersonalTopText">{{username}}</view>
+    <view class="personal-top-text">{{username}}</view>
 </block>
 
   </view>
