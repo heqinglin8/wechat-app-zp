@@ -2,7 +2,7 @@
 <view class="personal">
   <view class="personal-top">
   
-<button wx:if="{{!hasUserInfo}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
+<button wx:if="{{!hasUserInfo}}" open-type="getUserInfo" bindgetuserinfo="bingLogin"> 获取头像昵称 </button>
     <block wx:else>
     <view class="personal-top-image">
       <image src="{{userInfo.avatarUrl}}" background-size="cover"></image>
@@ -59,7 +59,7 @@
     </view>
   </view>
 
-  <view class="personal-logout" bindtap='bindLogout'>
+  <view wx:if="{{hasUserInfo}}" class="personal-logout" bindtap='bindLogout'>
     退出登录
   </view>
 </view>

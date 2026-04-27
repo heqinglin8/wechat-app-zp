@@ -49,13 +49,27 @@ Page({
   
    
   },
+
   getUserInfo: function (e) {
     console.log('user'+JSON.stringify(e))
-    app.globalData.userInfo = e.detail.userInfo
-    this.setData({
-      userInfo: e.detail.userInfo,
-      hasUserInfo: true
-    })
+    if(e.detail.userInfo!=undefined){
+      console.log("授权成功")
+      app.globalData.userInfo = e.detail.userInfo
+      this.setData({
+        userInfo: e.detail.userInfo,
+        hasUserInfo: true
+      })
+    }else{
+      var err_code = e.detail.err_code
+      var errMsg = e.detail.errMsg
+       console.log("授权失败: " + err_code + " " + errMsg);
+        wx.showToast({
+          title: errMsg,
+          icon: 'warning',
+          duration: 1500
+        });
+    }
+    
   },
 
   /**
@@ -74,10 +88,10 @@ Page({
     //console.log("onShow")
     var that = this;
     var query = Bmob.Query("_User");
-    query.equalTo("username", "==", app.userinfor.username);
+    query.equalTo("objecId", "==", app.userinfor.objecId);
     // 查询用户是否注册
     query.find().then(function(results) {
-      //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
+      console.log("个人中心判断:共查询到 " + app.userinfor.objecId+":" +results.length + " 条记录");
       if (results.length == 0) {
           //用户没有注册
          wx.navigateTo({
@@ -129,15 +143,6 @@ Page({
   onShareAppMessage: function () {
   
   },
-  // bindTapPersonalTopText: function () {
-  //   // console.log("点击了个人中心顶部文本")
-  //   if (!app.globalData.userInfo || !this.data.username || !this.data.hasUserInfo) {
-  //       console.log("跳转login")
-  //     wx.navigateTo({
-  //       url: '../login/login'
-  //     })
-  //   }
-  // },
   //点击个人中心里我的报名页面跳转
   bindViewMyJoin: function () {
     var user=this.data.username
@@ -208,6 +213,74 @@ Page({
         });
       }
     });
+  },
+//点击个人中心里登录页面跳转
+
+  bingLogin:function(){
+    // wx.navigateTo({
+    //   url: '../login/login'
+    // })
+    // Bmob.User.auth().then(res => {
+    //     console.log(res)
+    //     console.log('一键登陆成功')
+
+    //   }).catch(err => {
+    //     console.log(err)
+    //   });
+      // 登录
+    wx.login({
+      success: res => {
+       // 发送 res.code 到后台换取 openId, sessionKey, unionId
+        console.log('aaaaa:'+res.code);
+        // Bmob.Cloud.run('code2Session', {"name":"tom"}, {
+        //       success: function(result) {
+        //         console.log(result);
+        //       },
+        //       error: function(error) {
+        //       }
+        // })
+         var that = this;
+         Bmob.functions('code2Session',{
+          "code" : res.code
+        }).then(function (response) {
+                console.log(response);
+                if(response.code==200){
+                    // 登录成功
+                    var userInfo = response.data;
+                    app.globalData.userInfo = userInfo;
+                    app.userinfor.token = userInfo.token;
+                    app.userinfor.objectId = userInfo.objectId;
+                    console.log("个人中心登录:查询到 " + app.userinfor.objectId+":" +app.userinfor.token);
+                    that.setData({
+                      userInfo: userInfo,
+                      hasUserInfo: true,
+                      username: userInfo.username
+                    });
+                    // wx.setStorageSync('userInfo', userInfo);
+                     wx.showToast({
+                      title: '登录成功',
+                      icon: 'none',
+                      duration: 1500
+                    });
+                }else{
+                    // 登录失败
+                    wx.showToast({
+                      title: '登录失败'+response.msg,
+                      icon: 'none',
+                      duration: 1500
+                    });
+                }
+            }).catch(function (error) {
+                console.log(error);
+                 // 登录失败
+                  wx.showToast({
+                    title: '登录失败'+error.msg,
+                    icon: 'none',
+                    duration: 1500
+                  });
+            });
+      }
+    })
   }
 
 })
