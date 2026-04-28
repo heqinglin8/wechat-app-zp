@@ -12,42 +12,14 @@ Page({
     userInfo:{},
     //数据库个人信息
     username:'',
+    hasUserInfo: false
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function () {
-    //console.log("onLoad")
-   
-    if (app.globalData.userInfo) {
-      this.setData({
-        userInfo: app.globalData.userInfo,
-        hasUserInfo: true
-      })
-    } else if (this.data.canIUse) {
-      // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
-      // 所以此处加入 callback 以防止这种情况
-      app.userInfoReadyCallback = res => {
-        this.setData({
-          userInfo: res.userInfo,
-          hasUserInfo: true
-        })
-      }
-    } else {
-      // 在没有 open-type=getUserInfo 版本的兼容处理
-      wx.getUserInfo({
-        success: res => {
-          app.globalData.userInfo = res.userInfo
-           this.setData({
-             userInfo: res.userInfo,
-             hasUserInfo: true
-           })
-        }
-      })
-    }
-  
-   
+    console.log("onLoad")
   },
 
   getUserInfo: function (e) {
@@ -87,25 +59,30 @@ Page({
    
     //console.log("onShow")
     var that = this;
-    var query = Bmob.Query("_User");
-    query.equalTo("objecId", "==", app.userinfor.objecId);
-    // 查询用户是否注册
-    query.find().then(function(results) {
-      console.log("个人中心判断:共查询到 " + app.userinfor.objecId+":" +results.length + " 条记录");
-      if (results.length == 0) {
-          //用户没有注册
-         wx.navigateTo({
-           url: '../register/register'
-         });
-      } else {
-        //用户已注册
-        that.setData({
-          username: results[0].username
-        });
-      }
-    }).catch(function(error) {
-      //console.log("查询失败: " + error.code + " " + error.message);
-    });
+    var userInfo = wx.getStorageSync('userInfo');
+    var token = wx.getStorageSync('token');
+    var objectId = wx.getStorageSync('objectId');
+    if (objectId!=undefined && objectId.length > 0) {
+      var query = Bmob.Query("_User");
+      query.equalTo("objecId", "==", objectId);
+      // 查询用户是否注册
+      query.find().then(function(results) {
+        console.log("个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
+        if (results.length != 0) {
+          //用户已注册
+          that.setData({
+            username: results[0].username
+          });
+        } else {
+          console.log("没有注册，objectId: " + objectId);
+        }
+      }).catch(function(error) {
+        console.log("查询失败: " + error.code + " " + error.message);
+      });
+    }else{
+      console.log("没有登录，objectId: " + objectId);
+    }
+    
 
   },
 
@@ -220,25 +197,11 @@ Page({
     // wx.navigateTo({
     //   url: '../login/login'
     // })
-    // Bmob.User.auth().then(res => {
-    //     console.log(res)
-    //     console.log('一键登陆成功')
-
-    //   }).catch(err => {
-    //     console.log(err)
-    //   });
       // 登录
     wx.login({
       success: res => {
        // 发送 res.code 到后台换取 openId, sessionKey, unionId
         console.log('aaaaa:'+res.code);
-        // Bmob.Cloud.run('code2Session', {"name":"tom"}, {
-        //       success: function(result) {
-        //         console.log(result);
-        //       },
-        //       error: function(error) {
-        //       }
-        // })
          var that = this;
          Bmob.functions('code2Session',{
           "code" : res.code
@@ -247,16 +210,18 @@ Page({
                 if(response.code==200){
                     // 登录成功
                     var userInfo = response.data;
-                    app.globalData.userInfo = userInfo;
-                    app.userinfor.token = userInfo.token;
-                    app.userinfor.objectId = userInfo.objectId;
+                    // app.globalData.userInfo = userInfo;
+                    // app.userinfor.token = userInfo.token;
+                    // app.userinfor.objectId = userInfo.objectId;
+                    wx.setStorageSync('userInfo', userInfo);
+                    wx.setStorageSync('token', userInfo.token);
+                    wx.setStorageSync('objectId', userInfo.objectId);
                     console.log("个人中心登录:查询到 " + app.userinfor.objectId+":" +app.userinfor.token);
                     that.setData({
                       userInfo: userInfo,
                       hasUserInfo: true,
                       username: userInfo.username
                     });
-                    // wx.setStorageSync('userInfo', userInfo);
                      wx.showToast({
                       title: '登录成功',
                       icon: 'none',
