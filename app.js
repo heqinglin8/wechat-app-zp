@@ -9,12 +9,6 @@ App({
     tabid:0,
     userInfo: null
   },
-  //用户信息
-  userinfor:{
-    imgsrc: "",
-    objectId: "",
-    token: "",
-  },
   onLaunch: function () {
     // 展示本地存储能力
     var logs = wx.getStorageSync('logs') || []

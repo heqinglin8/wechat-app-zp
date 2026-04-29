@@ -1,4 +1,4 @@
-<!--pages/login/login.wxml-->
+<!--pages/register/register.wxml-->
 <view class="login">
   <view class="login-top">
     <view class="login-top-image">

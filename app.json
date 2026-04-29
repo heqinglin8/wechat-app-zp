@@ -12,8 +12,7 @@
     "pages/map/map",
     "pages/setinfor/setinfor",
     "pages/myjoin/myjoin",
-    "pages/myaward/myaward",
-    "pages/login/login"
+    "pages/myaward/myaward"
   ],
   "window": {
     "navigationBarBackgroundColor": "#fc3",
