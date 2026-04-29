@@ -1,15 +1,53 @@
 <!--pages/award/award.wxml-->
-<view class="award">
-  <view class="award-image">
-    <image src="../../images/topimage.png"/>
-  </view>
-  <view class="award-list">
-    <view class="award-list-name">
-      <view class="name-text">姓名：</view>
-      <input class="name-input" type="text" placeholder="请输入推荐人姓名" bindinput ="recoNameInput" name="recoName"/>
+<scroll-view class="award-scroll" scroll-y>
+  <view class="award">
+    <view class="award-image">
+      <image src="../../images/topimage.png" mode="aspectFill" />
     </view>
+    <view class="award-intro">
+      <view class="text-one">请填写求职者信息，提交后与账号关联存档。</view>
+      <view class="text-tow">查询推荐记录：个人中心 — 我的推荐</view>
+    </view>
+
+    <view class="award-list">
+      <view class="award-list-name">
+        <view class="name-text">姓名</view>
+        <input class="name-input" type="text" placeholder="求职者姓名" value="{{recoName}}" bindinput="onRecoNameInput" />
+      </view>
+
+      <view class="award-list-name award-picker-row">
+        <view class="name-text">学历</view>
+        <picker class="award-picker" mode="selector" range="{{educationOptions}}" value="{{educationIndex}}" bindchange="onEducationChange">
+          <view class="picker-display">{{educationOptions[educationIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="award-list-name">
+        <view class="name-text">联系方式</view>
+        <input class="name-input" type="text" maxlength="20" placeholder="手机号或微信号" value="{{recoContact}}" bindinput="onRecoContactInput" />
+      </view>
+
+      <view class="award-list-name">
+        <view class="name-text">求职意向</view>
+        <input class="name-input" type="text" placeholder="期望岗位或方向" value="{{recoJobIntent}}" bindinput="onRecoJobIntentInput" />
+      </view>
+
+      <view class="award-list-name">
+        <view class="name-text">薪资</view>
+        <input class="name-input" type="text" placeholder="如：5千-8千、面议" value="{{recoSalaryRange}}" bindinput="onRecoSalaryInput" />
+      </view>
+
+      <view class="award-list-textarea">
+        <view class="label-block">自我介绍</view>
+        <textarea class="award-textarea" placeholder="简述经历与技能（选填）" value="{{recoIntro}}" bindinput="onRecoIntroInput" maxlength="800" />
+      </view>
+
+      <view class="award-list-textarea award-list-textarea-extra">
+        <view class="label-block">其他补充</view>
+        <textarea class="award-textarea" placeholder="备注说明（选填）" value="{{recoExtra}}" bindinput="onRecoExtraInput" maxlength="800" />
+      </view>
+    </view>
+
+    <view class="award-btn" bindtap="put_infor">确定</view>
   </view>
-  <view class="text-one">第一步：提交推荐人姓名</view>
-  <view class="text-tow">第二步：推荐人信息查询：个人中心---我的推荐</view>
-  <view class="award-btn" bindtap='put_infor'>确定</view>
-</view>
+</scroll-view>
