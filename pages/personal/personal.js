@@ -64,14 +64,16 @@ Page({
     var objectId = wx.getStorageSync('objectId');
     if (objectId!=undefined && objectId.length > 0) {
       var query = Bmob.Query("_User");
-      query.equalTo("objecId", "==", objectId);
+      query.equalTo("objectId", "==", objectId);
       // 查询用户是否注册
       query.find().then(function(results) {
         console.log("个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
         if (results.length != 0) {
           //用户已注册
           that.setData({
-            username: results[0].username
+            userInfo: userInfo,
+            username: results[0].username,
+            hasUserInfo: true
           });
         } else {
           console.log("没有注册，objectId: " + objectId);
