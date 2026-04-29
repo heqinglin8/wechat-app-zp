@@ -33,8 +33,8 @@ Page({
   onReady: function () {
     var that = this
     var query = Bmob.Query("_User");
-
-    query.equalTo("imgSrc", "==", app.userinfor.img_src);
+    var objectId = wx.getStorageSync('objectId');
+    query.equalTo("objectId", "==", objectId);
 
     // 查询用户是否注册
     query.find().then(function(results) {

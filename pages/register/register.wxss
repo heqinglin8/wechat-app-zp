@@ -1,4 +1,4 @@
-/* pages/login/login.wxss */
+/* pages/register/register.wxss */
 .login{
   margin: 0;
   padding: 0;

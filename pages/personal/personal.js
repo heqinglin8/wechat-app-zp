@@ -22,28 +22,6 @@ Page({
     console.log("onLoad")
   },
 
-  getUserInfo: function (e) {
-    console.log('user'+JSON.stringify(e))
-    if(e.detail.userInfo!=undefined){
-      console.log("授权成功")
-      app.globalData.userInfo = e.detail.userInfo
-      this.setData({
-        userInfo: e.detail.userInfo,
-        hasUserInfo: true
-      })
-    }else{
-      var err_code = e.detail.err_code
-      var errMsg = e.detail.errMsg
-       console.log("授权失败: " + err_code + " " + errMsg);
-        wx.showToast({
-          title: errMsg,
-          icon: 'warning',
-          duration: 1500
-        });
-    }
-    
-  },
-
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
@@ -167,15 +145,14 @@ Page({
           return;
         }
 
-        app.globalData.userInfo = null;
-        if (app.userinfor) {
-          app.userinfor.img_src = '';
-          app.userinfor.imgsrc = '';
-        }
+        wx.removeStorageSync('token');
+        wx.removeStorageSync('objectId');
+        wx.removeStorageSync('userInfo');
 
         try {
           Bmob.User.logout();
         } catch (e) {
+          console.log("退出登录失败: " + e.code + " " + e.message);
         }
 
         that.setData({
@@ -184,7 +161,7 @@ Page({
           hasUserInfo: false
         });
 
-        wx.removeStorageSync('userInfo');
+        
         wx.showToast({
           title: '已退出登录',
           icon: 'success',
@@ -196,9 +173,6 @@ Page({
 //点击个人中心里登录页面跳转
 
   bingLogin:function(){
-    // wx.navigateTo({
-    //   url: '../login/login'
-    // })
       // 登录
     wx.login({
       success: res => {
@@ -212,13 +186,10 @@ Page({
                 if(response.code==200){
                     // 登录成功
                     var userInfo = response.data;
-                    // app.globalData.userInfo = userInfo;
-                    // app.userinfor.token = userInfo.token;
-                    // app.userinfor.objectId = userInfo.objectId;
                     wx.setStorageSync('userInfo', userInfo);
                     wx.setStorageSync('token', userInfo.token);
                     wx.setStorageSync('objectId', userInfo.objectId);
-                    console.log("个人中心登录:查询到 " + app.userinfor.objectId+":" +app.userinfor.token);
+                    console.log("个人中心登录:查询到 " + userInfo.objectId+":" +userInfo.token);
                     that.setData({
                       userInfo: userInfo,
                       hasUserInfo: true,

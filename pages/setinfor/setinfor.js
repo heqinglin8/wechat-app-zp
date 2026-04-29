@@ -74,8 +74,9 @@ Page({
   getinfor:function(){
     var that = this
     var query = Bmob.Query("_User");
-
-    query.equalTo("imgSrc", "==", app.userinfor.img_src);
+    var objectId = wx.getStorageSync('objectId');
+    query.equalTo("objectId", "==", objectId);
+    //查询用户是否注册
     query.find().then(function(results) {
       ////console.log("个人中心判断:共查询到 " + results.length + " 条记录");
         //用户已注册
