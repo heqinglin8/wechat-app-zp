@@ -40,8 +40,8 @@ Page({
           latitude: latitude,
           longitude: longitude,
           scale: 28,
-          name:'濮阳县德顺人力资源服务有限公司',
-          address:'河南省濮阳县庆祖镇庆中村'
+          name:'韶关县德顺人力资源服务有限公司',
+          address:'河南省韶关县庆祖镇庆中村'
         })
 
       }
