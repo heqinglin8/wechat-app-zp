@@ -107,7 +107,7 @@ Page({
   applyMyRecommendFields: function (row) {
     var d = this.data;
     var edu = this.educationLabel();
-    row.set('userPhone', Number(d.userPhone));
+    row.set('userPhone', String(d.userPhone).trim());
     row.set('userName', d.userName);
     row.set('recoName', String(d.recoName).trim());
     row.set('recoEducation', edu);
@@ -129,7 +129,7 @@ Page({
     }
 
     var query = Bmob.Query('MyRecommend');
-    query.equalTo('userPhone', '==', Number(that.data.userPhone));
+    query.equalTo('userPhone', '==', String(that.data.userPhone).trim());
     query.equalTo('userName', '==', that.data.userName);
     query.equalTo('recoName', '==', String(that.data.recoName).trim());
 
