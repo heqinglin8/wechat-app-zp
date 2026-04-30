@@ -121,6 +121,95 @@
   color: #333;
 }
 
+.award-photo-section {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 16rpx;
+}
+
+.award-photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -8rpx;
+}
+
+.award-photo-cell {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  margin: 8rpx;
+  border-radius: 10rpx;
+  overflow: hidden;
+  box-shadow: 0 0 3px rgba(55, 55, 55, 0.35);
+  border: 1px solid #fc3;
+}
+
+.award-photo-thumb {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.award-photo-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.award-photo-actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 8rpx 0;
+}
+
+.award-photo-act {
+  font-size: 22rpx;
+  color: #fc3;
+  padding: 0 12rpx;
+}
+
+.award-photo-act.danger {
+  color: #ffb4b4;
+}
+
+.award-photo-add {
+  width: 200rpx;
+  height: 200rpx;
+  margin: 8rpx;
+  border-radius: 10rpx;
+  border: 1px dashed #ccc;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+}
+
+.award-photo-add-plus {
+  font-size: 56rpx;
+  line-height: 1;
+}
+
+.award-photo-add-text {
+  font-size: 24rpx;
+  margin-top: 8rpx;
+}
+
 .award-textarea {
   box-shadow: 0px 0px 3px rgba(55, 55, 55, 0.5);
   border-radius: 10rpx;

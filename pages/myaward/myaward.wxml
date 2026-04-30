@@ -10,7 +10,7 @@
     <view class='list-all'>
       <view class="detail-list"  data-index="{{index}}">
           <view class="list-text">
-           <text class='list-text-name'>姓名：{{item.userName}} 手机号：{{item.userPhone}}</text>
+           <text class='list-text-name'>求职者：{{item.recoName}} 推荐人：{{item.commitUsername || item.userName}} 联系：{{item.recoContact}}</text>
           </view>  
       </view>
     </view>

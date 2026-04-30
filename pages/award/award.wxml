@@ -37,6 +37,27 @@
         <input class="name-input" type="text" placeholder="如：5千-8千、面议" value="{{recoSalaryRange}}" bindinput="onRecoSalaryInput" />
       </view>
 
+      <view class="award-photo-section">
+        <view class="label-block">上传图片（选填，最多 6 张）</view>
+        <view class="award-photo-grid">
+          <block wx:for="{{recommendPhotos}}" wx:key="index">
+            <view class="award-photo-cell">
+              <image wx:if="{{item.uploading}}" class="award-photo-thumb" src="{{item.tempPath}}" mode="aspectFill" />
+              <image wx:elif="{{item.url}}" class="award-photo-thumb" src="{{item.url}}" mode="aspectFill" />
+              <view wx:if="{{item.uploading}}" class="award-photo-mask">上传中</view>
+              <view class="award-photo-actions">
+                <text class="award-photo-act" catchtap="onReplacePhoto" data-index="{{index}}">替换</text>
+                <text class="award-photo-act danger" catchtap="onRemovePhoto" data-index="{{index}}">删除</text>
+              </view>
+            </view>
+          </block>
+          <view wx:if="{{recommendPhotos.length < 6}}" class="award-photo-add" bindtap="onAddPhotos">
+            <text class="award-photo-add-plus">+</text>
+            <text class="award-photo-add-text">添加</text>
+          </view>
+        </view>
+      </view>
+
       <view class="award-list-textarea">
         <view class="label-block">自我介绍</view>
         <textarea class="award-textarea" placeholder="简述经历与技能（选填）" value="{{recoIntro}}" bindinput="onRecoIntroInput" maxlength="800" />
