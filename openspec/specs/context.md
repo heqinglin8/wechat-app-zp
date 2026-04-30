@@ -42,7 +42,7 @@ images/               → 静态图标与图片资源
 | `SwiperImgSrc` | 首页轮播图数据（字段如 `swiperImgSrc`） |
 | `_User` | Bmob 内置用户：`username`、`userphone`、`objectId`、`imgSrc`、`regtime` 等 |
 | `MyJoinInfo` | 用户报名记录：`userName`、`userPhone`、`myJoinName`、`detSrc` |
-| `MyRecommend` | 推广/推荐：`userPhone`、`userName`、`recoName`（与推荐录入、列表展示关联） |
+| `MyRecommend` | 推广/推荐：`userName`、`recoName` 及求职者档案字段（与推荐录入、列表展示关联） |
 
 **岗位分类规则（首页 / 今日招聘一致）**
 
@@ -108,7 +108,7 @@ images/               → 静态图标与图片资源
 
 ### 5.5 推荐奖励
 
-`award`：`onReady` 用当前 `_User` 带出 `userName`、`userPhone`；提交时查 `MyRecommend` 三重条件去重，再新增并 `switchTab` 回首页。
+`award`：`onReady` 用当前 `_User` 带出 `userName`、手机号用于预填联系方式；提交时按 `userName` + `recoName` 查 `MyRecommend` 去重更新，再 `switchTab` 回首页。
 
 ### 5.6 能力与占位
 

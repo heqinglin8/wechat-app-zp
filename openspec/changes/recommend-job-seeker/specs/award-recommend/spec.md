@@ -24,12 +24,12 @@ The system MUST pre-fill the job seeker's name and contact fields with the curre
 
 ### Requirement: Persist submission to MyRecommend
 
-The system MUST persist the completed form to the Bmob `MyRecommend` table when the user confirms (e.g. taps the primary submit/confirm control), including `userName` and `userPhone` for the submitting user and all new seeker-related fields as defined in the change design.
+The system MUST persist the completed form to the Bmob `MyRecommend` table when the user confirms (e.g. taps the primary submit/confirm control), including submitter `userName` and all new seeker-related fields as defined in the change design.
 
 #### Scenario: Successful submit
 
 - **WHEN** the user taps the confirm control and validation passes
-- **THEN** the client SHALL write a `MyRecommend` record (or update per design decision) with at least: submitter `userPhone`, submitter `userName`, seeker identity fields (`recoName`, `recoEducation`, `recoContact`, `recoJobIntent`, `recoSalaryRange`, `recoIntro`, `recoExtra` as implemented), compatible with duplicate-handling rules chosen in implementation.
+- **THEN** the client SHALL write a `MyRecommend` record (or update per design decision) with at least: submitter `userName`, seeker identity fields (`recoName`, `recoEducation`, `recoContact`, `recoJobIntent`, `recoSalaryRange`, `recoIntro`, `recoExtra` as implemented), compatible with duplicate-handling rules chosen in implementation.
 
 ---
 

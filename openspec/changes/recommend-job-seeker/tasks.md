@@ -1,7 +1,7 @@
 ## 1. Bmob 与字段
 
 - [x] 1.1 在 Bmob 控制台 `MyRecommend` Class 中新增列：`recoEducation`、`recoContact`、`recoJobIntent`、`recoSalaryRange`、`recoIntro`、`recoExtra`（类型与最长文本需在控制台确认）。
-- [x] 1.2 与后端/运营确认：`recoContact` 与账号 `userPhone` 是否允许不一致；若不允许多路径，表单上改为只读或可编辑策略。
+- [x] 1.2 与后端/运营确认：`recoContact` 与账号手机号是否允许不一致；若不允许多路径，表单上改为只读或可编辑策略。
 
 ## 2. 页面结构与样式
 
@@ -15,7 +15,7 @@
 
 ## 4. 提交与去重逻辑
 
-- [x] 4.1 在确认提交函数中：`set`/`save` 所有需写入字段到 `MyRecommend`，包含原有 `userPhone`、`userName`、`recoName` 及新增列。
+- [x] 4.1 在确认提交函数中：`set`/`save` 所有需写入字段到 `MyRecommend`，包含 `userName`、`recoName` 及新增列（不包含 `userPhone`）。
 - [x] 4.2 按设计确定并实现去重：**更新已有**或「禁止完全重复联合键」；处理成功与失败 Toast，与原 `award.js` UX 保持一致或提升。
 - [x] 4.3 若需兼容 `pages/myaward`：`recoName` 语义保持不变；自测自荐数据仍能被查询维度命中。
 

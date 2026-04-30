@@ -1,6 +1,6 @@
 ## Context
 
-现有 `pages/award/award` 仅从 `_User` 读取登录用户姓名、手机，再通过输入框写入 `recoName`，提交时对 `MyRecommend` 做 `(userPhone, userName, recoName)` 去重后直接 `save()`。产品与「推荐求职者」定位一致时，`recoName` 语义为**被推荐的求职者姓名**；用户需求是在此基础上补足简历式字段，并让姓名、联系方式可被登录者一键预填（典型场景：自荐或代填自己与本人一致的联系方式）。
+现有 `pages/award/award` 仅从 `_User` 读取登录用户姓名、手机，再通过输入框写入 `recoName`，提交时对 `MyRecommend` 按 `(userName, recoName)` 查询并更新或新增后直接 `save()`（不再写入 `userPhone`）。产品与「推荐求职者」定位一致时，`recoName` 语义为**被推荐的求职者姓名**；用户需求是在此基础上补足简历式字段，并让姓名、联系方式可被登录者一键预填（典型场景：自荐或代填自己与本人一致的联系方式）。
 
 ## Goals / Non-Goals
 
@@ -18,7 +18,7 @@
 ## Decisions
 
 1. **`MyRecommend` 字段建模**  
-   - **保留**：`userPhone`、`userName`（仍为提交操作时登录用户在 `_User` 中的身份锚点，写入方式与现有 `award.js` 一致）。  
+   - **保留**：`userName`（提交操作时登录用户在 `_User` 中的身份锚点）。  
    - **保留语义**：`recoName` — 被爱推荐/自荐展示的 **求职者姓名**。  
    - **新增字段**（与 Bmob 控制台 Class **列同名**，建议英文名，需在控制台添加列后再部署小程序）：  
      - `recoEducation`：学历（枚举字符串，例如 `大专` / `本科` / …，与 picker range 对齐）。  
@@ -32,8 +32,8 @@
    - 使用 `picker` + `mode="selector"`，`range` 为常量数组或由设计稿给出顺序；表单层存当前选中的索引与展示文案。
 
 3. **去重策略**  
-   - **演进**：由原「仅存姓名」扩展为多维画像后，`(userPhone, userName, recoName)` 三键去重会误拦截「同一人多条更新」。  
-   - **建议**：在产品接受的前提下，调整为 **按最近一次提交更新时间覆盖**（同用户同 `recoName` update）或使用 **更丰富联合键**（如 `recoContact`）；若必须坚持「仅不许完全重复」，则需在任务阶段明确定义「重复」的字段集合。**建议默认**：同一 `objectId`/同一推荐人记录下，对同一 `recoName` **更新**上次记录而非新增第二条（需在实现层用查询 + `save`）。
+   - **演进**：由原「仅存姓名」扩展为多维画像后，旧版 `(userPhone, userName, recoName)` 三键去重会误拦截「同一人多条更新」；且客户端已不再写入 `userPhone`。  
+   - **建议**：在产品接受的前提下，使用 **`(userName, recoName)`** 查询已有行并 **更新**，或按需采用更丰富联合键（如含 `recoContact`）。**建议默认**：同一推荐人（`userName`）对同一 `recoName` **更新**上次记录而非新增第二条（实现层用查询 + `save`）。
 
 4. **`myaward` 查询兼容性**  
    - 既有查询 `recoName == 当前用户名` 用于「谁推荐过我」一类展示逻辑；新增的求职者姓名字段若仍写入 `recoName`，则兼容性保持。**预填默认为登录用户名**不会改变该语义。
@@ -51,4 +51,4 @@
 
 ## Open Questions
 
-- **`recoContact` 与用户账号手机号**：若产品上「联系方式」必须与账号手机一致，可只用一个字段并 UI 禁用编辑；若允许填他人微信或备用号，则需与 **`userPhone`** 区分（建议独立列 `recoContact`）。
+- **`recoContact` 与用户账号手机号**：若产品上「联系方式」必须与账号手机一致，可只用一个字段并 UI 禁用编辑；若允许填他人微信或备用号，则依赖独立列 `recoContact`（不再在 `MyRecommend` 上冗余写入账号 `userPhone`）。
