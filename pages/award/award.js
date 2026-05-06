@@ -124,9 +124,13 @@ Page({
     var that = this;
     var ext = extFromPath(filePath) || 'jpg';
     var fileName = 'rec-' + Date.now() + '-' + slotIndex + '-' + Math.floor(Math.random() * 10000) + '.' + ext;
-    var file = new Bmob.File(fileName, [filePath]);
+    var file = new Bmob.File(fileName, filePath);
+    console.log("uploadOnePhotoFile 1:",filePath,file,slotIndex);
     return file.save().then(function (saved) {
-      var url = typeof saved.url === 'function' ? saved.url() : '';
+      console.log("uploadOnePhotoFile 2:",saved.length, saved);
+      // var url = typeof saved.url === 'function' ? saved.url() : '';
+      var url = saved[0].url;
+      console.log("uploadOnePhotoFile 3:",url);
       if (!url && saved._url) url = saved._url;
       if (!url) return Promise.reject(new Error('no url'));
       var list = that.data.recommendPhotos.slice();
@@ -180,7 +184,7 @@ Page({
         that.setData({ chooseImageBusy: false });
       });
     }
-
+    console.log('appendPhotosAfterChoose photos', paths);
     var remain = MAX_RECOMMEND_PHOTOS - this.data.recommendPhotos.length;
     var take = paths.slice(0, Math.max(0, remain));
     if (!take.length) {
@@ -193,9 +197,11 @@ Page({
           var next = that.data.recommendPhotos.concat([
             { url: '', tempPath: p, uploading: true },
           ]);
+          console.log('appendPhotosAfterChoose photo', p);
           var idx = next.length - 1;
           that.setData({ recommendPhotos: next });
-          return that.uploadOnePhotoFile(p, idx).catch(function () {
+          return that.uploadOnePhotoFile(p, idx).catch(function (error) {
+            console.error('uploadOnePhotoFile fail!error:',error);
             var ls = that.data.recommendPhotos.slice();
             ls.splice(idx, 1);
             that.setData({ recommendPhotos: ls });
@@ -219,10 +225,12 @@ Page({
       sizeType: ['compressed', 'original'],
       sourceType: ['album', 'camera'],
       success: function (res) {
+        console.log('choose image success', res);
         var paths = res.tempFilePaths || [];
         that.appendPhotosAfterChoose(paths);
       },
       fail: function () {
+        console.error('choose image fail');
         that.setData({ chooseImageBusy: false, replacePhotoIndex: -1 });
       },
     });
