@@ -130,15 +130,16 @@ Page({
       console.log("uploadOnePhotoFile 2:",saved.length, saved);
       // var url = typeof saved.url === 'function' ? saved.url() : '';
       var url = saved[0].url;
-      console.log("uploadOnePhotoFile 3:",url);
       if (!url && saved._url) url = saved._url;
       if (!url) return Promise.reject(new Error('no url'));
+      console.log("uploadOnePhotoFile 3:",url);
+      var replace_url = that.replaceDomain(url);
       var list = that.data.recommendPhotos.slice();
       var cur = list[slotIndex];
       if (!cur) return Promise.reject(new Error('slot'));
-      list[slotIndex] = { url: url, tempPath: '', uploading: false };
+      list[slotIndex] = { url: replace_url, tempPath: '', uploading: false };
       that.setData({ recommendPhotos: list });
-      return url;
+      return replace_url;
     });
   },
 
@@ -380,4 +381,18 @@ Page({
       that.setData({ formSubmitting: false });
     });
   },
+  /** 示例：
+ * http://abc.com/2026/05/08/a.png
+ * =>
+ * http://files.yueqiu.me/2026/05/08/a.png
+ */
+ replaceDomain:function(url) {
+  if (!url) return url;
+  return url.replace(
+    /^https?:\/\/[^/]+\//,
+    'http://files.yueqiu.me/'
+  );
+}
+  
+
 });
