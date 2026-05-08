@@ -125,14 +125,12 @@ Page({
     var ext = extFromPath(filePath) || 'jpg';
     var fileName = 'rec-' + Date.now() + '-' + slotIndex + '-' + Math.floor(Math.random() * 10000) + '.' + ext;
     var file = new Bmob.File(fileName, filePath);
-    console.log("uploadOnePhotoFile 1:",filePath,file,slotIndex);
+    console.log("uploadOnePhotoFile slotIndex:",slotIndex," filePath",filePath," file",file);
     return file.save().then(function (saved) {
-      console.log("uploadOnePhotoFile 2:",saved.length, saved);
       // var url = typeof saved.url === 'function' ? saved.url() : '';
       var url = saved[0].url;
       if (!url && saved._url) url = saved._url;
       if (!url) return Promise.reject(new Error('no url'));
-      console.log("uploadOnePhotoFile 3:",url);
       var replace_url = that.replaceDomain(url);
       var list = that.data.recommendPhotos.slice();
       var cur = list[slotIndex];
@@ -198,7 +196,6 @@ Page({
           var next = that.data.recommendPhotos.concat([
             { url: '', tempPath: p, uploading: true },
           ]);
-          console.log('appendPhotosAfterChoose photo', p);
           var idx = next.length - 1;
           that.setData({ recommendPhotos: next });
           return that.uploadOnePhotoFile(p, idx).catch(function (error) {
