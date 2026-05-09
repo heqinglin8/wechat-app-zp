@@ -15,6 +15,13 @@ function extFromPath(path) {
   return m ? m[1].toLowerCase() : '';
 }
 
+function extractRelativePathFromUrl(url) {
+  if (!url) return '';
+  var clean = String(url).split('?')[0].split('#')[0];
+  var m = /^https?:\/\/[^/]+\/(.+)$/.exec(clean);
+  return m ? m[1] : clean.replace(/^\/+/, '');
+}
+
 Page({
   data: {
     userName: '',
@@ -132,12 +139,27 @@ Page({
       if (!url && saved._url) url = saved._url;
       if (!url) return Promise.reject(new Error('no url'));
       var replace_url = that.replaceDomain(url);
+      var relativePath = extractRelativePathFromUrl(url);
+      var type = ext || extFromPath(relativePath) || 'unknown';
+
+      // 保存文件元信息到 file 表，不阻断主上传流程
+      var fileQuery = Bmob.Query('file');
+      fileQuery.set('name', fileName);
+      fileQuery.set('path', relativePath);
+      fileQuery.set('type', type);
+
       var list = that.data.recommendPhotos.slice();
       var cur = list[slotIndex];
       if (!cur) return Promise.reject(new Error('slot'));
       list[slotIndex] = { url: replace_url, tempPath: '', uploading: false };
       that.setData({ recommendPhotos: list });
-      return replace_url;
+      return fileQuery.save().then(function (res) {
+        console.log('save file meta success', res);
+        return replace_url;
+      }).catch(function (err) {
+        console.log('save file meta fail', err);
+        return replace_url;
+      });
     });
   },
 
