@@ -336,6 +336,7 @@ Page({
   },
 
   applyMyRecommendFields: function (row) {
+    console.log("applyMyRecommendFields row:",row);
     var d = this.data;
     var edu = this.educationLabel();
     row.set('commitUsername', d.userName);
@@ -383,14 +384,17 @@ Page({
         });
       }
       var row = results[0];
-      that.applyMyRecommendFields(row);
-      return row.save().then(function () {
+      var updated = Bmob.Query('MyRecommend');
+      updated.id = row.objectId;
+      that.applyMyRecommendFields(updated);
+      return updated.save().then(function () {
         wx.switchTab({ url: '../index/index' });
         setTimeout(function () {
           wx.showToast({ title: '档案已更新', icon: 'success', duration: 2000 });
         }, 320);
       });
-    }).catch(function () {
+    }).catch(function (e) {
+      console.error("提交失败,e:",e)
       wx.showToast({
         title: '提交失败，请稍后重试',
         icon: 'none',
