@@ -12,7 +12,8 @@
     "pages/map/map",
     "pages/setinfor/setinfor",
     "pages/myjoin/myjoin",
-    "pages/myaward/myaward"
+    "pages/myaward/myaward",
+    "pages/todayjobseek/todayjobseek"
   ],
   "window": {
     "navigationBarBackgroundColor": "#fc3",
@@ -41,8 +42,8 @@
       {
         "selectedIconPath": "images/money_p.png",
         "iconPath": "images/money.png",
-        "pagePath": "pages/award/award",
-        "text": "推荐奖励"
+        "pagePath": "pages/todayjobseek/todayjobseek",
+        "text": "今日求职"
       },
       {
         "selectedIconPath": "images/me_p.png",
