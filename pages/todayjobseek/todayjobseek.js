@@ -14,6 +14,18 @@ Page({
     currentTab: 0, //预设当前项的值
     scrollLeft: 0, //tab标题的滚动条位置
   },
+
+  // 提取 photoImgs 第一张图片
+  formatList: function(results) {
+    return (results || []).map(function(item) {
+      var photoImgs = item.photoImgs || '';
+      item.firstPhoto = (typeof photoImgs === 'string' && photoImgs.length > 0)
+        ? photoImgs.split('|')[0]
+        : '';
+      return item;
+    });
+  },
+
   /**
  * 生命周期函数--监听页面加载
  */
@@ -140,7 +152,7 @@ Page({
     query.find().then(function(results) {
       // 请求成功将数据存入article_list
       that.setData({
-        jobseekInfo: that.data.jobseekInfo.concat(results)
+        jobseekInfo: that.data.jobseekInfo.concat(that.formatList(results))
       });
       //console.log('查询数量:' + results.length + '加载数量' + page_size)
 
@@ -151,7 +163,7 @@ Page({
         innerQuery.find().then(function(results) {
           //console.log('最后剩余数量：' + results.length)
           that.setData({
-            jobseekInfo: that.data.jobseekInfo.concat(results)
+            jobseekInfo: that.data.jobseekInfo.concat(that.formatList(results))
           });
         });
 
@@ -254,7 +266,7 @@ Page({
       //console.log("分类第一次加载 " + results.length + "条记录");
       //请求将数据存入jobseekInfo
       that.setData({
-        jobseekInfo: results,
+        jobseekInfo: that.formatList(results),
         page_index: 0,
         loadingTip: "上拉加载更多"
       });
@@ -281,7 +293,7 @@ Page({
       //console.log("全部职位第一次加载 " + results.length + "条记录");
       //请求将数据存入jobseekInfo
       that.setData({
-        jobseekInfo: results
+        jobseekInfo: that.formatList(results)
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
