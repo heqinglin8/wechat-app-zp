@@ -6,7 +6,10 @@
       <input type="text" class="weui-search-bar__input"  disabled='true' placeholder="搜索工作：如上海、深圳、昆山" bindtap="wxSearchTab"/>
     </view>
   </view>
-</view>
+ </view>
+
+<!-- 右下角悬浮按钮入口 -->
+<fab />
  <view>{{searchValue}}</view> 
 
 <!--轮播图-->

@@ -49,3 +49,6 @@
         </swiper-item>
     </swiper>
 </view>
+
+<!-- 右下角悬浮按钮入口 -->
+<fab />

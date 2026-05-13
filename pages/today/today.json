@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "全部职位"
+  "navigationBarTitleText": "全部职位",
+  "usingComponents": {
+    "fab": "/components/fab/fab"
+  }
 }
