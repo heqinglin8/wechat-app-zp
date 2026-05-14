@@ -12,7 +12,7 @@
 <!--滚动tab-->
 <view >
     <scroll-view scroll-y="true" scroll-x="true" class="tab-h" scroll-left="{{scrollLeft}}">
-        <view class="tab-item {{currentTab==0?'active':''}}"  data-current="0" bindtap="swichNav">全部职位</view>
+        <view class="tab-item {{currentTab==0?'active':''}}" data-current="0" bindtap="swichNav">全部职位</view>
         <view class="tab-item {{currentTab==1?'active':''}}" data-current="1" bindtap="swichNav">高薪资</view>
         <view class="tab-item {{currentTab==2?'active':''}}" data-current="2" bindtap="swichNav">临时工</view>
         <view class="tab-item {{currentTab==3?'active':''}}" data-current="3" bindtap="swichNav">推荐</view>
@@ -32,12 +32,12 @@
                       </view>
                       <view  class='list-text-detpay' wx:if="{{item.payType==0}}"> 
                          <view class='list-text-adder' >{{item.recoEducation}}</view> 
-                         <view class='list-text-detpay-one'>{{item.recoSalaryRange}}元/月</view> 
+                         <view class='list-text-detpay-one'>{{item.detPayMin}}-{{item.detPayMax}}元/月</view> 
                       </view> 
                       <view class='list-text-detpay' wx:else>
                          
                          <view class='list-text-adder' >{{item.recoEducation}}</view> 
-                         <view class='list-text-detpay-one'>{{item.recoSalaryRange}}元/小时</view> 
+                         <view class='list-text-detpay-one'>{{item.detPayMin}}-{{item.detPayMax}}元/小时</view> 
                       </view>
                       <text class='list-text-time' >意向：{{item.recoJobIntent}}</text>
                     </view>

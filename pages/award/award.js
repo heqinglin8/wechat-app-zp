@@ -304,8 +304,14 @@ Page({
       wx.showToast({ title: '请填写求职意向', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.recoSalaryRange && String(d.recoSalaryRange).trim())) {
-      wx.showToast({ title: '请填写期待薪资范围', image: '../../images/warning.png', duration: 2000 });
+    
+    if (!(d.recoSalaryRange && String(d.recoSalaryRange).trim()) || String(d.recoSalaryRange).trim().split('-').length < 2) {
+      wx.showToast({ title: '请填写薪资范围，用-分割', icon:  'none', duration: 2000 });
+      return false;
+    }
+    var salaryParts = String(d.recoSalaryRange).trim().split('-');
+    if (Number(salaryParts[0]) >= Number(salaryParts[1])) {
+      wx.showToast({ title: '最低薪资须小于最高', icon: 'none', duration: 2000 });
       return false;
     }
     return true;
@@ -345,7 +351,9 @@ Page({
     row.set('recoEducation', edu);
     row.set('recoContact', String(d.recoContact).trim());
     row.set('recoJobIntent', String(d.recoJobIntent).trim());
-    row.set('recoSalaryRange', String(d.recoSalaryRange).trim());
+    var salaryParts = String(d.recoSalaryRange).trim().split('-');
+    row.set('detPayMin', salaryParts[0] || '');
+    row.set('detPayMax', salaryParts[1] || '');
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
     row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
