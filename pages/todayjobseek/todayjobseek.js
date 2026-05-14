@@ -140,7 +140,7 @@ Page({
         break;
       case 3:
         //console.log('推荐');
-        query.order('-entNum');
+        query.order('-collectNum');
         break;
     }
     // 分页
