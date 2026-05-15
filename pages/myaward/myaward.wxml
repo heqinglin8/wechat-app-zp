@@ -6,15 +6,32 @@
 <view class='username'>推荐人: {{username}} </view>
 </view> 
 <view class='content'>
-     <block wx:for="{{infor}}" wx:key="2*this">
-    <view class='list-all'>
-      <view class="detail-list"  data-index="{{index}}">
+
+  <scroll-view bindscrolltolower="scrolltolower" scroll-y="true"    class="scoll-h" >
+      <block wx:for="{{infor}}" wx:key="2*this">
+        <view class="detail-list" bindtap="showDetail" data-index="{{index}}">
+          <view class="list-image">
+              <image src="{{item.firstPhoto}}"/>
+          </view>
           <view class="list-text">
-           <text class='list-text-name'>求职者：{{item.recoName}} 推荐人：{{item.commitUsername || item.userName}} 联系：{{item.recoContact}}</text>
-          </view>  
-      </view>
-    </view>
-    </block>
+            <view class='list-text-name'>
+              <text class='list-text-name-one'>{{item.recoName}}</text>
+            </view>
+            <view  class='list-text-detpay' wx:if="{{item.payType==0}}"> 
+                <view class='list-text-adder' >{{item.recoEducation}}</view> 
+                <view class='list-text-detpay-one'>{{item.detPayMin}}-{{item.detPayMax}}元/月</view> 
+            </view> 
+            <view class='list-text-detpay' wx:else>
+                
+                <view class='list-text-adder' >{{item.recoEducation}}</view> 
+                <view class='list-text-detpay-one'>{{item.detPayMin}}-{{item.detPayMax}}元/小时</view> 
+            </view>
+            <text class='list-text-time' >意向：{{item.recoJobIntent}}</text>
+          </view>
+        </view>                  
+      </block>
+      <view class="loading">{{loadingTip}}</view>
+  </scroll-view>
 
                
 </view>

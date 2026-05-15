@@ -28,7 +28,7 @@
                     <view class="list-text">
                       <view class='list-text-name'>
                         <text class='list-text-name-one'>{{item.recoName}}</text>
-                        <text class='list-text-entnum'>已报名{{item.entNum}}人</text>
+                        <text class='list-text-entnum'>已报名{{item.collectNum}}人</text>
                       </view>
                       <view  class='list-text-detpay' wx:if="{{item.payType==0}}"> 
                          <view class='list-text-adder' >{{item.recoEducation}}</view> 

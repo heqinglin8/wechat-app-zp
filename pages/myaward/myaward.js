@@ -31,12 +31,12 @@ Page({
     var that = this;
     //获取报名信息
     var query = Bmob.Query("MyRecommend");
-    query.equalTo("recoName", "==", that.data.username);
+    query.equalTo("commitUsername", "==", that.data.username);
     // 查询所有数据
     query.find().then(function(results) {
       //console.log("共查询到 " + results.length + " 条记录");
       that.setData({
-        infor: results,
+        infor: that.formatList(results),
         num: results.length
       });
     }).catch(function(error) {
@@ -90,5 +90,16 @@ Page({
    */
   onShareAppMessage: function () {
 
-  }
+  },
+
+    // 提取 photoImgs 第一张图片
+  formatList: function(results) {
+    return (results || []).map(function(item) {
+      var photoImgs = item.photoImgs || '';
+      item.firstPhoto = (typeof photoImgs === 'string' && photoImgs.length > 0)
+        ? photoImgs.split('|')[0]
+        : '';
+      return item;
+    });
+  },
 })
