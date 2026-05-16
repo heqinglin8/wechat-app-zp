@@ -13,7 +13,8 @@
     "pages/setinfor/setinfor",
     "pages/myjoin/myjoin",
     "pages/myaward/myaward",
-    "pages/todayjobseek/todayjobseek"
+    "pages/todayjobseek/todayjobseek",
+    "pages/seekerDetail/seekerDetail"
   ],
   "window": {
     "navigationBarBackgroundColor": "#fc3",
