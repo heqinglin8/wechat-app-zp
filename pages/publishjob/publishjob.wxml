@@ -12,8 +12,8 @@
    -->
     <view class="award-list">
       <view class="award-list-name">
-        <view class="name-text">姓名</view>
-        <input class="name-input" type="text" placeholder="求职者姓名" value="{{recoName}}" bindinput="onRecoNameInput" />
+        <view class="name-text">标题</view>
+        <input class="name-input" type="text" placeholder="标题" value="{{title}}" bindinput="onRecoNameInput" />
       </view>
 
       <view class="award-list-name award-picker-row">

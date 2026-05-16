@@ -48,20 +48,24 @@ Page({
   onRecoContactInput: function (e) {
     this.setData({ recoContact: (e.detail && e.detail.value) || '' });
   },
-  onRecoJobIntentInput: function (e) {
-    this.setData({ recoJobIntent: (e.detail && e.detail.value) || '' });
+  onCompanyNameInput: function (e) {
+    this.setData({ companyName: (e.detail && e.detail.value) || '' });
   },
+  onDetAddrInput: function (e) {
+    this.setData({ detAddr: (e.detail && e.detail.value) || '' });
+  },
+  
   onDetPayMinInput: function (e) {
     this.setData({ detPayMin: (e.detail && e.detail.value) || '' });
   },
   onDetPayMaxInput: function (e) {
     this.setData({ detPayMax: (e.detail && e.detail.value) || '' });
   },
-  onRecoIntroInput: function (e) {
-    this.setData({ recoIntro: (e.detail && e.detail.value) || '' });
+  onJobDescriptionInput: function (e) {
+    this.setData({ jobDescription: (e.detail && e.detail.value) || '' });
   },
-  onRecoExtraInput: function (e) {
-    this.setData({ recoExtra: (e.detail && e.detail.value) || '' });
+  onJobRequirementsInput: function (e) {
+    this.setData({ jobRequirements: (e.detail && e.detail.value) || '' });
   },
   onEducationChange: function (e) {
     var idx = parseInt(e.detail.value, 10);
