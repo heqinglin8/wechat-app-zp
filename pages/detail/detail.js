@@ -12,13 +12,14 @@ Page({
     content:'',
     username:'',
     userphone:'',
-    detName :'',
+    companyName :'',
     detSrc: '',
     objectId:'',
     //报名个数
     num:'',
     //是否为第一次加载
     isfist:true,
+    uid:'', //用户id
   },
   /**
    * 求职热线跳转
@@ -63,9 +64,10 @@ Page({
     var query = Bmob.Query("DetailInfo");
     //查询单条数据，第一个参数是这条数据的objectId值
     query.get(that.data.objectId).then(function(results) {
+      console.log("onLoad results:",results);
       that.setData({
         content: results,
-        detName: results.detName,
+        companyName: results.companyName,
         detSrc: results.detSrc,
         num: results.entNum,
       });
@@ -76,7 +78,7 @@ Page({
   },
   //提交信息
   bindViewPutinfor: function (){
-    var name =this.data.detName
+    var companyName =this.data.companyName
     var that = this;
     //console.log(name);
     //判断用户是否注册
@@ -91,7 +93,7 @@ Page({
     else{
     var query = Bmob.Query("MyJoinInfo"); 
     query.equalTo("userPhone", "==", that.data.userphone);
-    query.equalTo("myJoinName", "==", that.data.detName);
+    query.equalTo("joinCompanyName", "==", that.data.companyName);
     // 查询用户是否已经报名过这家公司
     query.find().then(function(results) {
       //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
@@ -101,7 +103,8 @@ Page({
         var diary = Bmob.Query("MyJoinInfo");
         diary.set("userName", that.data.username);
         diary.set("userPhone", Number(that.data.userphone));
-        diary.set("myJoinName", that.data.detName);
+        diary.set("joinCompanyName", that.data.companyName);
+        diary.set("uid", that.data.uid);
         diary.set("detSrc", that.data.detSrc);
         diary.save().then(function(result) {
           // 报名表添加成功，
@@ -232,6 +235,7 @@ Page({
         that.setData({
           username: results[0].username,
           userphone: results[0].userphone,
+          uid: results[0].objectId,
         });
         //console.log('用户存在');
       }
