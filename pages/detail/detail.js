@@ -92,17 +92,18 @@ Page({
     }
     else{
     var query = Bmob.Query("MyJoinInfo"); 
+    console.log("bindViewPutinfor 查询条件：", that.data.userphone, companyName);
     query.equalTo("userPhone", "==", that.data.userphone);
     query.equalTo("joinCompanyName", "==", that.data.companyName);
     // 查询用户是否已经报名过这家公司
     query.find().then(function(results) {
-      //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
+      console.log("岗位详情判断:共查询到 " + results.length + " 条记录");
       if (results.length == 0) {
        
        //提交用户信息
         var diary = Bmob.Query("MyJoinInfo");
         diary.set("userName", that.data.username);
-        diary.set("userPhone", Number(that.data.userphone));
+        diary.set("userPhone", that.data.userphone);
         diary.set("joinCompanyName", that.data.companyName);
         diary.set("uid", that.data.uid);
         diary.set("detSrc", that.data.detSrc);
