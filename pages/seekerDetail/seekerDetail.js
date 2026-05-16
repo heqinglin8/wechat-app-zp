@@ -12,13 +12,16 @@ Page({
     content:'',
     username:'',
     userphone:'',
-    detName :'',
     detSrc: '',
     objectId:'',
     //报名个数
     num:'',
     //是否为第一次加载
     isfist:true,
+    //轮播图片数组
+    photoList: [],
+    //当前轮播索引
+    currentPhotoIndex: 0,
   },
   /**
    * 求职热线跳转
@@ -60,14 +63,19 @@ Page({
     }
    
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("DetailInfo");
+    var query = Bmob.Query("MyRecommend");
     //查询单条数据，第一个参数是这条数据的objectId值
     query.get(that.data.objectId).then(function(results) {
+      // 处理photoImgs分割成photoList数组
+      var photoList = [];
+      if (results.photoImgs && results.photoImgs.length > 0) {
+        photoList = results.photoImgs.split('|');
+      }
       that.setData({
         content: results,
-        detName: results.detName,
-        detSrc: results.detSrc,
+        detSrc: photoList.length > 0 ? photoList[0] : '',
         num: results.entNum,
+        photoList: photoList,
       });
     }).catch(function(error) {
       // 查询失败
@@ -76,7 +84,6 @@ Page({
   },
   //提交信息
   bindViewPutinfor: function (){
-    var name =this.data.detName
     var that = this;
     //console.log(name);
     //判断用户是否注册
@@ -91,7 +98,7 @@ Page({
     else{
     var query = Bmob.Query("MyJoinInfo"); 
     query.equalTo("userPhone", "==", that.data.userphone);
-    query.equalTo("myJoinName", "==", that.data.detName);
+    //query.equalTo("myJoinName", "==", that.data.detName);
     // 查询用户是否已经报名过这家公司
     query.find().then(function(results) {
       //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
@@ -101,7 +108,6 @@ Page({
         var diary = Bmob.Query("MyJoinInfo");
         diary.set("userName", that.data.username);
         diary.set("userPhone", Number(that.data.userphone));
-        diary.set("myJoinName", that.data.detName);
         diary.set("detSrc", that.data.detSrc);
         diary.save().then(function(result) {
           // 报名表添加成功，
@@ -111,7 +117,7 @@ Page({
             duration: 2000
           });
           //更新招聘信息表
-          var detailQuery = Bmob.Query("DetailInfo");
+          var detailQuery = Bmob.Query("MyRecommend");
           detailQuery.get(that.data.objectId).then(function(result) {
             result.set('entNum', (that.data.num + 1));
             result.save();
@@ -155,11 +161,17 @@ Page({
     if(that.data.isFist==false)
     {
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("DetailInfo");
+    var query = Bmob.Query("MyRecommend");
     //查询单条数据，第一个参数是这条数据的objectId值
     query.get(that.data.objectId).then(function(results) {
+      // 处理photoImgs分割成photoList数组
+      var photoList = [];
+      if (results.photoImgs && results.photoImgs.length > 0) {
+        photoList = results.photoImgs.split('|');
+      }
       that.setData({
         content: results,
+        photoList: photoList,
       });
     }).catch(function(error) {
       // 查询失败
@@ -210,6 +222,14 @@ Page({
       duration: 2000,
       mask: true
     })
+  },
+  /**
+   * swiper轮播改变事件
+   */
+  onPhotoSwiperChange: function(e) {
+    this.setData({
+      currentPhotoIndex: e.detail.current
+    });
   },
   /**
    * 判断用户是否存在

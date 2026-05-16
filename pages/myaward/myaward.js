@@ -102,4 +102,20 @@ Page({
       return item;
     });
   },
+
+    //点击招聘列表页面跳转，页面传参
+  showDetail: function (e) {
+    var that = this;
+    // 获取wxml元素绑定的index值
+    var index = e.currentTarget.dataset.index;
+    //console.log("1111111" + index);
+    // 取出objectId
+    var objectId = that.data.infor[index].objectId;
+    ////console.log("1111111" + objectId);
+    // 跳转到详情页
+    wx.navigateTo({
+      url: '../seekerDetail/seekerDetail?objectId=' + objectId
+    });
+  },
+
 })
