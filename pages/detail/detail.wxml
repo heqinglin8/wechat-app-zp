@@ -12,17 +12,17 @@
     </view>
     <view class='det-list-three'>{{content.detAddr}}</view>
   </view>
-  <view class="det-money"><view>薪资说明</view></view>
+  <view class="det-money"><view>岗位说明</view></view>
   <view class="det-money-list">
-          <rich-text nodes="{{content.payDescription}}"></rich-text>
+          <rich-text nodes="{{content.jobDescription}}"></rich-text>
   </view>
-  <view class="det-money"><view>食宿说明</view></view>
+   <view class="det-money"><view>招聘要求</view></view>
+  <view class="det-money-list">
+          <rich-text nodes="{{content.jobRequirements}}"></rich-text>
+  </view>
+  <view class="det-money"><view>福利说明</view></view>
   <view class="det-money-list">
           <rich-text nodes="{{content.boardDescription}}"></rich-text>
-  </view>
-  <view class="det-money"><view>招聘要求</view></view>
-  <view class="det-money-list">
-          <rich-text nodes="{{content.recruitDescription}}"></rich-text>
   </view>
   <view class="det-money"><view>温馨提示</view></view>
   <view class="det-money-list">
