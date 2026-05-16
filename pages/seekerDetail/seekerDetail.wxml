@@ -56,7 +56,7 @@
       <li style="background-color:#3bae56;" ><button class="conbtn" open-type="contact">微信咨询</button></li>
       <li style="background-color:#56abe4;" bindtap="bindViewServicePhone">电话咨询</li>
       <li style="background-color:#f0ad4e;" bindtap="bindViewIndex">返回首页</li>
-      <li style="background-color:#eb4f38;" bindtap="bindViewPutinfor">马上报名</li>
+      <li style="background-color:#eb4f38;" bindtap="bindViewPutinfor">收藏</li>
     </ul>
   </view>
 </view>

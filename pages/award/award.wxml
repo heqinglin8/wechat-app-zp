@@ -1,6 +1,7 @@
 <!--pages/award/award.wxml-->
 <scroll-view class="award-scroll" scroll-y>
   <view class="award">
+  <!--
     <view class="award-image" style="position: relative;">
       <image src="../../images/topimage.png" mode="aspectFill" style="width: 100%; display: block;" />
       <view class="award-intro">
@@ -8,7 +9,7 @@
         <view class="text-tow">查询推荐记录：个人中心 — 我的推荐</view>
       </view>
     </view>
-
+   -->
     <view class="award-list">
       <view class="award-list-name">
         <view class="name-text">姓名</view>
