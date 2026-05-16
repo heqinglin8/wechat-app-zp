@@ -1,7 +1,26 @@
 <!--pages/index/detail.wxml-->
 <view class="detail">
   <view class="det-image">
-    <image src="{{content.detSrc}}"/>
+    <swiper 
+      class="swiper-container"
+      indicator-dots="{{true}}"
+      autoplay="true"
+      interval="5000"
+      duration="500"
+      bindchange="onPhotoSwiperChange">
+      <swiper-item wx:for="{{photoList}}" wx:key="index">
+        <image src="{{item}}" mode="aspectFill"/>
+      </swiper-item>
+    </swiper>
+    <!-- 圆形指示器
+    <view class="swiper-dots">
+      <view 
+        wx:for="{{photoList}}" 
+        wx:key="index"
+        class="dot {{currentPhotoIndex === index ? 'active' : ''}}">
+      </view>
+    </view>
+     -->
   </view>
   <view class="det-list">
     <view class='det-list-one'>{{content.detName}}</view>

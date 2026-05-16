@@ -9,17 +9,20 @@ Page({
    * 页面的初始数据
    */
   data: {
-    content:'',
-    username:'',
-    userphone:'',
-    companyName :'',
-    detSrc: '',
-    objectId:'',
+    content: '',
+    username: '',
+    userphone: '',
+    companyName: '',
+    //轮播图片数组
+    photoList: [],
+    //当前轮播索引
+    currentPhotoIndex: 0,
+    objectId: '',
     //报名个数
-    num:'',
+    num: '',
     //是否为第一次加载
-    isfist:true,
-    uid:'', //用户id
+    isfist: true,
+    uid: '', //用户id
   },
   /**
    * 求职热线跳转
@@ -48,30 +51,23 @@ Page({
 
     var that = this;
     // 获取传参
-    if (options!=null)
-    {
-
+    if (options != null) {
       that.setData({
         objectId: options.objectId,
       });
-      //console.log('options为空')
-    }else{
-     
-      //console.log('options不为空')
     }
-   
+
     // 向Bmob请求详情页数据
     var query = Bmob.Query("DetailInfo");
-    //查询单条数据，第一个参数是这条数据的objectId值
-    query.get(that.data.objectId).then(function(results) {
-      console.log("onLoad results:",results);
+    query.get(that.data.objectId).then(function (results) {
+      console.log("onLoad results:", results);
       that.setData({
         content: results,
         companyName: results.companyName,
-        detSrc: results.detSrc,
         num: results.entNum,
+        photoList: results.photoImgs.split('|'), // Populate photoList
       });
-    }).catch(function(error) {
+    }).catch(function (error) {
       // 查询失败
     });
   
@@ -106,7 +102,6 @@ Page({
         diary.set("userPhone", that.data.userphone);
         diary.set("joinCompanyName", that.data.companyName);
         diary.set("uid", that.data.uid);
-        diary.set("detSrc", that.data.detSrc);
         diary.save().then(function(result) {
           // 报名表添加成功，
           wx.showToast({
@@ -242,6 +237,15 @@ Page({
       }
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
+    });
+  },
+
+  /**
+   * Handle swiper change event
+   */
+  onPhotoSwiperChange: function (e) {
+    this.setData({
+      currentPhotoIndex: e.detail.current
     });
   }
 
