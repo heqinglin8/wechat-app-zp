@@ -72,7 +72,7 @@ Page({
       }
       that.setData({
         content: results,
-        num: results.entNum,
+        num: results.collectNum,
         photoList: photoList,
       });
     }).catch(function(error) {

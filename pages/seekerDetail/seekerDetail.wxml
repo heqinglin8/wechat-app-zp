@@ -27,7 +27,7 @@
       <view class='.det-list-tow-left'>期待薪资：</view>
       <view class='det-list-tow-one' wx:if="{{content.payType==0}}">{{content.detPayMin}}-{{content.detPayMax}}元/月</view>
       <view class='det-list-tow-one' wx:else>{{content.detPayMax}}元/小时</view>
-      <view class='det-list-tow-tow'>获赞：{{content.collectNum}}人</view>
+      <view class='det-list-tow-tow'>{{num}}人收藏</view>
     </view>
     <view class='det-list-three'>伯乐：{{content.commitUsername}}</view>
   </view>
