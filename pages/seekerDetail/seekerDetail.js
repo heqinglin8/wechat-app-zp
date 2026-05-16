@@ -12,9 +12,8 @@ Page({
     content:'',
     username:'',
     userphone:'',
-    detSrc: '',
     objectId:'',
-    //报名个数
+    //收藏个数
     num:'',
     //是否为第一次加载
     isfist:true,
@@ -73,7 +72,6 @@ Page({
       }
       that.setData({
         content: results,
-        detSrc: photoList.length > 0 ? photoList[0] : '',
         num: results.entNum,
         photoList: photoList,
       });
@@ -96,30 +94,31 @@ Page({
       })  
     }
     else{
-    var query = Bmob.Query("MyJoinInfo"); 
-    query.equalTo("userPhone", "==", that.data.userphone);
-    //query.equalTo("myJoinName", "==", that.data.detName);
-    // 查询用户是否已经报名过这家公司
+    var query = Bmob.Query("MyCollectInfo"); 
+    query.equalTo("userphone", "==", that.data.userphone);
+    query.equalTo("username", "==", that.data.username);
+    query.equalTo("type", "==", "1");
+    // 查询用户是否已经被我收藏过
     query.find().then(function(results) {
       //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
       if (results.length == 0) {
        
        //提交用户信息
-        var diary = Bmob.Query("MyJoinInfo");
-        diary.set("userName", that.data.username);
-        diary.set("userPhone", Number(that.data.userphone));
-        diary.set("detSrc", that.data.detSrc);
+        var diary = Bmob.Query("MyCollectInfo");
+        diary.set("username", that.data.username);
+        diary.set("userphone", that.data.userphone);
+        diary.set("type", "1");
         diary.save().then(function(result) {
-          // 报名表添加成功，
+          //收藏表添加成功，
           wx.showToast({
-            title: '报名成功',
+            title: '收藏成功',
             icon: 'success',
             duration: 2000
           });
-          //更新招聘信息表
+          //更新求职信息表
           var detailQuery = Bmob.Query("MyRecommend");
           detailQuery.get(that.data.objectId).then(function(result) {
-            result.set('entNum', (that.data.num + 1));
+            result.set('collectNum', (that.data.num + 1));
             result.save();
             //console.log('+1')
             that.setData({
@@ -134,9 +133,9 @@ Page({
           //console.log('创建失败' + error.code + " " + error.message);
         });
       } else {
-        //用户已报名
+        //用户已收藏
         wx.showToast({
-          title: '已参加过报名',
+          title: '已收藏过了',
           image: "../../images/warning.png",
           duration: 2000
         })  
