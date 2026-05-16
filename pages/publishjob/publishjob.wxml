@@ -1,0 +1,75 @@
+<!--pages/award/award.wxml-->
+<scroll-view class="award-scroll" scroll-y>
+  <view class="award">
+  <!--
+    <view class="award-image" style="position: relative;">
+      <image src="../../images/topimage.png" mode="aspectFill" style="width: 100%; display: block;" />
+      <view class="award-intro">
+        <view class="text-one">请填写求职者信息，提交后与账号关联存档。</view>
+        <view class="text-tow">查询推荐记录：个人中心 — 我的推荐</view>
+      </view>
+    </view>
+   -->
+    <view class="award-list">
+      <view class="award-list-name">
+        <view class="name-text">姓名</view>
+        <input class="name-input" type="text" placeholder="求职者姓名" value="{{recoName}}" bindinput="onRecoNameInput" />
+      </view>
+
+      <view class="award-list-name award-picker-row">
+        <view class="name-text">学历</view>
+        <picker class="award-picker" mode="selector" range="{{educationOptions}}" value="{{educationIndex}}" bindchange="onEducationChange">
+          <view class="picker-display">{{educationOptions[educationIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="award-list-name">
+        <view class="name-text">联系方式</view>
+        <input class="name-input" type="text" maxlength="20" placeholder="手机号或微信号" value="{{recoContact}}" bindinput="onRecoContactInput" />
+      </view>
+
+      <view class="award-list-name">
+        <view class="name-text">求职意向</view>
+        <input class="name-input" type="text" placeholder="期望岗位或方向" value="{{recoJobIntent}}" bindinput="onRecoJobIntentInput" />
+      </view>
+
+      <view class="award-list-name">
+        <view class="name-text">薪资</view>
+        <input class="name-input" type="text" placeholder="如：5千-8千、面议" value="{{recoSalaryRange}}" bindinput="onRecoSalaryInput" />
+      </view>
+
+      <view class="award-photo-section">
+        <view class="label-block">上传图片（选填，最多 6 张）</view>
+        <view class="award-photo-grid">
+          <block wx:for="{{recommendPhotos}}" wx:key="index">
+            <view class="award-photo-cell">
+              <image wx:if="{{item.uploading}}" class="award-photo-thumb" src="{{item.tempPath}}" mode="aspectFill" />
+              <image wx:elif="{{item.url}}" class="award-photo-thumb" src="{{item.url}}" mode="aspectFill" />
+              <view wx:if="{{item.uploading}}" class="award-photo-mask">上传中</view>
+              <view class="award-photo-actions">
+                <text class="award-photo-act" catchtap="onReplacePhoto" data-index="{{index}}">替换</text>
+                <text class="award-photo-act danger" catchtap="onRemovePhoto" data-index="{{index}}">删除</text>
+              </view>
+            </view>
+          </block>
+          <view wx:if="{{recommendPhotos.length < 6}}" class="award-photo-add" bindtap="onAddPhotos">
+            <text class="award-photo-add-plus">+</text>
+            <text class="award-photo-add-text">添加</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="award-list-textarea">
+        <view class="label-block">自我介绍</view>
+        <textarea class="award-textarea" placeholder="简述经历与技能（选填）" value="{{recoIntro}}" bindinput="onRecoIntroInput" maxlength="800" />
+      </view>
+
+      <view class="award-list-textarea award-list-textarea-extra">
+        <view class="label-block">其他补充</view>
+        <textarea class="award-textarea" placeholder="备注说明（选填）" value="{{recoExtra}}" bindinput="onRecoExtraInput" maxlength="800" />
+      </view>
+    </view>
+
+    <view class="award-btn" bindtap="put_infor">确定</view>
+  </view>
+</scroll-view>

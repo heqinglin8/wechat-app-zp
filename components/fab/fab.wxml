@@ -1,4 +1,4 @@
 <view class="fab-container">
-  <view class="fab-btn" bindtap="onFabTap">求职</view>
-  <view class="fab-btn fab-btn-second" bindtap="onFabTap">招聘</view>
+  <view class="fab-btn" bindtap="onFabTap1">求职</view>
+  <view class="fab-btn fab-btn-second" bindtap="onFabTap2">招聘</view>
 </view>
