@@ -1,5 +1,5 @@
 // pages/award/award.js
-// MyRecommend（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoSalaryRange recoIntro recoExtra、
+// MyRecommend（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoIntro recoExtra、
 // photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
@@ -28,7 +28,8 @@ Page({
     recoName: '',
     recoContact: '',
     recoJobIntent: '',
-    recoSalaryRange: '',
+    detPayMin: '',
+    detPayMax: '',
     recoIntro: '',
     recoExtra: '',
     educationOptions: ['初中及以下', '中专 / 高中', '大专', '本科', '硕士及以上'],
@@ -50,8 +51,11 @@ Page({
   onRecoJobIntentInput: function (e) {
     this.setData({ recoJobIntent: (e.detail && e.detail.value) || '' });
   },
-  onRecoSalaryInput: function (e) {
-    this.setData({ recoSalaryRange: (e.detail && e.detail.value) || '' });
+  onDetPayMinInput: function (e) {
+    this.setData({ detPayMin: (e.detail && e.detail.value) || '' });
+  },
+  onDetPayMaxInput: function (e) {
+    this.setData({ detPayMax: (e.detail && e.detail.value) || '' });
   },
   onRecoIntroInput: function (e) {
     this.setData({ recoIntro: (e.detail && e.detail.value) || '' });
@@ -305,12 +309,13 @@ Page({
       return false;
     }
     
-    if (!(d.recoSalaryRange && String(d.recoSalaryRange).trim()) || String(d.recoSalaryRange).trim().split('-').length < 2) {
-      wx.showToast({ title: '请填写薪资范围，用-分割', icon:  'none', duration: 2000 });
+    var payMin = String(d.detPayMin || '').trim();
+    var payMax = String(d.detPayMax || '').trim();
+    if (!payMin || !payMax) {
+      wx.showToast({ title: '请填写薪资范围', icon:  'none', duration: 2000 });
       return false;
     }
-    var salaryParts = String(d.recoSalaryRange).trim().split('-');
-    if (Number(salaryParts[0]) >= Number(salaryParts[1])) {
+    if (Number(payMin) >= Number(payMax)) {
       wx.showToast({ title: '最低薪资须小于最高', icon: 'none', duration: 2000 });
       return false;
     }
@@ -351,9 +356,8 @@ Page({
     row.set('recoEducation', edu);
     row.set('recoContact', String(d.recoContact).trim());
     row.set('recoJobIntent', String(d.recoJobIntent).trim());
-    var salaryParts = String(d.recoSalaryRange).trim().split('-');
-    row.set('detPayMin', salaryParts[0] || '');
-    row.set('detPayMax', salaryParts[1] || '');
+    row.set('detPayMin', String(d.detPayMin || '').trim());
+    row.set('detPayMax', String(d.detPayMax || '').trim());
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
     row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());

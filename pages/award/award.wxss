@@ -67,6 +67,35 @@
   width: 20%;
 }
 
+.award-salary-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.award-salary-row .name-text {
+  float: none;
+  flex-shrink: 0;
+  width: 20%;
+}
+
+.award-salary-inputs {
+  flex: 1;
+  display: flex;
+  margin-left: 12rpx;
+}
+
+.award-salary-input {
+  float: none;
+  width: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+.award-salary-input + .award-salary-input {
+  margin-left: 10px;
+}
+
 .award-picker {
   flex: 1;
   box-shadow: 0 0 3px rgba(55, 55, 55, 0.5);
