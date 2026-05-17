@@ -38,8 +38,8 @@ Page({
     //console.log("onShow")
     var that = this;
     var userInfo = wx.getStorageSync('userInfo');
-    var token = wx.getStorageSync('token');
-    var objectId = wx.getStorageSync('objectId');
+    var token = userInfo.sessionToken;
+    var objectId = userInfo.objectId;
     if (objectId!=undefined && objectId.length > 0) {
       var query = Bmob.Query("_User");
       query.equalTo("objectId", "==", objectId);
@@ -145,8 +145,7 @@ Page({
           return;
         }
 
-        wx.removeStorageSync('token');
-        wx.removeStorageSync('objectId');
+        wx.removeStorageSync('weapp');
         wx.removeStorageSync('userInfo');
 
         try {
@@ -178,45 +177,29 @@ Page({
       success: res => {
        // 发送 res.code 到后台换取 openId, sessionKey, unionId
         console.log('aaaaa:'+res.code);
-         var that = this;
-         Bmob.functions('code2Session',{
-          "code" : res.code
-        }).then(function (response) {
-                console.log(response);
-                if(response.code==200){
-                    // 登录成功
-                    var userInfo = response.data;
-                    wx.setStorageSync('userInfo', userInfo);
-                    wx.setStorageSync('token', userInfo.token);
-                    wx.setStorageSync('objectId', userInfo.objectId);
-                    console.log("个人中心登录:查询到 " + userInfo.objectId+":" +userInfo.token);
-                    that.setData({
-                      userInfo: userInfo,
-                      hasUserInfo: true,
-                      username: userInfo.username
-                    });
-                     wx.showToast({
-                      title: '登录成功',
-                      icon: 'none',
-                      duration: 1500
-                    });
-                }else{
-                    // 登录失败
-                    wx.showToast({
-                      title: '登录失败'+response.msg,
-                      icon: 'none',
-                      duration: 1500
-                    });
-                }
-            }).catch(function (error) {
-                console.log(error);
-                 // 登录失败
-                  wx.showToast({
-                    title: '登录失败'+error.msg,
-                    icon: 'none',
-                    duration: 1500
-                  });
+     var that = this;
+          Bmob.User.auth().then(res => {
+            console.log(res)
+            console.log('一键登陆成功')
+
+             // 登录成功
+            var userInfo = res;
+            wx.setStorageSync('userInfo', userInfo);
+            wx.setStorageSync('weapp', userInfo.weapp);
+            console.log("个人中心登录:查询到 " + userInfo.objectId+":" +userInfo.sessionToken);
+            that.setData({
+              userInfo: userInfo,
+              hasUserInfo: true,
+              username: userInfo.username
             });
+              wx.showToast({
+              title: '登录成功',
+              icon: 'none',
+              duration: 1500
+            });
+          }).catch(err => {
+            console.log(err)
+          });
       }
     })
   }

@@ -121,7 +121,7 @@ images/               → 静态图标与图片资源
 | 键 / 变量 | 用途 |
 |-----------|------|
 | `app.globalData.tabid` | 0–3，控制今日招聘默认 tab |
-| `wx.setStorageSync('objectId'\|'token'\|'userInfo')` | 登录与身份识别 |
+| `wx.setStorageSync('objectId'\|'sessionToken'\|'userInfo')` | 登录与身份识别 |
 | 详情路由参数 `objectId` | `DetailInfo` 主键 |
 
 ---
