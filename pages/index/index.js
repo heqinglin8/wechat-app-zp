@@ -137,7 +137,7 @@ Page({
   query.find().then(function(results) {
     // 请求成功将数据存入article_list
     that.setData({
-      detailInfo: that.data.detailInfo.concat(results)
+      detailInfo: that.data.detailInfo.concat(that.formatList(results))
     });
     //console.log('查询数量:' + results.length + '加载数量' + page_size)
 
@@ -148,7 +148,7 @@ Page({
       innerQuery.find().then(function(results) {
         //console.log('最后剩余数量：'+results.length)
         that.setData({
-          detailInfo: that.data.detailInfo.concat(results)
+          detailInfo: that.data.detailInfo.concat(that.formatList(results))
         });
       });
 
@@ -377,7 +377,7 @@ Page({
       //console.log("第一次加载 " + results.length + "条记录");
       //请求将数据存入detailInfo
       that.setData({
-        detailInfo: results,
+        detailInfo: that.formatList(results),
         page_index:0,
         loadingTip:"上拉加载更多"
       });
@@ -403,7 +403,7 @@ Page({
       //console.log("第一次加载 " + results.length + "条记录");
       //请求将数据存入detailInfo
       that.setData({
-        detailInfo: results
+        detailInfo: that.formatList(results)
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
@@ -414,7 +414,17 @@ Page({
     this.setData({
       detailInfo:[]
     });
-  }
+  },
+  // 提取 photoImgs 第一张图片
+  formatList: function(results) {
+    return (results || []).map(function(item) {
+      var photoImgs = item.photoImgs || '';
+      item.firstPhoto = (typeof photoImgs === 'string' && photoImgs.length > 0)
+        ? photoImgs.split('|')[0]
+        : '';
+      return item;
+    });
+  },
 
 
 })

@@ -109,7 +109,7 @@
                 <block wx:for="{{detailInfo}}" wx:key="2*this">
                   <view class="detail-list" bindtap="showDetail" data-index="{{index}}">
                     <view class="list-image">
-                      <image src="{{item.detSrc}}"/>
+                      <image src="{{item.firstPhoto}}"/>
                     </view>
                     <view class="list-text">
                       <view class='list-text-name'>
