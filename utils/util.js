@@ -14,6 +14,17 @@ const formatNumber = n => {
   return n[1] ? n : '0' + n
 }
 
+const formatList = results => {
+  return (results || []).map(item => {
+    const photoImgs = item.photoImgs || ''
+    item.firstPhoto = (typeof photoImgs === 'string' && photoImgs.length > 0)
+      ? photoImgs.split('|')[0]
+      : ''
+    return item
+  })
+}
+
 module.exports = {
-  formatTime: formatTime
+  formatTime: formatTime,
+  formatList: formatList
 }

@@ -1,5 +1,6 @@
 // pages/myaward/myaward.js
 var Bmob = wx.Bmob;
+var util = require('../../utils/util');
 Page({
 
   /**
@@ -36,7 +37,7 @@ Page({
     query.find().then(function(results) {
       //console.log("共查询到 " + results.length + " 条记录");
       that.setData({
-        infor: that.formatList(results),
+        infor: util.formatList(results),
         num: results.length
       });
     }).catch(function(error) {
@@ -90,17 +91,6 @@ Page({
    */
   onShareAppMessage: function () {
 
-  },
-
-    // 提取 photoImgs 第一张图片
-  formatList: function(results) {
-    return (results || []).map(function(item) {
-      var photoImgs = item.photoImgs || '';
-      item.firstPhoto = (typeof photoImgs === 'string' && photoImgs.length > 0)
-        ? photoImgs.split('|')[0]
-        : '';
-      return item;
-    });
   },
 
     //点击招聘列表页面跳转，页面传参
