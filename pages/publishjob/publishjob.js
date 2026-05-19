@@ -77,11 +77,12 @@ Page({
 
   onReady: function () {
     var that = this;
-    var objectId = wx.getStorageSync('objectId');
-    if (!objectId) {
+    var currentUser = Bmob.User.current();
+    if (!currentUser) {
       wx.showToast({ title: '请先登录后再推荐', icon: 'none', duration: 2000 });
       return;
     }
+     var objectId = currentUser.objectId;
     var query = Bmob.Query('_User');
     query.equalTo('objectId', '==', objectId);
     query.find().then(function (results) {
@@ -97,6 +98,7 @@ Page({
         recoName: uname,
         recoContact: phone,
         userLoaded: true,
+        uid: objectId,
       });
     }).catch(function () {
       wx.showToast({ title: '用户信息加载失败', icon: 'none', duration: 2000 });
@@ -355,7 +357,7 @@ Page({
     var d = this.data;
     var edu = this.educationLabel();
     row.set('commitUsername', d.userName);
-    row.set('commitUid', wx.getStorageSync('objectId') || '');
+    row.set('commitUid', d.uid || '');
     row.set('recoName', String(d.recoName).trim());
     row.set('recoEducation', edu);
     row.set('recoContact', String(d.recoContact).trim());
