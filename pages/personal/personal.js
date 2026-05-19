@@ -64,7 +64,7 @@ Page({
         console.log("个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
         if (results.length != 0) {
           var userInfo = results[0];
-          userInfo.avatarUrl = toAvatarDisplayUrl(userInfo.avatarUrl);
+          userInfo.avatarUrl = toAvatarDisplayUrl(userInfo.avatarPath);
           //用户已注册
           that.setData({
             userInfo: userInfo,
@@ -206,9 +206,10 @@ Page({
           
           var query = Bmob.Query('_User');
           return query.get(currentUser.objectId).then(function (userObj) {
-            userObj.set('avatarUrl', avatarPath);
+            userObj.set('avatarPath', avatarPath);
             return userObj.save().then(function () {
               var latestUserInfo = that.data.userInfo || {};
+              latestUserInfo.avatarPath = avatarPath;
               latestUserInfo.avatarUrl = toAvatarDisplayUrl(avatarPath);
               that.setData({
                 userInfo: latestUserInfo
@@ -293,7 +294,7 @@ Page({
 
              // 登录成功
             var userInfo = res;
-            userInfo.avatarUrl = toAvatarDisplayUrl(userInfo.avatarUrl);
+            userInfo.avatarUrl = toAvatarDisplayUrl(userInfo.avatarPath);
             console.log("个人中心登录:查询到 " + userInfo.objectId+":" +userInfo.sessionToken);
             that.setData({
               userInfo: userInfo,
