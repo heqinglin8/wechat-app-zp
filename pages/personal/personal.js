@@ -37,9 +37,11 @@ Page({
    
     //console.log("onShow")
     var that = this;
-    var userInfo = wx.getStorageSync('userInfo');
-    var token = userInfo.sessionToken;
-    var objectId = userInfo.objectId;
+    //获取用户当前信息
+    let currentUser = Bmob.User.current()
+    console.log("onShow 个人中心当前用户: " ,currentUser);
+      var token = currentUser.sessionToken;
+      var objectId = currentUser.objectId;
     if (objectId!=undefined && objectId.length > 0) {
       var query = Bmob.Query("_User");
       query.equalTo("objectId", "==", objectId);
@@ -47,10 +49,11 @@ Page({
       query.find().then(function(results) {
         console.log("个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
         if (results.length != 0) {
+          var userInfo = results[0];
           //用户已注册
           that.setData({
             userInfo: userInfo,
-            username: results[0].username,
+            username: userInfo.username,
             hasUserInfo: true
           });
         } else {
@@ -145,8 +148,8 @@ Page({
           return;
         }
 
-        wx.removeStorageSync('weapp');
-        wx.removeStorageSync('userInfo');
+        // wx.removeStorageSync('weapp');
+        // wx.removeStorageSync('userInfo');
 
         try {
           Bmob.User.logout();
@@ -184,8 +187,8 @@ Page({
 
              // 登录成功
             var userInfo = res;
-            wx.setStorageSync('userInfo', userInfo);
-            wx.setStorageSync('weapp', userInfo.weapp);
+            // wx.setStorageSync('userInfo', userInfo);
+            // wx.setStorageSync('weapp', userInfo.weapp);
             console.log("个人中心登录:查询到 " + userInfo.objectId+":" +userInfo.sessionToken);
             that.setData({
               userInfo: userInfo,

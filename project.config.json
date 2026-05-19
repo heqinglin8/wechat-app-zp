@@ -32,10 +32,6 @@
       },
       {
         "type": "file",
-        "value": "utils/bmob.js"
-      },
-      {
-        "type": "file",
         "value": "utils/underscore.js"
       }
     ],
