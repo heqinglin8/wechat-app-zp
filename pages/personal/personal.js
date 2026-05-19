@@ -2,6 +2,20 @@
 var Bmob = wx.Bmob;
 
 var app=getApp()
+
+function extractRelativePathFromUrl(url) {
+  if (!url) return '';
+  var clean = String(url).split('?')[0].split('#')[0];
+  var m = /^https?:\/\/[^/]+\/(.+)$/.exec(clean);
+  return m ? m[1] : clean.replace(/^\/+/, '');
+}
+
+function toAvatarDisplayUrl(value) {
+  if (!value) return '';
+  if (/^https?:\/\//i.test(value)) return value;
+  return 'http://files.yueqiu.me/' + String(value).replace(/^\/+/, '');
+}
+
 Page({
 
   /**
@@ -50,6 +64,7 @@ Page({
         console.log("个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
         if (results.length != 0) {
           var userInfo = results[0];
+          userInfo.avatarUrl = toAvatarDisplayUrl(userInfo.avatarUrl);
           //用户已注册
           that.setData({
             userInfo: userInfo,
@@ -135,6 +150,97 @@ Page({
       url: '../myaward/myaward?username=' + user
     })
   },
+  // 点击头像修改
+  bindChangeAvatar: function () {
+    var that = this;
+    var currentUser = Bmob.User.current();
+    if (!currentUser || !currentUser.objectId) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+        duration: 1500
+      });
+      return;
+    }
+
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: function (res) {
+        var tempFilePath = (res.tempFilePaths && res.tempFilePaths[0]) || '';
+        if (!tempFilePath) {
+          wx.showToast({
+            title: '未选择图片',
+            icon: 'none',
+            duration: 1500
+          });
+          return;
+        }
+
+        var ext = 'jpg';
+        var dotIndex = tempFilePath.lastIndexOf('.');
+        if (dotIndex > -1) {
+          ext = tempFilePath.substring(dotIndex + 1) || 'jpg';
+        }
+        var fileName = 'avatar-' + currentUser.objectId + '-' + Date.now() + '.' + ext;
+        var file = new Bmob.File(fileName, tempFilePath);
+
+        wx.showLoading({ title: '上传中...' });
+
+        file.save().then(function (saved) {
+          var avatarUrl = '';
+          if (saved && saved[0] && saved[0].url) {
+            avatarUrl = saved[0].url;
+          } else if (saved && saved._url) {
+            avatarUrl = saved._url;
+          }
+
+          if (!avatarUrl) {
+            return Promise.reject(new Error('no avatar url'));
+          }
+          var avatarPath = extractRelativePathFromUrl(avatarUrl);
+          if (!avatarPath) {
+            return Promise.reject(new Error('no avatar path'));
+          }
+          
+          var query = Bmob.Query('_User');
+          return query.get(currentUser.objectId).then(function (userObj) {
+            userObj.set('avatarUrl', avatarPath);
+            return userObj.save().then(function () {
+              var latestUserInfo = that.data.userInfo || {};
+              latestUserInfo.avatarUrl = toAvatarDisplayUrl(avatarPath);
+              that.setData({
+                userInfo: latestUserInfo
+              });
+
+              wx.showToast({
+                title: '头像已更新',
+                icon: 'success',
+                duration: 1500
+              });
+            });
+          });
+        }).catch(function (err) {
+          console.log('头像上传或更新失败:', err);
+          wx.showToast({
+            title: '头像更新失败',
+            icon: 'none',
+            duration: 1500
+          });
+        }).finally(function () {
+          wx.hideLoading();
+        });
+      },
+      fail: function () {
+        wx.showToast({
+          title: '取消选择',
+          icon: 'none',
+          duration: 1200
+        });
+      }
+    });
+  },
   // 点击退出登录
   bindLogout: function () {
     var that = this;
@@ -187,8 +293,7 @@ Page({
 
              // 登录成功
             var userInfo = res;
-            // wx.setStorageSync('userInfo', userInfo);
-            // wx.setStorageSync('weapp', userInfo.weapp);
+            userInfo.avatarUrl = toAvatarDisplayUrl(userInfo.avatarUrl);
             console.log("个人中心登录:查询到 " + userInfo.objectId+":" +userInfo.sessionToken);
             that.setData({
               userInfo: userInfo,
@@ -197,7 +302,7 @@ Page({
             });
               wx.showToast({
               title: '登录成功',
-              icon: 'none',
+              icon: 'success',
               duration: 1500
             });
           }).catch(err => {
