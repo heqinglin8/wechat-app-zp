@@ -1,20 +1,8 @@
 // pages/personal/personal.js
 var Bmob = wx.Bmob;
+var util = require('../../utils/util.js');
 
 var app=getApp()
-
-function extractRelativePathFromUrl(url) {
-  if (!url) return '';
-  var clean = String(url).split('?')[0].split('#')[0];
-  var m = /^https?:\/\/[^/]+\/(.+)$/.exec(clean);
-  return m ? m[1] : clean.replace(/^\/+/, '');
-}
-
-function toAvatarDisplayUrl(value) {
-  if (!value) return '';
-  if (/^https?:\/\//i.test(value)) return value;
-  return 'http://files.yueqiu.me/' + String(value).replace(/^\/+/, '');
-}
 
 Page({
 
@@ -64,7 +52,7 @@ Page({
         console.log("个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
         if (results.length != 0) {
           var userInfo = results[0];
-          userInfo.avatarUrl = toAvatarDisplayUrl(userInfo.avatarPath);
+          userInfo.avatarUrl = util.toAvatarDisplayUrl(userInfo.avatarPath);
           //用户已注册
           that.setData({
             userInfo: userInfo,
@@ -199,7 +187,7 @@ Page({
           if (!avatarUrl) {
             return Promise.reject(new Error('no avatar url'));
           }
-          var avatarPath = extractRelativePathFromUrl(avatarUrl);
+          var avatarPath = util.extractRelativePathFromUrl(avatarUrl);
           if (!avatarPath) {
             return Promise.reject(new Error('no avatar path'));
           }
@@ -210,7 +198,7 @@ Page({
             return userObj.save().then(function () {
               var latestUserInfo = that.data.userInfo || {};
               latestUserInfo.avatarPath = avatarPath;
-              latestUserInfo.avatarUrl = toAvatarDisplayUrl(avatarPath);
+              latestUserInfo.avatarUrl = util.toAvatarDisplayUrl(avatarPath);
               that.setData({
                 userInfo: latestUserInfo
               });

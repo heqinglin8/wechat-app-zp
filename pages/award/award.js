@@ -4,30 +4,12 @@
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
 var Bmob = wx.Bmob;
+var util = require('../../utils/util.js');
 
 var MAX_RECOMMEND_PHOTOS = 6;
 var MAX_PHOTO_BYTES = 3145728;
 var WX_CHOOSE_IMAGE_MAX = 9;
 var ALLOWED_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-
-function extFromPath(path) {
-  var m = /\.([^.\\/]+)$/i.exec(path || '');
-  return m ? m[1].toLowerCase() : '';
-}
-
-function extractRelativePathFromUrl(url) {
-  if (!url) return '';
-  var clean = String(url).split('?')[0].split('#')[0];
-  var m = /^https?:\/\/[^/]+\/(.+)$/.exec(clean);
-  return m ? m[1] : clean.replace(/^\/+/, '');
-}
-
-
-function toAvatarDisplayUrl(value) {
-  if (!value) return '';
-  if (/^https?:\/\//i.test(value)) return value;
-  return 'http://files.yueqiu.me/' + String(value).replace(/^\/+/, '');
-}
 
 Page({
   data: {
@@ -132,7 +114,7 @@ Page({
         wx.showToast({ title: '单张图片不能超过 3MB', icon: 'none', duration: 2000 });
         return Promise.reject(new Error('size'));
       }
-      var ext = extFromPath(filePath);
+      var ext = util.extFromPath(filePath);
       if (!ext || ALLOWED_IMAGE_EXT.indexOf(ext) === -1) {
         wx.showToast({ title: '仅支持常见图片格式', icon: 'none', duration: 2000 });
         return Promise.reject(new Error('type'));
@@ -144,7 +126,7 @@ Page({
   /** Upload single temp file; returns promise with remote url */
   uploadOnePhotoFile: function (filePath, slotIndex) {
     var that = this;
-    var ext = extFromPath(filePath) || 'jpg';
+    var ext = util.extFromPath(filePath) || 'jpg';
     var fileName = 'rec-' + Date.now() + '-' + slotIndex + '-' + Math.floor(Math.random() * 10000) + '.' + ext;
     var file = new Bmob.File(fileName, filePath);
     console.log("uploadOnePhotoFile slotIndex:",slotIndex," filePath",filePath," file",file);
@@ -154,9 +136,9 @@ Page({
       if (!saveUrl && saved._url) saveUrl = saved._url;
       if (!saveUrl) return Promise.reject(new Error('no url'));
       
-      var relativePath = extractRelativePathFromUrl(saveUrl);
-      var replace_url = toAvatarDisplayUrl(relativePath);
-      var type = ext || extFromPath(relativePath) || 'unknown';
+      var relativePath = util.extractRelativePathFromUrl(saveUrl);
+      var replace_url = util.toAvatarDisplayUrl(relativePath);
+      var type = ext || util.extFromPath(relativePath) || 'unknown';
 
       // 保存文件元信息到 file 表，不阻断主上传流程
       var fileQuery = Bmob.Query('file');

@@ -24,7 +24,28 @@ const formatList = results => {
   })
 }
 
+const extFromPath = path => {
+  const m = /\.([^.\\/]+)$/i.exec(path || '')
+  return m ? m[1].toLowerCase() : ''
+}
+
+const extractRelativePathFromUrl = url => {
+  if (!url) return ''
+  const clean = String(url).split('?')[0].split('#')[0]
+  const m = /^https?:\/\/[^/]+\/(.+)$/.exec(clean)
+  return m ? m[1] : clean.replace(/^\/+/, '')
+}
+
+const toAvatarDisplayUrl = value => {
+  if (!value) return ''
+  if (/^https?:\/\//i.test(value)) return value
+  return 'http://files.yueqiu.me/' + String(value).replace(/^\/+/, '')
+}
+
 module.exports = {
   formatTime: formatTime,
-  formatList: formatList
+  formatList: formatList,
+  extFromPath: extFromPath,
+  extractRelativePathFromUrl: extractRelativePathFromUrl,
+  toAvatarDisplayUrl: toAvatarDisplayUrl
 }
