@@ -22,6 +22,13 @@ function extractRelativePathFromUrl(url) {
   return m ? m[1] : clean.replace(/^\/+/, '');
 }
 
+
+function toAvatarDisplayUrl(value) {
+  if (!value) return '';
+  if (/^https?:\/\//i.test(value)) return value;
+  return 'http://files.yueqiu.me/' + String(value).replace(/^\/+/, '');
+}
+
 Page({
   data: {
     userName: '',
@@ -143,11 +150,12 @@ Page({
     console.log("uploadOnePhotoFile slotIndex:",slotIndex," filePath",filePath," file",file);
     return file.save().then(function (saved) {
       // var url = typeof saved.url === 'function' ? saved.url() : '';
-      var url = saved[0].url;
-      if (!url && saved._url) url = saved._url;
-      if (!url) return Promise.reject(new Error('no url'));
-      var replace_url = that.replaceDomain(url);
-      var relativePath = extractRelativePathFromUrl(url);
+      var saveUrl = saved[0].url;
+      if (!saveUrl && saved._url) saveUrl = saved._url;
+      if (!saveUrl) return Promise.reject(new Error('no url'));
+      
+      var relativePath = extractRelativePathFromUrl(saveUrl);
+      var replace_url = toAvatarDisplayUrl(relativePath);
       var type = ext || extFromPath(relativePath) || 'unknown';
 
       // 保存文件元信息到 file 表，不阻断主上传流程
@@ -159,8 +167,10 @@ Page({
       var list = that.data.recommendPhotos.slice();
       var cur = list[slotIndex];
       if (!cur) return Promise.reject(new Error('slot'));
-      list[slotIndex] = { url: replace_url, tempPath: '', uploading: false };
-      that.setData({ recommendPhotos: list });
+      list[slotIndex] = { url: replace_url, path: relativePath, tempPath: '', uploading: false };
+      that.setData({ 
+        recommendPhotos: list,
+       });
       return fileQuery.save().then(function (res) {
         console.log('save file meta success', res);
         return replace_url;
@@ -336,7 +346,7 @@ Page({
   buildPhotoImgsField: function () {
     var parts = [];
     this.data.recommendPhotos.forEach(function (p) {
-      if (p.url) parts.push(p.url);
+      if (p.path) parts.push(p.path);
     });
     return parts.join('|');
   },
@@ -345,7 +355,7 @@ Page({
     var photos = this.data.recommendPhotos;
     for (var i = 0; i < photos.length; i++) {
       if (photos[i].uploading) return false;
-      if (photos[i].tempPath && !photos[i].url) return false;
+      if (photos[i].tempPath && !photos[i].path) return false;
     }
     return true;
   },
@@ -420,18 +430,6 @@ Page({
       that.setData({ formSubmitting: false });
     });
   },
-  /** 示例：
- * http://abc.com/2026/05/08/a.png
- * =>
- * http://files.yueqiu.me/2026/05/08/a.png
- */
- replaceDomain:function(url) {
-  if (!url) return url;
-  return url.replace(
-    /^https?:\/\/[^/]+\//,
-    'http://files.yueqiu.me/'
-  );
-}
   
 
 });
