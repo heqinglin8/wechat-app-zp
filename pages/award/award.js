@@ -64,7 +64,6 @@ Page({
   onReady: function () {
     var that = this;
     var currentUser = Bmob.User.current();
-    console.log("onReady 个人中心当前用户: " ,currentUser);
     if (!currentUser) {
       wx.showToast({ title: '请先登录后再推荐', icon: 'none', duration: 2000 });
       return;
@@ -78,6 +77,7 @@ Page({
         return;
       }
       var u = results[0];
+       console.log("onReady 个人中心当前用户_User : " ,u);
       var phone = u.userphone != null ? String(u.userphone).trim() : '';
       var uname = u.username || '';
       that.setData({
@@ -352,8 +352,8 @@ Page({
     row.set('recoEducation', edu);
     row.set('recoContact', String(d.recoContact).trim());
     row.set('recoJobIntent', String(d.recoJobIntent).trim());
-    row.set('detPayMin', String(d.detPayMin || '').trim());
-    row.set('detPayMax', String(d.detPayMax || '').trim());
+    row.set('detPayMin', Number(d.detPayMin || ''));
+    row.set('detPayMax', Number(d.detPayMax || ''));
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
     row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
@@ -381,7 +381,9 @@ Page({
     query.equalTo('recoName', '==', String(that.data.recoName).trim());
 
     query.find().then(function (results) {
+      console.log("查询 MyRecommend results:",results,!results.length);
       if (!results.length) {
+        console.log("查询 MyRecommend 无记录，创建新推荐");
         var created = Bmob.Query('MyRecommend');
         that.applyMyRecommendFields(created);
         return created.save().then(function () {
@@ -391,17 +393,41 @@ Page({
           }, 320);
         });
       }
+      console.log("查询 MyRecommend 有记录，更新档案");
       var row = results[0];
-      var updated = Bmob.Query('MyRecommend');
-      updated.id = row.objectId;
-      that.applyMyRecommendFields(updated);
-      return updated.save().then(function () {
+      return new Promise(function (resolve, reject) {
+        wx.showModal({
+          title: '提示',
+          content: '已经有该条记录，你确认要更新？',
+          confirmText: '确认',
+          cancelText: '取消',
+          success: function (res) {
+            if (res.confirm) {
+              resolve();
+              return;
+            }
+            reject(new Error('cancel_update'));
+          },
+          fail: function (err) {
+            reject(err || new Error('modal_fail'));
+          },
+        });
+      }).then(function () {
+        var updatedQuery = Bmob.Query('MyRecommend');
+        return updatedQuery.get(row.objectId).then(function (existing) {
+          that.applyMyRecommendFields(existing);
+          return existing.save();
+        });
+      }).then(function () {
         wx.switchTab({ url: '../index/index' });
         setTimeout(function () {
           wx.showToast({ title: '档案已更新', icon: 'success', duration: 2000 });
         }, 320);
       });
     }).catch(function (e) {
+      if (e && e.message === 'cancel_update') {
+        return;
+      }
       console.error("提交失败,e:",e)
       wx.showToast({
         title: '提交失败，请稍后重试',

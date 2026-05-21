@@ -1,5 +1,5 @@
 // pages/award/award.js
-// MyRecommend（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoIntro recoExtra、
+// DetailInfo（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoIntro recoExtra、
 // photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
@@ -341,6 +341,10 @@ Page({
     return true;
   },
 
+  onRecoJobIntentInput: function (e) {
+    this.setData({ recoJobIntent: (e.detail && e.detail.value) || '' });
+  },
+
   applyMyRecommendFields: function (row) {
     console.log("applyMyRecommendFields row:",row);
     var d = this.data;
@@ -375,13 +379,13 @@ Page({
 
     that.setData({ formSubmitting: true });
 
-    var query = Bmob.Query('MyRecommend');
+    var query = Bmob.Query('DetailInfo');
     query.equalTo('commitUsername', '==', that.data.userName);
-    query.equalTo('recoName', '==', String(that.data.recoName).trim());
+    query.equalTo('title', '==', String(that.data.title).trim());
 
     query.find().then(function (results) {
       if (!results.length) {
-        var created = Bmob.Query('MyRecommend');
+        var created = Bmob.Query('DetailInfo');
         that.applyMyRecommendFields(created);
         return created.save().then(function () {
           wx.switchTab({ url: '../index/index' });
@@ -391,16 +395,39 @@ Page({
         });
       }
       var row = results[0];
-      var updated = Bmob.Query('MyRecommend');
-      updated.id = row.objectId;
-      that.applyMyRecommendFields(updated);
-      return updated.save().then(function () {
+      return new Promise(function (resolve, reject) {
+        wx.showModal({
+          title: '提示',
+          content: '你已经提交过该条记录，你确认要更新？',
+          confirmText: '确认',
+          cancelText: '取消',
+          success: function (res) {
+            if (res.confirm) {
+              resolve();
+              return;
+            }
+            reject(new Error('cancel_update'));
+          },
+          fail: function (err) {
+            reject(err || new Error('modal_fail'));
+          },
+        });
+      }).then(function () {
+        var updatedQuery = Bmob.Query('DetailInfo');
+        return updatedQuery.get(row.objectId).then(function (existing) {
+          that.applyMyRecommendFields(existing);
+          return existing.save();
+        });
+      }).then(function () {
         wx.switchTab({ url: '../index/index' });
         setTimeout(function () {
           wx.showToast({ title: '档案已更新', icon: 'success', duration: 2000 });
         }, 320);
       });
     }).catch(function (e) {
+      if (e && e.message === 'cancel_update') {
+        return;
+      }
       console.error("提交失败,e:",e)
       wx.showToast({
         title: '提交失败，请稍后重试',

@@ -17,7 +17,7 @@
       </view>
 
       <view class="award-list-name award-picker-row">
-        <view class="name-text">学历</view>
+        <view class="name-text">最低学历</view>
         <picker class="award-picker" mode="selector" range="{{educationOptions}}" value="{{educationIndex}}" bindchange="onEducationChange">
           <view class="picker-display">{{educationOptions[educationIndex]}}</view>
         </picker>
@@ -29,8 +29,8 @@
       </view>
 
       <view class="award-list-name">
-        <view class="name-text">求职意向</view>
-        <input class="name-input" type="text" placeholder="期望岗位或方向" value="{{recoJobIntent}}" bindinput="onRecoJobIntentInput" />
+        <view class="name-text">职位方向</view>
+        <input class="name-input" type="text" placeholder="岗位或方向" value="{{recoJobIntent}}" bindinput="onRecoJobIntentInput" />
       </view>
 
       <view class="award-list-name award-salary-row">
