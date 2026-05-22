@@ -20,6 +20,7 @@ const formatList = results => {
     item.firstPhoto = (typeof photoImgs === 'string' && photoImgs.length > 0)
       ? photoImgs.split('|')[0]
       : ''
+    item.firstPhoto = toAvatarDisplayUrl(item.firstPhoto)
     return item
   })
 }
