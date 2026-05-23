@@ -21,11 +21,17 @@ Page({
       username: e.detail.value
     })
   },
+  //获取用户输入的昵称
+  nicknameInput: function (e) {
+     var nickname = ((e.detail && e.detail.value) || '').trim();
+    this.setData({ nickname: nickname });
+  },
   phoneInput: function (e) {
     this.setData({
       userphone: e.detail.value
     })
   },
+
   //获取用户输入的密码
   passwordInput: function (e) {
     this.setData({
@@ -41,37 +47,20 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    if (app.globalData.userInfo) {
-      this.setData({
-        userInfo: app.globalData.userInfo,
-        hasUserInfo: true
-      })
-    } else if (this.data.canIUse) {
-      // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
-      // 所以此处加入 callback 以防止这种情况
-      app.userInfoReadyCallback = res => {
-        this.setData({
-          userInfo: res.userInfo,
-          hasUserInfo: true
-        })
-      }
-    } else {
-      // 在没有 open-type=getUserInfo 版本的兼容处理
-      wx.getUserInfo({
-        success: res => {
-          app.globalData.userInfo = res.userInfo
-          this.setData({
-            userInfo: res.userInfo,
-            hasUserInfo: true
-          })
-        }
-      })
+
+      var that = this;
+          let currentUser = Bmob.User.current()
+          var sessionToken = currentUser.sessionToken;
+          var objectId = currentUser.objectId;
+          //获取用户当前信息
+    if (objectId != undefined && objectId.length > 0) {
+        this.getinfor(objectId  );
     }
-    this.getinfor();
+    
   
   },
   //获取信息
-  getinfor:function(){
+  getinfor:function(objectId){
     var that = this
     var query = Bmob.Query("_User");
     var objectId = wx.getStorageSync('objectId');
@@ -82,8 +71,9 @@ Page({
         //用户已注册
         that.setData({
           username: results[0].username,
+          nickname: results[0].nickname,
           userphone: results[0].userphone,
-          initphone: results[0].userphone,
+          initphone: results[0].initphone,
           objectId: results[0].objectId,
         });
     }).catch(function(error) {
@@ -93,12 +83,14 @@ Page({
   //更新信息
   bindViewPut:function(){
     var that=this;
-    if (that.isusername(that.data.username) != false && that.validatemobile(that.data.userphone) != false ){
+    if (that.isusername(that.data.username) != false && that.validatenickname(that.data.nickname) != false && that.validatemobile(that.data.userphone) != false ){
       if (that.data.initphone == that.data.userphone){
         //手机号未修改
         var query = Bmob.Query("_User");
         query.get(that.data.objectId).then(function(result) {
+          result.set('username', that.data.username);
           result.set('userphone', that.data.userphone);
+          result.set('nickname', that.data.nickname);
           result.save();
           wx.switchTab({
             url: '../personal/personal'
@@ -122,6 +114,7 @@ Page({
             innerQuery.get(that.data.objectId).then(function(userinfo) {
               userinfo.set("username", that.data.username);
               userinfo.set("userphone", that.data.userphone);
+              userinfo.set("nickname", that.data.nickname);
               userinfo.save();
               wx.showToast({
                 title: "修改成功",
@@ -228,5 +221,107 @@ isusername:function(user){
     })
     return false;
   }
-}
+},
+  //判断昵称是否为空
+validatenickname: function(nickname) {
+  if (!nickname || nickname.trim().length == 0) {
+    wx.showToast({
+      title: '昵称不能为空',
+      icon: 'none',
+      duration: 1500
+    })
+    return false;
+  }
+  return true;
+},
+
+nicknameInput:function(e){
+    var that = this;
+    var nickname = ((e.detail && e.detail.value) || '').trim();
+    var userInfo = this.data.userInfo || {};
+    var oldNickname = (userInfo.nickname || '').trim();
+    this.setData({ nickname: nickname });
+
+    if (nickname === oldNickname) {
+      return;
+    }
+    
+    // 获取当前用户objectId
+    var objectId = userInfo.objectId;
+    
+    if (!objectId) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+        duration: 1500
+      });
+      return;
+    }
+    
+    if (!nickname || nickname.trim() === '') {
+      wx.showToast({
+        title: '昵称不能为空',
+        icon: 'none',
+        duration: 1500
+      });
+      this.setData({
+        nickname: oldNickname
+      });
+      return;
+    }
+
+    wx.showModal({
+      title: '提示',
+      content: '检测到昵称已修改，是否更新？',
+      cancelText: '取消',
+      confirmText: '确认',
+      success: function (res) {
+        if (!res.confirm) {
+          that.setData({
+            nickname: oldNickname
+          });
+          return;
+        }
+
+        wx.showLoading({ title: '更新中...' });
+
+        var query = Bmob.Query('_User');
+        query.get(objectId).then(function(userObj) {
+          userObj.set('nickname', nickname);
+          return userObj.save();
+        }).then(function() {
+          var latestUserInfo = that.data.userInfo || {};
+          latestUserInfo.nickname = nickname;
+          that.setData({
+            userInfo: latestUserInfo,
+            nickname: nickname
+          });
+          
+          wx.showToast({
+            title: '昵称已更新',
+            icon: 'success',
+            duration: 1500
+          });
+        }).catch(function(err) {
+          console.log('昵称更新失败:', err);
+          that.setData({
+            nickname: oldNickname
+          });
+          wx.showToast({
+            title: '昵称更新失败',
+            icon: 'none',
+            duration: 1500
+          });
+        }).finally(function() {
+          wx.hideLoading();
+        });
+      },
+      fail: function () {
+        that.setData({
+          nickname: oldNickname
+        });
+      }
+    });
+  }
+
 })

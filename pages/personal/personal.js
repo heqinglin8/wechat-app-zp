@@ -4,6 +4,8 @@ var util = require('../../utils/util.js');
 
 var app=getApp()
 
+const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
+
 Page({
 
   /**
@@ -14,7 +16,8 @@ Page({
     userInfo:{},
     //数据库个人信息
     username:'',
-    hasUserInfo: false
+    hasUserInfo: false,
+    avatarUrl: defaultAvatarUrl,
   },
 
   /**
@@ -28,7 +31,7 @@ Page({
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function () {
-
+    
 
   },
 
@@ -38,12 +41,12 @@ Page({
   onShow: function () {
    
     //console.log("onShow")
-    var that = this;
-    //获取用户当前信息
-    let currentUser = Bmob.User.current()
-    console.log("onShow 个人中心当前用户: " ,currentUser);
-      var token = currentUser.sessionToken;
+    
+      var that = this;
+      let currentUser = Bmob.User.current()
+      var sessionToken = currentUser.sessionToken;
       var objectId = currentUser.objectId;
+      //获取用户当前信息
     if (objectId!=undefined && objectId.length > 0) {
       var query = Bmob.Query("_User");
       query.equalTo("objectId", "==", objectId);
@@ -52,15 +55,22 @@ Page({
         console.log("个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
         if (results.length != 0) {
           var userInfo = results[0];
+          console.log("onShow 个人中心当前用户: " ,userInfo);
           userInfo.avatarUrl = util.toAvatarDisplayUrl(userInfo.avatarPath);
           //用户已注册
           that.setData({
             userInfo: userInfo,
-            username: userInfo.username,
-            hasUserInfo: true
+            nickname: userInfo.nickname ||'',
+            hasUserInfo: true,
+            avatarUrl: userInfo.avatarUrl || defaultAvatarUrl
           });
         } else {
           console.log("没有注册，objectId: " + objectId);
+          that.setData({
+            userInfo: {},
+            nickname: '',
+            hasUserInfo: false
+          });
         }
       }).catch(function(error) {
         console.log("查询失败: " + error.code + " " + error.message);
@@ -68,7 +78,6 @@ Page({
     }else{
       console.log("没有登录，objectId: " + objectId);
     }
-    
 
   },
 
@@ -108,7 +117,7 @@ Page({
   },
   //点击个人中心里我的报名页面跳转
   bindViewMyJoin: function () {
-    var user=this.data.username
+    var user=this.data.userInfo.username
     wx.navigateTo({
       url: '../myjoin/myjoin?username=' + user
     })
@@ -133,31 +142,19 @@ Page({
   },
   //点击个人中心里我的推荐跳转
   bindViewMyaward:function(){
-    var user = this.data.username
+    var user = this.data.userInfo.username
     wx.navigateTo({
       url: '../myaward/myaward?username=' + user
     })
   },
   // 点击头像修改
-  bindChangeAvatar: function () {
+   onChooseAvatar(e) {
     var that = this;
-    var currentUser = Bmob.User.current();
-    if (!currentUser || !currentUser.objectId) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none',
-        duration: 1500
-      });
-      return;
-    }
-
-    wx.chooseImage({
-      count: 1,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: function (res) {
-        var tempFilePath = (res.tempFilePaths && res.tempFilePaths[0]) || '';
-        if (!tempFilePath) {
+    const { avatarUrl } = e.detail 
+    console.log('onChooseAvatar avatarUrl:',avatarUrl)
+  
+    //  var tempFilePath = (res.tempFilePaths && res.tempFilePaths[0]) || '';
+        if (!avatarUrl) {
           wx.showToast({
             title: '未选择图片',
             icon: 'none',
@@ -165,14 +162,15 @@ Page({
           });
           return;
         }
-
+        var userInfo = that.data.userInfo
+        var objectId = userInfo.objectId;
         var ext = 'jpg';
-        var dotIndex = tempFilePath.lastIndexOf('.');
+        var dotIndex = avatarUrl.lastIndexOf('.');
         if (dotIndex > -1) {
-          ext = tempFilePath.substring(dotIndex + 1) || 'jpg';
+          ext = avatarUrl.substring(dotIndex + 1) || 'jpg';
         }
-        var fileName = 'avatar-' + currentUser.objectId + '-' + Date.now() + '.' + ext;
-        var file = new Bmob.File(fileName, tempFilePath);
+        var fileName = 'avatar-' + objectId + '-' + Date.now() + '.' + ext;
+        var file = new Bmob.File(fileName, avatarUrl);
 
         wx.showLoading({ title: '上传中...' });
 
@@ -193,7 +191,7 @@ Page({
           }
           
           var query = Bmob.Query('_User');
-          return query.get(currentUser.objectId).then(function (userObj) {
+          return query.get(objectId).then(function (userObj) {
             userObj.set('avatarPath', avatarPath);
             return userObj.save().then(function () {
               var latestUserInfo = that.data.userInfo || {};
@@ -220,15 +218,9 @@ Page({
         }).finally(function () {
           wx.hideLoading();
         });
-      },
-      fail: function () {
-        wx.showToast({
-          title: '取消选择',
-          icon: 'none',
-          duration: 1200
-        });
-      }
-    });
+      this.setData({
+        avatarUrl,
+      })
   },
   // 点击退出登录
   bindLogout: function () {
@@ -282,7 +274,7 @@ Page({
 
              // 登录成功
             var userInfo = res;
-            userInfo.avatarUrl = toAvatarDisplayUrl(userInfo.avatarPath);
+            userInfo.avatarUrl = util.toAvatarDisplayUrl(userInfo.avatarPath);
             console.log("个人中心登录:查询到 " + userInfo.objectId+":" +userInfo.sessionToken);
             that.setData({
               userInfo: userInfo,
@@ -299,6 +291,12 @@ Page({
           });
       }
     })
+  },
+
+  bindModifyNickname:function(){
+     wx.navigateTo({
+      url: '../setinfor/setinfor' 
+     })
   }
 
 })

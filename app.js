@@ -10,6 +10,8 @@ App({
     userInfo: null
   },
   onLaunch: function () {
+    const info = wx.getAppBaseInfo()
+    console.log('SDKVersion:',info.SDKVersion)
     // 展示本地存储能力
     var logs = wx.getStorageSync('logs') || []
     logs.unshift(Date.now())

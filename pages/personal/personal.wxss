@@ -13,6 +13,8 @@
   margin-left: auto;
   margin-right: auto;
   margin-top: 60rpx;
+  padding-left: 0;
+  padding-right: 0;
 }
 .personal-top-image image{
   width:100%;
@@ -23,8 +25,9 @@
   font-size: 12px;
   color: #000;
   margin-top: 40rpx;
-  width: 100%;
   text-align: center;
+  width: 320rex;
+  align-content: center;
 }
 .personal-middle{
   width: 100%;

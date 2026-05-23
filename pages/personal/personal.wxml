@@ -4,10 +4,10 @@
   
 <button wx:if="{{!hasUserInfo}}" open-type="getUserInfo" bindgetuserinfo="bingLogin"> 获取头像昵称 </button>
     <block wx:else>
-    <view class="personal-top-image" bindtap="bindChangeAvatar">
-      <image src="{{userInfo.avatarUrl ? userInfo.avatarUrl : '/images/default_user_avatar.jpeg'}}" background-size="cover"></image>
-    </view>
-    <view class="personal-top-text">{{username}}</view>
+     <button class="avatar-wrapper" class="personal-top-image" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+      <image src="{{avatarUrl}}" ></image>
+    </button> 
+    <view class="personal-top-text" bindtap='bindModifyNickname'>{{nickname}}</view> 
 </block>
 
   </view>
