@@ -1,6 +1,7 @@
 // pages/setinfor/setinfor.js
 var Bmob = wx.Bmob;
 var app = getApp()
+var util = require('../../utils/util.js');
 Page({
 
   /**
@@ -49,35 +50,38 @@ Page({
   onLoad: function (options) {
 
       var that = this;
-          let currentUser = Bmob.User.current()
-          var sessionToken = currentUser.sessionToken;
-          var objectId = currentUser.objectId;
+      let currentUser = Bmob.User.current()
+      var sessionToken = currentUser.sessionToken;
+      var objectId = currentUser.objectId;
+      console.log("onLoad objectId:"+objectId)
           //获取用户当前信息
     if (objectId != undefined && objectId.length > 0) {
-        this.getinfor(objectId  );
+        this.getinfor(objectId);
     }
-    
   
   },
   //获取信息
   getinfor:function(objectId){
     var that = this
     var query = Bmob.Query("_User");
-    var objectId = wx.getStorageSync('objectId');
     query.equalTo("objectId", "==", objectId);
     //查询用户是否注册
     query.find().then(function(results) {
-      ////console.log("个人中心判断:共查询到 " + results.length + " 条记录");
+      console.log("个人中心判断:共查询到 objectId："+objectId+" " + results.length + " 条记录");
+      var userInfo = results[0]
+      var avatarUrl = util.toAvatarDisplayUrl(userInfo.avatarPath)
+      console.log('avatarUrl:',avatarUrl)
         //用户已注册
         that.setData({
-          username: results[0].username,
-          nickname: results[0].nickname,
-          userphone: results[0].userphone,
-          initphone: results[0].initphone,
-          objectId: results[0].objectId,
+          username: userInfo.username,
+          nickname: userInfo.nickname,
+          userphone: userInfo.userphone || '',
+          initphone: userInfo.initphone || '',
+          objectId: userInfo.objectId,
+          avatarUrl:avatarUrl,
         });
     }).catch(function(error) {
-      //console.log("查询失败: " + error.code + " " + error.message);
+      console.log("查询失败: " + error.code + " " + error.message);
     });
   },
   //更新信息
@@ -236,92 +240,9 @@ validatenickname: function(nickname) {
 },
 
 nicknameInput:function(e){
-    var that = this;
-    var nickname = ((e.detail && e.detail.value) || '').trim();
-    var userInfo = this.data.userInfo || {};
-    var oldNickname = (userInfo.nickname || '').trim();
-    this.setData({ nickname: nickname });
-
-    if (nickname === oldNickname) {
-      return;
-    }
-    
-    // 获取当前用户objectId
-    var objectId = userInfo.objectId;
-    
-    if (!objectId) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none',
-        duration: 1500
-      });
-      return;
-    }
-    
-    if (!nickname || nickname.trim() === '') {
-      wx.showToast({
-        title: '昵称不能为空',
-        icon: 'none',
-        duration: 1500
-      });
-      this.setData({
-        nickname: oldNickname
-      });
-      return;
-    }
-
-    wx.showModal({
-      title: '提示',
-      content: '检测到昵称已修改，是否更新？',
-      cancelText: '取消',
-      confirmText: '确认',
-      success: function (res) {
-        if (!res.confirm) {
-          that.setData({
-            nickname: oldNickname
-          });
-          return;
-        }
-
-        wx.showLoading({ title: '更新中...' });
-
-        var query = Bmob.Query('_User');
-        query.get(objectId).then(function(userObj) {
-          userObj.set('nickname', nickname);
-          return userObj.save();
-        }).then(function() {
-          var latestUserInfo = that.data.userInfo || {};
-          latestUserInfo.nickname = nickname;
-          that.setData({
-            userInfo: latestUserInfo,
-            nickname: nickname
-          });
-          
-          wx.showToast({
-            title: '昵称已更新',
-            icon: 'success',
-            duration: 1500
-          });
-        }).catch(function(err) {
-          console.log('昵称更新失败:', err);
-          that.setData({
-            nickname: oldNickname
-          });
-          wx.showToast({
-            title: '昵称更新失败',
-            icon: 'none',
-            duration: 1500
-          });
-        }).finally(function() {
-          wx.hideLoading();
-        });
-      },
-      fail: function () {
-        that.setData({
-          nickname: oldNickname
-        });
-      }
-    });
-  }
+  this.setData({
+    nickname: e.detail.value
+  })
+}
 
 })

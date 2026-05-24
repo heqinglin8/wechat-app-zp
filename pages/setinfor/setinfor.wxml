@@ -2,18 +2,18 @@
 <view class="login">
   <view class="login-top">
     <view class="login-top-image">
-      <image src="{{userInfo.avatarUrl}}"/>
+      <image src="{{avatarUrl}}"/>
     </view>
     <view class="login-top-text">请认真填写要修改的信息</view>
   </view>
   <view class="login-middle">
     <view class="log-mid-list1">
       <image src='../../images/loginme.png'/>
-      <input type='text' placeholder='请输入您的用户名' name="username" disabled="disabled" bindinput ="userNameInput"  value="{{username}}" />
+      <input type='text' placeholder='请输入您的用户名' name="username" bindinput ="userNameInput"  value="{{username}}" />
     </view>
     <view class="log-mid-list1">
       <image src='../../images/loginme.png'/>
-      <input type='text' placeholder='请输入您的昵称' type="nickname" name="nickname" disabled="disabled" bindinput ="nicknameInput"  value="{{nickname}}" />
+      <input type='text' placeholder='请输入您的昵称' type="nickname" name="nickname" bindinput ="nicknameInput"  value="{{nickname}}" />
     </view>
     <view class="log-mid-list2">
         <image src='../../images/loginphone.png'/>
