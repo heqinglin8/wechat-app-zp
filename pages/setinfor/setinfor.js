@@ -10,10 +10,11 @@ Page({
   data: {
     //数据库个人信息
     username: '',
+    //昵称
+    nickname: '',
+    //手机号
     userphone:'',
     objectId: '',
-    //原始手机号
-    initphone:'',
   
   },
   //获取用户输入的用户名
@@ -50,6 +51,9 @@ Page({
   onLoad: function (options) {
 
       var that = this;
+      that._initphone = '';
+      that._initusername = '';
+      that._initnickname = '';
       let currentUser = Bmob.User.current()
       var sessionToken = currentUser.sessionToken;
       var objectId = currentUser.objectId;
@@ -76,10 +80,12 @@ Page({
           username: userInfo.username,
           nickname: userInfo.nickname,
           userphone: userInfo.userphone || '',
-          initphone: userInfo.initphone || '',
           objectId: userInfo.objectId,
           avatarUrl:avatarUrl,
         });
+        that._initphone = userInfo.userphone || '';
+        that._initusername = userInfo.username || '';
+        that._initnickname = userInfo.nickname || '';
     }).catch(function(error) {
       console.log("查询失败: " + error.code + " " + error.message);
     });
@@ -87,56 +93,103 @@ Page({
   //更新信息
   bindViewPut:function(){
     var that=this;
-    if (that.isusername(that.data.username) != false && that.validatenickname(that.data.nickname) != false && that.validatemobile(that.data.userphone) != false ){
-      if (that.data.initphone == that.data.userphone){
-        //手机号未修改
-        var query = Bmob.Query("_User");
-        query.get(that.data.objectId).then(function(result) {
-          result.set('username', that.data.username);
-          result.set('userphone', that.data.userphone);
-          result.set('nickname', that.data.nickname);
-          result.save();
-          wx.switchTab({
-            url: '../personal/personal'
-          });
-          wx.showToast({
-            title: '修改成功',
-            icon: 'success',
-            duration: 2000
-          });
-        }).catch(function(error) {});
-      }else{
-        //查询手机号是否存在
-        var query = Bmob.Query("_User");
-        query.equalTo("userphone", "==", that.data.userphone);
-        //console.log('手机号：' + that.data.userphone)
-        // 查询所有数据
-        query.find().then(function(results) {
-          //console.log('查询结果：'+results.length)
-          if (results.length == 0) {
-            var innerQuery = Bmob.Query("_User");
-            innerQuery.get(that.data.objectId).then(function(userinfo) {
-              userinfo.set("username", that.data.username);
-              userinfo.set("userphone", that.data.userphone);
-              userinfo.set("nickname", that.data.nickname);
-              userinfo.save();
-              wx.showToast({
-                title: "修改成功",
-                icon: 'success',
-                duration: 2000
-              });
-            }).catch(function(error) {});
-          }
-          else {
+    var username = ((that.data.username || '') + '').trim();
+    var nickname = ((that.data.nickname || '') + '').trim();
+    var userphone = ((that.data.userphone || '') + '').trim();
+
+    if (that.isusername(username) == false || that.validatenickname(nickname) == false || that.validatemobile(userphone) == false) {
+      return;
+    }
+
+    that.setData({
+      username: username,
+      nickname: nickname,
+      userphone: userphone
+    });
+
+    var changedLabels = [];
+    var updatePayload = {};
+
+    if (userphone !== (that._initphone || '')) {
+      changedLabels.push('电话');
+      updatePayload.userphone = userphone;
+    }
+    if (username !== (that._initusername || '')) {
+      changedLabels.push('用户名');
+      updatePayload.username = username;
+    }
+    if (nickname !== (that._initnickname || '')) {
+      changedLabels.push('昵称');
+      updatePayload.nickname = nickname;
+    }
+
+    if (changedLabels.length === 0) {
+      wx.showToast({
+        title: '未检测到修改',
+        icon: 'none',
+        duration: 1500
+      });
+      return;
+    }
+
+    wx.showModal({
+      title: '提示',
+      content: '确定更新' + changedLabels.join('、') + '？',
+      success: function (res) {
+        if (!res.confirm) {
+          return;
+        }
+
+        var doSave = function () {
+          var innerQuery = Bmob.Query("_User");
+          innerQuery.get(that.data.objectId).then(function(userinfo) {
+            Object.keys(updatePayload).forEach(function (key) {
+              userinfo.set(key, updatePayload[key]);
+            });
+            return userinfo.save();
+          }).then(function() {
+            that._initusername = username;
+            that._initnickname = nickname;
+            that._initphone = userphone;
             wx.showToast({
-              title: "该手机号已注册",
-              image: "../../images/warning.png",
+              title: '修改成功',
+              icon: 'success',
               duration: 2000
             });
-          }
-        });
+            wx.switchTab({
+              url: '../personal/personal'
+            });
+          }).catch(function(error) {
+            console.log('更新失败: ' + error.code + ' ' + error.message);
+            wx.showToast({
+              title: '更新失败',
+              icon: 'none',
+              duration: 1500
+            });
+          });
+        };
+
+        if (updatePayload.userphone) {
+          var query = Bmob.Query("_User");
+          query.equalTo("userphone", "==", userphone);
+          query.find().then(function(results) {
+            if (results.length === 0) {
+              doSave();
+            } else {
+              wx.showToast({
+                title: "该手机号已注册",
+                image: "../../images/warning.png",
+                duration: 2000
+              });
+            }
+          }).catch(function(error) {
+            console.log('手机号校验失败: ' + error.code + ' ' + error.message);
+          });
+        } else {
+          doSave();
+        }
       }
-    }
+    });
   },
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -237,12 +290,6 @@ validatenickname: function(nickname) {
     return false;
   }
   return true;
-},
-
-nicknameInput:function(e){
-  this.setData({
-    nickname: e.detail.value
-  })
 }
 
 })
