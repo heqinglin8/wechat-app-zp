@@ -125,7 +125,7 @@ Page({
 
     if (changedLabels.length === 0) {
       wx.showToast({
-        title: '未检测到修改',
+        title: '没有任何修改',
         icon: 'none',
         duration: 1500
       });
@@ -169,25 +169,51 @@ Page({
           });
         };
 
-        if (updatePayload.userphone) {
-          var query = Bmob.Query("_User");
-          query.equalTo("userphone", "==", userphone);
-          query.find().then(function(results) {
-            if (results.length === 0) {
-              doSave();
-            } else {
-              wx.showToast({
-                title: "该手机号已注册",
-                image: "../../images/warning.png",
-                duration: 2000
-              });
-            }
-          }).catch(function(error) {
-            console.log('手机号校验失败: ' + error.code + ' ' + error.message);
+        var usernameQuery = Bmob.Query("_User");
+        usernameQuery.equalTo("username", "==", username);
+        usernameQuery.find().then(function(results) {
+          var hasOtherUser = results.some(function (item) {
+            return item.objectId !== that.data.objectId;
           });
-        } else {
+          if (hasOtherUser) {
+            wx.showToast({
+              title: '用户名已存在',
+              icon: 'none',
+              duration: 2000
+            });
+            return Promise.reject('username_exists');
+          }
+
+          var phoneQuery = Bmob.Query("_User");
+          phoneQuery.equalTo("userphone", "==", userphone);
+          return phoneQuery.find();
+        }).then(function(results) {
+          if (!results) {
+            return;
+          }
+          var hasOtherPhone = results.some(function (item) {
+            return item.objectId !== that.data.objectId;
+          });
+          if (hasOtherPhone) {
+            wx.showToast({
+              title: "该手机号已注册",
+              image: "../../images/warning.png",
+              duration: 2000
+            });
+            return;
+          }
           doSave();
-        }
+        }).catch(function(error) {
+          if (error === 'username_exists') {
+            return;
+          }
+          console.log('更新前校验失败: ' + error.code + ' ' + error.message);
+          wx.showToast({
+            title: '更新前校验失败',
+            icon: 'none',
+            duration: 1500
+          });
+        });
       }
     });
   },
