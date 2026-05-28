@@ -4,7 +4,7 @@
   
 <button wx:if="{{!hasUserInfo}}" open-type="getUserInfo" bindgetuserinfo="bingLogin"> 获取头像昵称 </button>
     <block wx:else>
-     <button class="avatar-wrapper" class="personal-top-image" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+     <button class="personal-top-image" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
       <image src="{{avatarUrl}}" ></image>
     </button> 
     <view class="personal-top-text" bindtap='bindModifyNickname'>{{nickname}}</view> 

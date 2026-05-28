@@ -8,7 +8,7 @@
   height: 300rpx;
 }
 .personal-top-image{
-  width:19%;
+  width:150rpx;
   height: 150rpx;
   margin-left: auto;
   margin-right: auto;
@@ -19,7 +19,6 @@
 .personal-top-image image{
   width:100%;
   height:100%;
-  border-radius: 75rpx;
 }
 .personal-top-text{
   font-size: 12px;
