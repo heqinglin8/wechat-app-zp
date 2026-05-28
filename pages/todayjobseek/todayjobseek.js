@@ -115,22 +115,23 @@ Page({
     //列表判断
     switch (that.data.currentTab) {
       case 0:
+        //console.log('推荐');
+        query.order('-collectNum');
+        
+        break;
+      case 1:
         //console.log('全部职位');
         query.order('-updatedAt');
         break;
-      case 1:
+      case 2:
         //console.log('高薪资');
         query.equalTo("payType", "==", 0);
         query.order('-detPayMax');
         break;
-      case 2:
+      case 3:
         //console.log('临时工');
         query.equalTo("payType", "==", 1);
         query.order('-detPayMax');
-        break;
-      case 3:
-        //console.log('推荐');
-        query.order('-collectNum');
         break;
     }
     // 分页

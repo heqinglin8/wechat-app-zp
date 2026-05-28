@@ -25,36 +25,39 @@
 <!--导航-->
    <view class="nav">
     <view class="nav-up">
-      <view class="nav-one-up nav-all" bindtap='bindViewToday'>
-        <view class="nav-one-up-img nav-all-img">
-          <image src="../../images/zwgw.png" />
-        </view>
-        <view class="nav-text" >
-          <text style="font-weight:600;">全部职位</text>
-        </view>
-      </view>
-      <view class="nav-tow-up nav-all" bindtap='bindViewTodayGxz' >
-        <view class="nav-tow-up-img nav-all-img">
-          <image src="../../images/bt.png"/>
-        </view>
-        <view class="nav-text">
-          <text style="font-weight:600;">高薪资</text>
-        </view>
-      </view>
-      <view class="nav-three-up nav-all" bindtap='bindViewTodayLsg' >
-        <view class="nav-three-up-img nav-all-img">
-          <image src="../../images/xz.png"/>
-        </view>
-        <view class="nav-text">        
-          <text style="font-weight:600;">临时工</text>
-        </view>        
-      </view>
       <view class="nav-four-up nav-all" bindtap='bindViewTodayTj'>
         <view class="nav-four-up-img nav-all-img">
           <image src="../../images/sgry.png"/>
         </view>
         <view class="nav-text">
-          <text style="font-weight:600;">推荐</text>
+          <text style="font-weight:600;">推荐职位</text>
+        </view>
+      </view>
+
+      <view class="nav-one-up nav-all" bindtap='bindViewToday'>
+        <view class="nav-one-up-img nav-all-img">
+          <image src="../../images/zwgw.png" />
+        </view>
+        <view class="nav-text" >
+          <text style="font-weight:600;">最新职位</text>
+        </view>
+      </view>
+      
+      <view class="nav-three-up nav-all" bindtap='bindViewTodayLsg' >
+        <view class="nav-three-up-img nav-all-img">
+          <image src="../../images/xz.png"/>
+        </view>
+        <view class="nav-text">        
+          <text style="font-weight:600;">求职推荐</text>
+        </view>        
+      </view>
+
+      <view class="nav-tow-up nav-all" bindtap='bindViewTodayGxz' >
+        <view class="nav-tow-up-img nav-all-img">
+          <image src="../../images/bt.png"/>
+        </view>
+        <view class="nav-text">
+          <text style="font-weight:600;">最新求职</text>
         </view>
       </view>
     </view>
@@ -77,20 +80,20 @@
           <text style="font-weight:600;">求职热线</text>
         </view>
       </view>
-      <view class="nav-three-down nav-all"  bindtap="bindViewAward">
-        <view class="nav-three-down-img nav-all-img">
-          <image src="../../images/jl.png"/>
-        </view>
-        <view class="nav-text">
-          <text style="font-weight:600;">推荐奖励</text>
-        </view>
-      </view>
       <view class="nav-four-down nav-all" bindtap="bindViewLoaction">
         <view class="nav-four-down-img nav-all-img">
           <image src="../../images/dh.png"/>
         </view>
         <view class="nav-text">
-          <text style="font-weight:600;">门店导航</text>
+          <text style="font-weight:600;">推荐职位</text>
+        </view>
+      </view>
+      <view class="nav-three-down nav-all"  bindtap="bindViewAward">
+        <view class="nav-three-down-img nav-all-img">
+          <image src="../../images/jl.png"/>
+        </view>
+        <view class="nav-text">
+          <text style="font-weight:600;">推荐人才</text>
         </view>
       </view>
     </view>

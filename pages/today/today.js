@@ -110,26 +110,26 @@ Page({
     var that = this;
     var page_size = 10;
     var query = Bmob.Query("DetailInfo");
-    ////console.log('分页传值:' + currentTaB);
+    //console.log('分页传值:' + currentTaB);
     //列表判断
     switch (that.data.currentTab) {
       case 0:
-        //console.log('全部职位');
-        query.order('-updatedAt');
+         //console.log('推荐');
+         query.order('-entNum');
         break;
       case 1:
-        //console.log('高薪资');
-        query.equalTo("payType", "==", 0);
-        query.order('-detPayMax');
+        //console.log('最新职位');
+        query.order('-updatedAt');
         break;
       case 2:
-        //console.log('临时工');
-        query.equalTo("payType", "==", 1);
-        query.order('-detPayMax');
+           //console.log('高薪资');
+           query.equalTo("payType", "==", 0);
+           query.order('-detPayMax');
         break;
       case 3:
-        //console.log('推荐');
-        query.order('-entNum');
+            //console.log('临时工');
+            query.equalTo("payType", "==", 1);
+            query.order('-detPayMax');
         break;
     }
     // 分页

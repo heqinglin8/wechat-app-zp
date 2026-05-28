@@ -65,7 +65,7 @@ Page({
   //点击门店导航页面跳转
   bindViewLoaction:function(){
     wx.navigateTo({
-      url: '../map/map'
+      url: '../publishjob/publishjob'
     })
     
   },
@@ -115,9 +115,8 @@ Page({
         query.order('-updatedAt');
         break;
       case 1:
-        //console.log('高薪资');
-        query.equalTo("payType", "==", 0);
-        query.order('-detPayMax');
+        //console.log('推荐');
+        query.order('-entNum');
         break;
       case 2:
         //console.log('临时工');
@@ -125,8 +124,9 @@ Page({
         query.order('-detPayMax');
         break;
       case 3:
-        //console.log('推荐');
-        query.order('-entNum');
+         //console.log('高薪资');
+         query.equalTo("payType", "==", 0);
+         query.order('-detPayMax');
         break;
     }
   // 分页
@@ -198,7 +198,7 @@ Page({
    * 推荐奖励跳转
    */
   bindViewAward: function () { 
-    wx.switchTab({
+    wx.navigateTo({
       url: '../award/award'
     })
   },
@@ -215,18 +215,18 @@ Page({
    * 今日招聘（全部职位）跳转
    */
   bindViewToday: function () {
-    app.globalData.tabid = 0;
+    app.globalData.tabid = 1;
     wx.switchTab({
       url: '../today/today',
     })
   },  
   /**
- * 今日招聘（高薪资）跳转
+ * 最新求职-跳转
  */
   bindViewTodayGxz: function () {
     app.globalData.tabid=1;
     wx.switchTab({
-      url: '../today/today',
+      url: '../todayjobseek/todayjobseek',
       success: function (e) {
         var page = getCurrentPages().pop();
         if (page == undefined || page == null) return;
@@ -238,9 +238,9 @@ Page({
  * 今日招聘（临时工）跳转
  */
   bindViewTodayLsg: function () {
-    app.globalData.tabid = 2;
+    app.globalData.tabid = 0;
     wx.switchTab({
-      url: '../today/today',
+      url: '../todayjobseek/todayjobseek',
       success: function (e) {
         var page = getCurrentPages().pop();
         if (page == undefined || page == null) return;
@@ -252,7 +252,7 @@ Page({
  * 今日招聘（推荐）跳转
  */
   bindViewTodayTj: function () {
-    app.globalData.tabid = 3;
+    app.globalData.tabid = 0;
     wx.switchTab({
       url: '../today/today',
       success: function (e) { 
