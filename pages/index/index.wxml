@@ -45,10 +45,10 @@
       
       <view class="nav-three-up nav-all" bindtap='bindViewTodayLsg' >
         <view class="nav-three-up-img nav-all-img">
-          <image src="../../images/xz.png"/>
+          <image src="../../images/sgry.png"/>
         </view>
         <view class="nav-text">        
-          <text style="font-weight:600;">求职推荐</text>
+          <text style="font-weight:600;">最火求职</text>
         </view>        
       </view>
 

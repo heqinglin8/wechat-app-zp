@@ -203,6 +203,7 @@ Page({
   },
   //点击微信咨询
   bindViewXWZX: function () {
+    console.log('点击微信咨询')
     wx.showToast({
       title: '此功能暂未启用',
       image: "../../images/warning.png",
@@ -215,11 +216,13 @@ Page({
    */
   isuser:function(){
     var that = this
+    var currentUser = Bmob.User.current();
+    if (currentUser) {
+      //console.log('用户存在');
     var query = Bmob.Query("_User");
-    var objectId = wx.getStorageSync('objectId');
-    query.equalTo("objectId", "==", objectId);
-
-    // 查询用户是否存在
+    var uid = currentUser.objectId
+    query.equalTo("objectId", "==", uid);
+        // 查询用户是否存在
     query.find().then(function(results) {
       //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
       if (results.length == 0) {
@@ -238,6 +241,12 @@ Page({
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
     });
+    } else {
+      //console.log('用户不存在');
+      wx.redirectTo({
+        url: '../personal/personal',
+      })
+    }
   },
 
   /**
