@@ -59,7 +59,7 @@ Page({
     //console.log("1111111" + objectId);
     // 跳转到详情页
     wx.navigateTo({
-      url: '../detail/detail?objectId=' + objectId
+      url: '../detail/detail?jobId=' + objectId
     });
   },
   //点击门店导航页面跳转
