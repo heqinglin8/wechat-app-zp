@@ -20,7 +20,7 @@
   "window": {
     "navigationBarBackgroundColor": "#fc3",
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "韶关打工信息网",
+    "navigationBarTitleText": "同城jobs",
     "backgroundTextStyle": "light",
     "onReachBottom": true
   },
