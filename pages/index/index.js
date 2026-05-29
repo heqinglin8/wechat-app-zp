@@ -13,7 +13,7 @@ Page({
   data: {
     loadingTip:"上拉加载更多",
     page_index:0,
-    detailInfo:"",
+    jobInfo:"",
 
     swiperCurrent: 0,
     indicatorDots: true,
@@ -55,7 +55,7 @@ Page({
     var index = e.currentTarget.dataset.index;
   //  console.log("1111111" + index);
     // 取出objectId
-    var objectId = that.data.detailInfo[index].objectId;
+    var objectId = that.data.jobInfo[index].objectId;
     //console.log("1111111" + objectId);
     // 跳转到详情页
     wx.navigateTo({
@@ -107,7 +107,7 @@ Page({
     ////console.log('分页传值:' + this.data.currentTab);
     var that = this;
     var page_size = 10;
-    var query = Bmob.Query("DetailInfo");
+    var query = Bmob.Query("JobInfo");
     ////console.log('分页传值:' + currentTaB);
     switch (that.data.currentTab) {
       case 0:
@@ -138,18 +138,18 @@ Page({
   query.find().then(function(results) {
     // 请求成功将数据存入article_list
     that.setData({
-      detailInfo: that.data.detailInfo.concat(util.formatList(results))
+      jobInfo: that.data.jobInfo.concat(util.formatList(results))
     });
     //console.log('查询数量:' + results.length + '加载数量' + page_size)
 
     if(results.length < page_size){
       //如果数据库中剩余的条数 不够下次分页加载则全部加载
-      var innerQuery = Bmob.Query("DetailInfo");
+      var innerQuery = Bmob.Query("JobInfo");
       innerQuery.skip(that.data.page_index * page_size);
       innerQuery.find().then(function(results) {
         //console.log('最后剩余数量：'+results.length)
         that.setData({
-          detailInfo: that.data.detailInfo.concat(util.formatList(results))
+          jobInfo: that.data.jobInfo.concat(util.formatList(results))
         });
       });
 
@@ -346,7 +346,7 @@ Page({
   switchTabLoad: function(e){
     var that = this;
     this.cleardata();
-    var query = Bmob.Query("DetailInfo");
+    var query = Bmob.Query("JobInfo");
     switch (e) {
       case '0':
         //console.log('全部职位');
@@ -376,9 +376,9 @@ Page({
     // 查询数据
     query.find().then(function(results) {
       //console.log("第一次加载 " + results.length + "条记录");
-      //请求将数据存入detailInfo
+      //请求将数据存入jobInfo
       that.setData({
-        detailInfo: util.formatList(results),
+        jobInfo: util.formatList(results),
         page_index:0,
         loadingTip:"上拉加载更多"
       });
@@ -391,7 +391,7 @@ Page({
   qbzwLoad:function(){
     var that = this;
     // 动态添加列表详情
-    var query = Bmob.Query("DetailInfo");
+    var query = Bmob.Query("JobInfo");
     query.order('-updatedAt');
     query.limit(10);
     wx.showToast({
@@ -402,9 +402,9 @@ Page({
     // 查询所有数据
     query.find().then(function(results) {
       //console.log("第一次加载 " + results.length + "条记录");
-      //请求将数据存入detailInfo
+      //请求将数据存入jobInfo
       that.setData({
-        detailInfo: util.formatList(results)
+        jobInfo: util.formatList(results)
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
@@ -413,7 +413,7 @@ Page({
   //清空招聘列表
   cleardata: function(){
     this.setData({
-      detailInfo:[]
+      jobInfo:[]
     });
   },
 

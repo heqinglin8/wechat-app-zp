@@ -110,7 +110,7 @@ Page({
     ////console.log('分页传值:' + this.data.currentTab);
     var that = this;
     var page_size = 10;
-    var query = Bmob.Query("MyRecommend");
+    var query = Bmob.Query("JobSeeker");
     ////console.log('分页传值:' + currentTaB);
     //列表判断
     switch (that.data.currentTab) {
@@ -149,7 +149,7 @@ Page({
 
       if (results.length < page_size) {
         //如果数据库中剩余的条数 不够下次分页加载则全部加载
-        var innerQuery = Bmob.Query("MyRecommend");
+        var innerQuery = Bmob.Query("JobSeeker");
         innerQuery.skip(that.data.page_index * page_size);
         innerQuery.find().then(function(results) {
           //console.log('最后剩余数量：' + results.length)
@@ -223,7 +223,7 @@ Page({
     var that = this;
     //清空列表数据
     this.cleardata();
-    var query = Bmob.Query("MyRecommend");
+    var query = Bmob.Query("JobSeeker");
     var e=e+''
 
     switch (e) {
@@ -271,7 +271,7 @@ Page({
   qbzwLoad: function () {
     var that = this;
     // 动态添加列表详情
-    var query = Bmob.Query("MyRecommend");
+    var query = Bmob.Query("JobSeeker");
     query.order('-updatedAt');
     query.limit(10);
     wx.showToast({

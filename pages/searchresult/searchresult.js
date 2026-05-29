@@ -7,7 +7,7 @@ Page({
    */
   data: {
     searchValue: '',
-    detailInfo:"",
+    jobInfo:"",
     isnull:0,
     
   },
@@ -30,7 +30,7 @@ Page({
   loadinfor: function(){
     var that=this;
     // 动态添加列表详情
-    var query = Bmob.Query("DetailInfo");
+    var query = Bmob.Query("JobInfo");
     ////console.log('aaaa' + this.data.searchValue);
     query.equalTo("detAddr", "==", that.data.searchValue);
     query.order('-updatedAt');
@@ -44,9 +44,9 @@ Page({
       //console.log("查询到的信息 " + results.length + "条记录");
       if (results.length!=0)
       {
-        //请求将数据存入detailInfo
+        //请求将数据存入jobInfo
         that.setData({
-          detailInfo: results,
+          jobInfo: results,
           isnull:1
         });
       }
@@ -62,7 +62,7 @@ Page({
     var index = e.currentTarget.dataset.index;
     //console.log("1111111" + index);
     // 取出objectId
-    var objectId = that.data.detailInfo[index].objectId;
+    var objectId = that.data.jobInfo[index].objectId;
     ////console.log("1111111" + objectId);
     // 跳转到详情页
     wx.navigateTo({

@@ -5,7 +5,7 @@
 </view> 
 <view wx:else>
             <scroll-view bindscrolltolower="scrolltolower" scroll-y="true" class="scoll-h" >
-                <block wx:for="{{detailInfo}}" wx:key="*this">
+                <block wx:for="{{jobInfo}}" wx:key="*this">
                   <view class="detail-list" bindtap="showDetail" data-index="{{index}}">
                     <view class="list-image">
                        <image src="{{item.detSrc}}"/>

@@ -109,7 +109,7 @@
     <swiper class="tab-content" current="{{currentTab}}" duration="300" bindchange="switchTab" style="height:{{winHeight}}rpx">
         <swiper-item wx:for="{{[0,1,2,3]}}"wx:key="1*this"  >
             <scroll-view bindscrolltolower="scrolltolower" scroll-y="true" class="scoll-h" >
-                <block wx:for="{{detailInfo}}" wx:key="2*this">
+                <block wx:for="{{jobInfo}}" wx:key="2*this">
                   <view class="detail-list" bindtap="showDetail" data-index="{{index}}">
                     <view class="list-image">
                       <image src="{{item.firstPhoto}}"/>

@@ -58,7 +58,7 @@ Page({
     }
 
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("DetailInfo");
+    var query = Bmob.Query("JobInfo");
     query.get(that.data.objectId).then(function (results) {
       console.log("onLoad results:", results);
       that.setData({
@@ -110,7 +110,7 @@ Page({
             duration: 2000
           });
           //更新招聘信息表
-          var detailQuery = Bmob.Query("DetailInfo");
+          var detailQuery = Bmob.Query("JobInfo");
           detailQuery.get(that.data.objectId).then(function(result) {
             result.set('entNum', (that.data.num + 1));
             result.save();
@@ -154,7 +154,7 @@ Page({
     if(that.data.isFist==false)
     {
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("DetailInfo");
+    var query = Bmob.Query("JobInfo");
     //查询单条数据，第一个参数是这条数据的objectId值
     query.get(that.data.objectId).then(function(results) {
       that.setData({

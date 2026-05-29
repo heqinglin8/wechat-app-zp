@@ -38,11 +38,11 @@ images/               → 静态图标与图片资源
 
 | 表名 | 用途 |
 |------|------|
-| `DetailInfo` | 招聘岗位主体：列表、详情、`payType`、`detPayMax`、`entNum`、`detAddr`、`updatedAt`、`detName`、`detSrc` 等 |
+| `JobInfo` | 招聘岗位主体：列表、详情、`payType`、`detPayMax`、`entNum`、`detAddr`、`updatedAt`、`detName`、`detSrc` 等 |
 | `SwiperImgSrc` | 首页轮播图数据（字段如 `swiperImgSrc`） |
 | `_User` | Bmob 内置用户：`username`、`userphone`、`objectId`、`imgSrc`、`regtime` 等 |
 | `MyJoinInfo` | 用户报名记录：`userName`、`userPhone`、`myJoinName`、`detSrc` |
-| `MyRecommend` | 推广/推荐：`userName`、`recoName` 及求职者档案字段（与推荐录入、列表展示关联） |
+| `JobSeeker` | 推广/推荐：`userName`、`recoName` 及求职者档案字段（与推荐录入、列表展示关联） |
 
 **岗位分类规则（首页 / 今日招聘一致）**
 
@@ -63,18 +63,18 @@ images/               → 静态图标与图片资源
 |-----|------|------|
 | 首页 | `pages/index/index` | 搜索入口、轮播、快捷入口、「全部职位」列表与子 tab 同上 |
 | 今日招聘 | `pages/today/today` | 与首页同构的职位列表逻辑；可被 `globalData.tabid` 预选子 tab |
-| 推荐奖励 | `pages/award/award` | 填写推荐信息并写入 `MyRecommend` |
+| 推荐奖励 | `pages/award/award` | 填写推荐信息并写入 `JobSeeker` |
 | 个人中心 | `pages/personal/personal` | 登录、`token`/`objectId` 缓存、跳转我的报名 / 求职热线 / 地图 / 资料修改 |
 
 ### 4.2 非 tab 页面（节选）
 
 | 路由 | 职责 |
 |------|------|
-| `detail` | 单条 `DetailInfo`；报名写 `MyJoinInfo` 并 `entNum+1`；未注册用户会被重定向到个人中心一侧流程 |
+| `detail` | 单条 `JobInfo`；报名写 `MyJoinInfo` 并 `entNum+1`；未注册用户会被重定向到个人中心一侧流程 |
 | `search` / `searchresult` | 搜索页跳转结果：`detAddr == 搜索关键词` |
 | `register` | `Bmob.User.register`，校验手机与密码，查重 `_User.userphone` |
 | `setinfor` | 修改用户名/手机，`_User.get`/`save`，换号时防重复注册 |
-| `myjoin` / `myaward` | 报名列表、`MyRecommend` 以 `recoName` 与用户名的查询（推荐侧展示） |
+| `myjoin` / `myaward` | 报名列表、`JobSeeker` 以 `recoName` 与用户名的查询（推荐侧展示） |
 | `servicephone` | 内置多个经理称呼与电话号码，`wx.makePhoneCall` |
 | `map` | `wx.getLocation` 后 `wx.openLocation`，展示固定门店文案（韶关地区人力资源公司地址） |
 
@@ -86,7 +86,7 @@ images/               → 静态图标与图片资源
 
 ### 5.1 浏览与跳转
 
-1. **首页**：拉取轮播 `SwiperImgSrc`；首屏加载 `DetailInfo` 十条；滑动子 tab / 触底分页。
+1. **首页**：拉取轮播 `SwiperImgSrc`；首屏加载 `JobInfo` 十条；滑动子 tab / 触底分页。
 2. **今日招聘**：`onShow` 若存在 `app.globalData.tabid` 则同步 `currentTab` 并 `switchTabLoad`；从首页不同快捷入口会先设 `tabid` 再 `switchTab`。
 
 ### 5.2 搜索
@@ -97,7 +97,7 @@ images/               → 静态图标与图片资源
 
 前置：通过 `_User.objectId == wx.getStorageSync('objectId')` 判定用户是否存在；长度为 0 会 `redirectTo` 个人中心路由。
 
-对已登录用户：`MyJoinInfo` 同一 `userPhone` + `myJoinName` 去重；成功则递增该条 `DetailInfo.entNum`。
+对已登录用户：`MyJoinInfo` 同一 `userPhone` + `myJoinName` 去重；成功则递增该条 `JobInfo.entNum`。
 
 ### 5.4 注册与登录两条线
 
@@ -108,7 +108,7 @@ images/               → 静态图标与图片资源
 
 ### 5.5 推荐奖励
 
-`award`：`onReady` 用当前 `_User` 带出 `userName`、手机号用于预填联系方式；提交时按 `userName` + `recoName` 查 `MyRecommend` 去重更新，再 `switchTab` 回首页。
+`award`：`onReady` 用当前 `_User` 带出 `userName`、手机号用于预填联系方式；提交时按 `userName` + `recoName` 查 `JobSeeker` 去重更新，再 `switchTab` 回首页。
 
 ### 5.6 能力与占位
 
@@ -122,7 +122,7 @@ images/               → 静态图标与图片资源
 |-----------|------|
 | `app.globalData.tabid` | 0–3，控制今日招聘默认 tab |
 | `wx.setStorageSync('objectId'\|'sessionToken'\|'userInfo')` | 登录与身份识别 |
-| 详情路由参数 `objectId` | `DetailInfo` 主键 |
+| 详情路由参数 `objectId` | `JobInfo` 主键 |
 
 ---
 
@@ -136,4 +136,4 @@ images/               → 静态图标与图片资源
 
 ## 8. 一句话定位
 
-本项目是一个 **地域性打工招聘微信小程序**，使用 **Bmob** 托管数据与用户能力，前台以 **首页 + 今日招聘双列表引擎**、`DetailInfo` **详情报名**、`MyJoinInfo`/`MyRecommend` **记录行为**，并辅以 **热搜搜索、电话联系、门店地图**。
+本项目是一个 **地域性打工招聘微信小程序**，使用 **Bmob** 托管数据与用户能力，前台以 **首页 + 今日招聘双列表引擎**、`JobInfo` **详情报名**、`MyJoinInfo`/`JobSeeker` **记录行为**，并辅以 **热搜搜索、电话联系、门店地图**。

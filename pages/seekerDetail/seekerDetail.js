@@ -62,7 +62,7 @@ Page({
     }
    
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("MyRecommend");
+    var query = Bmob.Query("JobSeeker");
     //查询单条数据，第一个参数是这条数据的objectId值
     query.get(that.data.objectId).then(function(results) {
       // 处理photoImgs分割成photoList数组
@@ -116,7 +116,7 @@ Page({
             duration: 2000
           });
           //更新求职信息表
-          var detailQuery = Bmob.Query("MyRecommend");
+          var detailQuery = Bmob.Query("JobSeeker");
           detailQuery.get(that.data.objectId).then(function(result) {
             result.set('collectNum', (that.data.num + 1));
             result.save();
@@ -160,7 +160,7 @@ Page({
     if(that.data.isFist==false)
     {
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("MyRecommend");
+    var query = Bmob.Query("JobSeeker");
     //查询单条数据，第一个参数是这条数据的objectId值
     query.get(that.data.objectId).then(function(results) {
       // 处理photoImgs分割成photoList数组

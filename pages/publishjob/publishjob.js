@@ -1,5 +1,5 @@
 // pages/award/award.js
-// DetailInfo（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoIntro recoExtra、
+// JobInfo（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoIntro recoExtra、
 // photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
@@ -345,8 +345,8 @@ Page({
     this.setData({ recoJobIntent: (e.detail && e.detail.value) || '' });
   },
 
-  applyMyRecommendFields: function (row) {
-    console.log("applyMyRecommendFields row:",row);
+  applyJobSeekerFields: function (row) {
+    console.log("applyJobSeekerFields row:",row);
     var d = this.data;
     var edu = this.educationLabel();
     row.set('commitUsername', d.userName);
@@ -379,14 +379,14 @@ Page({
 
     that.setData({ formSubmitting: true });
 
-    var query = Bmob.Query('DetailInfo');
+    var query = Bmob.Query('JobInfo');
     query.equalTo('commitUsername', '==', that.data.userName);
     query.equalTo('title', '==', String(that.data.title).trim());
 
     query.find().then(function (results) {
       if (!results.length) {
-        var created = Bmob.Query('DetailInfo');
-        that.applyMyRecommendFields(created);
+        var created = Bmob.Query('JobInfo');
+        that.applyJobSeekerFields(created);
         return created.save().then(function () {
           wx.switchTab({ url: '../index/index' });
           setTimeout(function () {
@@ -413,9 +413,9 @@ Page({
           },
         });
       }).then(function () {
-        var updatedQuery = Bmob.Query('DetailInfo');
+        var updatedQuery = Bmob.Query('JobInfo');
         return updatedQuery.get(row.objectId).then(function (existing) {
-          that.applyMyRecommendFields(existing);
+          that.applyJobSeekerFields(existing);
           return existing.save();
         });
       }).then(function () {

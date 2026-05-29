@@ -1,6 +1,6 @@
 ## 1. 后端 / Bmob 配置
 
-- [x] 1.1 在 Bmob 控制台为 `MyRecommend` 配置列：`commitUsername`（String，提交人姓名）、`photoImgs`、`commitUid`；若仍存在仅用于提交人的旧列 `userName`，按需迁移数据后改为使用 **`commitUsername`**。
+- [x] 1.1 在 Bmob 控制台为 `JobSeeker` 配置列：`commitUsername`（String，提交人姓名）、`photoImgs`、`commitUid`；若仍存在仅用于提交人的旧列 `userName`，按需迁移数据后改为使用 **`commitUsername`**。
 
 ## 2. 页面结构与样式
 
@@ -18,9 +18,9 @@
 
 ## 4. 提交与持久化
 
-- [x] 4.1 在 `applyMyRecommendFields` 中 `row.set('photoImgs', ...)`：将当前列表中有效 URL **按顺序**用半角 `|` 拼接；无图为空字符串（或与可选字段一致）。
-- [x] 4.2 在 `applyMyRecommendFields` 中 `row.set('commitUsername', …)`：写入提交人姓名（与现有页面数据来源一致，可与 `_User.username` 预填同源）；**不再**向 `MyRecommend` 写入列名 `userName`。
-- [x] 4.3 在 `applyMyRecommendFields` 中 `row.set('commitUid', objectId)`：与登录同源；新建与更新均写入。
+- [x] 4.1 在 `applyJobSeekerFields` 中 `row.set('photoImgs', ...)`：将当前列表中有效 URL **按顺序**用半角 `|` 拼接；无图为空字符串（或与可选字段一致）。
+- [x] 4.2 在 `applyJobSeekerFields` 中 `row.set('commitUsername', …)`：写入提交人姓名（与现有页面数据来源一致，可与 `_User.username` 预填同源）；**不再**向 `JobSeeker` 写入列名 `userName`。
+- [x] 4.3 在 `applyJobSeekerFields` 中 `row.set('commitUid', objectId)`：与登录同源；新建与更新均写入。
 - [x] 4.4 调整 `put_infor` 及查询：`equalTo` 等与「提交人」相关的条件改为字段 **`commitUsername`**（及业务所需的 `recoName` 等）；提交前确保无未完成上传（若采用即选即传）；防止重复提交。
 - [x] 4.5 更新 `award.js` 文件头注释：`photoImgs`、`commitUsername`、`commitUid`、`|`、**最多 6 张**、替换行为、校验规则。
 

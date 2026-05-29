@@ -2,7 +2,7 @@
 
 ## Purpose
 
-由变更 recommend-job-seeker 归档生成；描述招聘小程序「推荐求职者」页（`pages/award/award`）的表单能力、默认值及写入 Bmob `MyRecommend` 的行为。
+由变更 recommend-job-seeker 归档生成；描述招聘小程序「推荐求职者」页（`pages/award/award`）的表单能力、默认值及写入 Bmob `JobSeeker` 的行为。
 
 ## Requirements
 
@@ -28,14 +28,14 @@
 
 ---
 
-### Requirement: 确认后将数据持久化到 MyRecommend
+### Requirement: 确认后将数据持久化到 JobSeeker
 
-当用户确认提交（例如点击主要「确定/提交」控件）时，系统 MUST 将完整表单写入 Bmob 表 `MyRecommend`，包含提交人 `userName` 以及变更设计中约定的全部求职者相关字段。
+当用户确认提交（例如点击主要「确定/提交」控件）时，系统 MUST 将完整表单写入 Bmob 表 `JobSeeker`，包含提交人 `userName` 以及变更设计中约定的全部求职者相关字段。
 
 #### Scenario: 提交成功
 
 - **WHEN** 用户点击确认控件且校验通过
-- **THEN** 客户端**须**写入一条 `MyRecommend` 记录（或按设计决策更新已有记录），至少包含：提交人 `userName`，求职者身份字段（已实现的 `recoName`、`recoEducation`、`recoContact`、`recoJobIntent`、`recoSalaryRange`、`recoIntro`、`recoExtra`），并与实现所选的去重/更新规则一致。
+- **THEN** 客户端**须**写入一条 `JobSeeker` 记录（或按设计决策更新已有记录），至少包含：提交人 `userName`，求职者身份字段（已实现的 `recoName`、`recoEducation`、`recoContact`、`recoJobIntent`、`recoSalaryRange`、`recoIntro`、`recoExtra`），并与实现所选的去重/更新规则一致。
 
 ---
 

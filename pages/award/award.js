@@ -1,5 +1,5 @@
 // pages/award/award.js
-// MyRecommend（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoIntro recoExtra、
+// JobSeeker（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoIntro recoExtra、
 // photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
@@ -342,8 +342,8 @@ Page({
     return true;
   },
 
-  applyMyRecommendFields: function (row) {
-    console.log("applyMyRecommendFields row:",row);
+  applyJobSeekerFields: function (row) {
+    console.log("applyJobSeekerFields row:",row);
     var d = this.data;
     var edu = this.educationLabel();
     row.set('commitUsername', d.userName);
@@ -376,16 +376,16 @@ Page({
 
     that.setData({ formSubmitting: true });
 
-    var query = Bmob.Query('MyRecommend');
+    var query = Bmob.Query('JobSeeker');
     query.equalTo('commitUsername', '==', that.data.userName);
     query.equalTo('recoName', '==', String(that.data.recoName).trim());
 
     query.find().then(function (results) {
-      console.log("查询 MyRecommend results:",results,!results.length);
+      console.log("查询 JobSeeker results:",results,!results.length);
       if (!results.length) {
-        console.log("查询 MyRecommend 无记录，创建新推荐");
-        var created = Bmob.Query('MyRecommend');
-        that.applyMyRecommendFields(created);
+        console.log("查询 JobSeeker 无记录，创建新推荐");
+        var created = Bmob.Query('JobSeeker');
+        that.applyJobSeekerFields(created);
         return created.save().then(function () {
           wx.switchTab({ url: '../index/index' });
           setTimeout(function () {
@@ -393,7 +393,7 @@ Page({
           }, 320);
         });
       }
-      console.log("查询 MyRecommend 有记录，更新档案");
+      console.log("查询 JobSeeker 有记录，更新档案");
       var row = results[0];
       return new Promise(function (resolve, reject) {
         wx.showModal({
@@ -413,9 +413,9 @@ Page({
           },
         });
       }).then(function () {
-        var updatedQuery = Bmob.Query('MyRecommend');
+        var updatedQuery = Bmob.Query('JobSeeker');
         return updatedQuery.get(row.objectId).then(function (existing) {
-          that.applyMyRecommendFields(existing);
+          that.applyJobSeekerFields(existing);
           return existing.save();
         });
       }).then(function () {

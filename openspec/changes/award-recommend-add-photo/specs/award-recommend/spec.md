@@ -34,11 +34,11 @@
 
 ---
 
-### Requirement: 确认后将数据持久化到 MyRecommend
+### Requirement: 确认后将数据持久化到 JobSeeker
 
-当用户确认提交（例如点击主要「确定/提交」控件）时，系统 MUST 将完整表单写入 Bmob 表 `MyRecommend`，包含提交人 `userName`、提交用户标识 `commitUid`（当前登录用户 `objectId`）、多张图 URL 经半角字符 `|` 拼接后的 `photoImgs`，以及变更设计中约定的其余求职者相关字段。
+当用户确认提交（例如点击主要「确定/提交」控件）时，系统 MUST 将完整表单写入 Bmob 表 `JobSeeker`，包含提交人 `userName`、提交用户标识 `commitUid`（当前登录用户 `objectId`）、多张图 URL 经半角字符 `|` 拼接后的 `photoImgs`，以及变更设计中约定的其余求职者相关字段。
 
 #### Scenario: 提交成功
 
 - **WHEN** 用户点击确认控件且校验通过
-- **THEN** 客户端**须**写入一条 `MyRecommend` 记录（或按设计决策更新已有记录），至少包含：提交人 `userName`，当前登录用户的 `objectId` 作为 `commitUid`，求职者身份字段（已实现的 `recoName`、`recoEducation`、`recoContact`、`recoJobIntent`、`recoSalaryRange`、`recoIntro`、`recoExtra`），以及将多张已上传图片的 URL 使用半角字符 `|` 拼接后的 `photoImgs` 字段（若无图片则 `photoImgs` 为空字符串或与实现对可选字段的空值策略一致），并与实现所选的去重/更新规则一致。
+- **THEN** 客户端**须**写入一条 `JobSeeker` 记录（或按设计决策更新已有记录），至少包含：提交人 `userName`，当前登录用户的 `objectId` 作为 `commitUid`，求职者身份字段（已实现的 `recoName`、`recoEducation`、`recoContact`、`recoJobIntent`、`recoSalaryRange`、`recoIntro`、`recoExtra`），以及将多张已上传图片的 URL 使用半角字符 `|` 拼接后的 `photoImgs` 字段（若无图片则 `photoImgs` 为空字符串或与实现对可选字段的空值策略一致），并与实现所选的去重/更新规则一致。
