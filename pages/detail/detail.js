@@ -10,8 +10,6 @@ Page({
    */
   data: {
     content: '',
-    username: '',
-    userphone: '',
     companyName: '',
     //轮播图片数组
     photoList: [],
@@ -22,7 +20,7 @@ Page({
     num: '',
     //是否为第一次加载
     isfist: true,
-    uid: '', //用户id
+    userId: '', //用户id
     hasJoined: false, //是否已报名
   },
   /**
@@ -78,7 +76,7 @@ Page({
     var companyName = this.data.companyName;
     var that = this;
     //判断用户是否注册
-    if (that.data.username.length == 0){
+    if (that.data.userId.length == 0){
       wx.showToast({
         title: '请先注册',
         image: "../../images/warning.png",
@@ -87,7 +85,7 @@ Page({
     }
     else {
       var query = Bmob.Query("MyJoinInfo"); 
-      query.equalTo("uid", "==", that.data.uid);
+      query.equalTo("userId", "==", that.data.userId);
       query.equalTo("jobId", "==", that.data.jobId);
       // 查询用户是否已经报名过这个岗位
       query.find().then(function(results) {
@@ -95,11 +93,9 @@ Page({
         if (results.length == 0) {
           // 未报名，执行报名逻辑
           var diary = Bmob.Query("MyJoinInfo");
-          diary.set("userName", that.data.username);
-          diary.set("userPhone", that.data.userphone);
-          diary.set("joinCompanyName", that.data.companyName);
-          diary.set("uid", that.data.uid);
+          diary.set("userId", that.data.userId);
           diary.set("jobId", that.data.jobId);
+          diary.set("joinCompanyName", that.data.companyName);
           diary.save().then(function(result) {
             // 报名表添加成功
             wx.showToast({
@@ -157,7 +153,7 @@ Page({
         }
 
         var query = Bmob.Query("MyJoinInfo");
-        query.equalTo("uid", "==", that.data.uid);
+        query.equalTo("userId", "==", that.data.userId);
         query.equalTo("jobId", "==", that.data.jobId);
         query.find().then(function (results) {
           if (!results || results.length === 0) {
@@ -220,10 +216,10 @@ Page({
    */
   onShow: function () {
     var that = this;
-    console.log('uid'+that.data.uid+' jobId:'+that.data.jobId)
+    console.log('userId'+that.data.userId+' jobId:'+that.data.jobId)
     // 查询是否已报名
     var query = Bmob.Query("MyJoinInfo");
-    query.equalTo("uid", "==", that.data.uid);
+    query.equalTo("userId", "==", that.data.userId);
     query.equalTo("jobId", "==", that.data.jobId);
     query.find().then(function(results) {
       console.log("查询报名状态:共查询到 " + results.length + " 条记录");
@@ -320,8 +316,7 @@ Page({
       } else {
         //用户存在
         that.setData({
-          username: results[0].username,
-          userphone: results[0].userphone
+          userId: results[0].objectId
         });
         //console.log('用户存在');
       }

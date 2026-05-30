@@ -3,6 +3,7 @@
 //引入SDK
 var Bmob = wx.Bmob;
 var app = getApp();
+var util = require('../../utils/util.js');
 Page({
 
   /**
@@ -10,8 +11,7 @@ Page({
    */
   data: {
     content:'',
-    username:'',
-    userphone:'',
+    userId:'',
     jobSeekId:'',
     //收藏个数
     num:'',
@@ -21,6 +21,8 @@ Page({
     photoList: [],
     //当前轮播索引
     currentPhotoIndex: 0,
+    //是否已收藏当前求职信息
+    hasCollected: false,
   },
   /**
    * 求职热线跳转
@@ -49,18 +51,18 @@ Page({
 
     var that = this;
     // 获取传参
-    if (options!=null)
-    {
-
+    if (options!=null){
       that.setData({
         jobSeekId: options.jobSeekId,
       });
-      //console.log('options为空')
+      console.log('onLoad options为空')
     }else{
      
-      //console.log('options不为空')
+      console.log('onLoadoptions不为空')
     }
-   
+
+    that.checkCollectStatus();
+    console.log('userId'+that.data.userId+' jobSeekId:'+that.data.jobSeekId)
     // 向Bmob请求详情页数据
     var query = Bmob.Query("JobSeeker");
     //查询单条数据，第一个参数是这条数据的objectId值
@@ -68,8 +70,9 @@ Page({
       // 处理photoImgs分割成photoList数组
       var photoList = [];
       if (results.photoImgs && results.photoImgs.length > 0) {
-        photoList = results.photoImgs.split('|');
+        photoList = results.photoImgs.split('|').map(path => util.toAvatarDisplayUrl(path));
       }
+      console.log("onLoad results：", results, " photoList:", photoList)
       that.setData({
         content: results,
         num: results.collectNum,
@@ -77,6 +80,7 @@ Page({
       });
     }).catch(function(error) {
       // 查询失败
+      console.log("查询失败: " + error.code + " " + error.message);
     });
   
   },
@@ -85,7 +89,7 @@ Page({
     var that = this;
     //console.log(name);
     //判断用户是否注册
-    if (that.data.username.length==0){
+    if (that.data.userId.length==0){
       //用户已注册
       wx.showToast({
         title: '请先注册',
@@ -95,9 +99,8 @@ Page({
     }
     else{
     var query = Bmob.Query("MyCollectInfo"); 
-    query.equalTo("userphone", "==", that.data.userphone);
-    query.equalTo("username", "==", that.data.username);
-    query.equalTo("type", "==", "1");
+    query.equalTo("userId", "==", that.data.userId);
+    query.equalTo("jobSeekId", "==", that.data.jobSeekId);
     // 查询用户是否已经被我收藏过
     query.find().then(function(results) {
       //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
@@ -105,9 +108,10 @@ Page({
        
        //提交用户信息
         var diary = Bmob.Query("MyCollectInfo");
-        diary.set("username", that.data.username);
-        diary.set("userphone", that.data.userphone);
+        diary.set("userId", that.data.userId);
+        //类型："0"=收藏用户求职信息；“1”=收藏用户求职信息；“2”=收藏岗位
         diary.set("type", "1");
+        diary.set("jobSeekId", that.data.jobSeekId);
         diary.save().then(function(result) {
           //收藏表添加成功，
           wx.showToast({
@@ -123,6 +127,7 @@ Page({
             //console.log('+1')
             that.setData({
               isFist:false,
+              hasCollected: true,
             });
             that.onShow();
           }).catch(function(error) {
@@ -145,6 +150,99 @@ Page({
     });
     }
   },
+
+  // 查询当前用户是否已收藏当前求职信息
+  checkCollectStatus: function () {
+    var that = this;
+    if (!that.data.userId || !that.data.jobSeekId) {
+      that.setData({
+        hasCollected: false,
+      });
+      return;
+    }
+
+    var query = Bmob.Query("MyCollectInfo");
+    query.equalTo("userId", "==", that.data.userId);
+    query.equalTo("jobSeekId", "==", that.data.jobSeekId);
+    query.find().then(function (results) {
+      that.setData({
+        hasCollected: results.length > 0,
+      });
+    }).catch(function () {
+      that.setData({
+        hasCollected: false,
+      });
+    });
+  },
+
+  // 取消收藏当前求职信息
+  cancelCollect: function () {
+    var that = this;
+    wx.showModal({
+      title: '取消收藏',
+      content: '确认取消收藏该求职信息吗？',
+      cancelText: '再想想',
+      confirmText: '确认取消',
+      success: function (res) {
+        if (!res.confirm) {
+          return;
+        }
+
+        var query = Bmob.Query("MyCollectInfo");
+        query.equalTo("userId", "==", that.data.userId);
+        query.equalTo("jobSeekId", "==", that.data.jobSeekId);
+        query.find().then(function (results) {
+          if (!results || results.length === 0) {
+            that.setData({
+              hasCollected: false
+            });
+            wx.showToast({
+              title: '删除成功',
+              icon: 'success',
+              duration: 2000
+            });
+            return;
+          }
+
+          var destroyTasks = results
+            .map(function (item) {
+              return item && item.objectId;
+            })
+            .filter(function (id) {
+              return !!id;
+            })
+            .map(function (id) {
+              return query.destroy(id);
+            });
+
+          Promise.all(destroyTasks).then(function () {
+            that.setData({
+              hasCollected: false,
+              isFist: false,
+            });
+            wx.showToast({
+              title: '删除成功',
+              icon: 'success',
+              duration: 2000
+            });
+            that.onShow();
+          }).catch(function () {
+            wx.showToast({
+              title: '删除失败',
+              image: "../../images/warning.png",
+              duration: 2000
+            });
+          });
+        }).catch(function () {
+          wx.showToast({
+            title: '删除失败',
+            image: "../../images/warning.png",
+            duration: 2000
+          });
+        });
+      }
+    });
+  },
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
@@ -157,26 +255,25 @@ Page({
    */
   onShow: function () {
     var that=this;
-    if(that.data.isFist==false)
-    {
+    that.checkCollectStatus();
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("JobSeeker");
-    //查询单条数据，第一个参数是这条数据的objectId值
-    query.get(that.data.jobSeekId).then(function(results) {
-      // 处理photoImgs分割成photoList数组
-      var photoList = [];
-      if (results.photoImgs && results.photoImgs.length > 0) {
-        photoList = results.photoImgs.split('|');
-      }
-      that.setData({
-        content: results,
-        photoList: photoList,
-      });
-    }).catch(function(error) {
-      // 查询失败
-    });
-    
-    }
+    // var query = Bmob.Query("JobSeeker");
+    // //查询单条数据，第一个参数是这条数据的objectId值
+    // query.get(that.data.jobSeekId).then(function(results) {
+    //   // 处理photoImgs分割成photoList数组
+    //   var photoList = [];
+    //   if (results.photoImgs && results.photoImgs.length > 0) {
+    //     photoList = results.photoImgs.split('|');
+    //   }
+    //   console.log("results", results, " photoList:", photoList)
+    //   that.setData({
+    //     content: results,
+    //     num: results.collectNum,
+    //     photoList: photoList,
+    //   });
+    // }).catch(function(error) {
+    //   // 查询失败
+    // });
   },
 
   /**
@@ -242,30 +339,29 @@ Page({
         url: '../personal/personal',
     })}else{
     //console.log('用户存在');
-      var uid = currentUser.objectId;
+      var userId = currentUser.objectId;
       that.setData({
-        uid: uid,
+        userId: userId,
       });
-      var query = Bmob.Query("_User");
-      query.equalTo("objectId", "==", uid);
-  // 查询用户是否存在
-    query.find().then(function(results) {
-      //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
-      if (results.length == 0) {
-        wx.redirectTo({
-          url: '../personal/personal',
-        })
-      } else {
-        //用户存在
-        that.setData({
-          username: results[0].username,
-          userphone: results[0].userphone,
-        });
-        //console.log('用户存在');
-      }
-    }).catch(function(error) {
-      //console.log("查询失败: " + error.code + " " + error.message);
-    });
+    //   var query = Bmob.Query("_User");
+    //   query.equalTo("objectId", "==", userId);
+    //    //查询用户是否存在
+    // query.find().then(function(results) {
+    //   //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
+    //   if (results.length == 0) {
+    //     wx.redirectTo({
+    //       url: '../personal/personal',
+    //     })
+    //   } else {
+    //     //用户存在
+    //     that.setData({
+    //       userId: results[0].objectId,
+    //     });
+    //     //console.log('用户存在');
+    //   }
+    // }).catch(function(error) {
+    //   //console.log("查询失败: " + error.code + " " + error.message);
+    // });
 
     }
   }
