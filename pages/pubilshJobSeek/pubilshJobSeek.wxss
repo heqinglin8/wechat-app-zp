@@ -1,4 +1,4 @@
-/* pages/award/award.wxss */
+/* pages/pubilshJobSeek/pubilshJobSeek.wxss */
 .award-scroll {
   height: 100vh;
   box-sizing: border-box;

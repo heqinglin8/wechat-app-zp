@@ -2,7 +2,7 @@ Component({
   methods: {
     onFabTap1() {
        wx.navigateTo({
-      url: '../award/award'
+      url: '../pubilshJobSeek/pubilshJobSeek'
     })
     },
     onFabTap2() {

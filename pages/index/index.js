@@ -199,7 +199,7 @@ Page({
    */
   bindViewAward: function () { 
     wx.navigateTo({
-      url: '../award/award'
+      url: '../pubilshJobSeek/pubilshJobSeek'
     })
   },
   

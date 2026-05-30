@@ -1,4 +1,4 @@
-<!--pages/award/award.wxml-->
+<!--pages/pubilshJobSeek/pubilshJobSeek.wxml-->
 <scroll-view class="award-scroll" scroll-y>
   <view class="award">
   <!--
