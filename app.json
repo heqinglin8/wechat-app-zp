@@ -2,7 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/search/search",
-    "pages/detail/detail",
+    "pages/jobDetail/jobDetail",
     "pages/today/today",
     "pages/award/award",
     "pages/servicephone/servicephone",

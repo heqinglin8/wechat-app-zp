@@ -59,7 +59,7 @@ Page({
     //console.log("1111111" + objectId);
     // 跳转到详情页
     wx.navigateTo({
-      url: '../detail/detail?jobId=' + objectId
+      url: '../jobDetail/jobDetail?jobId=' + objectId
     });
   },
   //点击门店导航页面跳转
@@ -191,7 +191,7 @@ Page({
    */
   bindViewList: function () {
     wx.navigateTo({
-      url: '../detail/detail'
+      url: '../jobDetail/jobDetail'
     })
   },
   /**
