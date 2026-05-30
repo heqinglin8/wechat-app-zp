@@ -51,7 +51,7 @@ Page({
     ////console.log("1111111" + objectId);
     // 跳转到详情页
     wx.navigateTo({
-      url: '../seekerDetail/seekerDetail?jobId=' + objectId
+      url: '../seekerDetail/seekerDetail?jobSeekId=' + objectId
     });
   },
   /**

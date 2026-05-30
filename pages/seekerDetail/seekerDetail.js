@@ -12,7 +12,7 @@ Page({
     content:'',
     username:'',
     userphone:'',
-    objectId:'',
+    jobSeekId:'',
     //收藏个数
     num:'',
     //是否为第一次加载
@@ -53,7 +53,7 @@ Page({
     {
 
       that.setData({
-        objectId: options.objectId,
+        jobSeekId: options.jobSeekId,
       });
       //console.log('options为空')
     }else{
@@ -64,7 +64,7 @@ Page({
     // 向Bmob请求详情页数据
     var query = Bmob.Query("JobSeeker");
     //查询单条数据，第一个参数是这条数据的objectId值
-    query.get(that.data.objectId).then(function(results) {
+    query.get(that.data.jobSeekId).then(function(results) {
       // 处理photoImgs分割成photoList数组
       var photoList = [];
       if (results.photoImgs && results.photoImgs.length > 0) {
@@ -117,7 +117,7 @@ Page({
           });
           //更新求职信息表
           var detailQuery = Bmob.Query("JobSeeker");
-          detailQuery.get(that.data.objectId).then(function(result) {
+          detailQuery.get(that.data.jobSeekId).then(function(result) {
             result.set('collectNum', (that.data.num + 1));
             result.save();
             //console.log('+1')
@@ -162,7 +162,7 @@ Page({
     // 向Bmob请求详情页数据
     var query = Bmob.Query("JobSeeker");
     //查询单条数据，第一个参数是这条数据的objectId值
-    query.get(that.data.objectId).then(function(results) {
+    query.get(that.data.jobSeekId).then(function(results) {
       // 处理photoImgs分割成photoList数组
       var photoList = [];
       if (results.photoImgs && results.photoImgs.length > 0) {
@@ -235,11 +235,20 @@ Page({
    */
   isuser:function(){
     var that = this
-    var query = Bmob.Query("_User");
-    var objectId = wx.getStorageSync('objectId');
-    query.equalTo("objectId", "==", objectId);
-
-    // 查询用户是否存在
+    var currentUser = Bmob.User.current();
+    if (!currentUser) {
+      //console.log('用户不存在');
+      wx.redirectTo({
+        url: '../personal/personal',
+    })}else{
+    //console.log('用户存在');
+      var uid = currentUser.objectId;
+      that.setData({
+        uid: uid,
+      });
+      var query = Bmob.Query("_User");
+      query.equalTo("objectId", "==", uid);
+  // 查询用户是否存在
     query.find().then(function(results) {
       //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
       if (results.length == 0) {
@@ -257,6 +266,8 @@ Page({
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
     });
+
+    }
   }
 
 })
