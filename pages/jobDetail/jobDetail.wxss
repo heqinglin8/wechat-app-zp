@@ -80,7 +80,10 @@
   font-size: 12px;
 }
 .det-money-list-text{
-  padding-bottom: 48px;
+  padding-bottom: 8px;
+}
+.message-board-host{
+  padding-bottom: 1px;
 }
 .det-nav ul li{
   font-size: 12px;
@@ -129,4 +132,3 @@ border: none;
 .dot.active {
   background-color: #000;
 }
-

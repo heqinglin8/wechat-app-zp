@@ -23,6 +23,7 @@ Page({
     currentPhotoIndex: 0,
     //是否已收藏当前求职信息
     hasCollected: false,
+    detailMessageEnabled: true,
   },
   /**
    * 求职热线跳转
@@ -77,6 +78,7 @@ Page({
         content: results,
         num: results.collectNum,
         photoList: photoList,
+        detailMessageEnabled: results.detailMessageEnabled !== false && results.messageBoardEnabled !== false && results.allowMessage !== false,
       });
     }).catch(function(error) {
       // 查询失败

@@ -1,0 +1,138 @@
+<view class="message-board">
+  <view class="message-board-title">
+    <text>留言</text>
+    <text class="message-board-refresh" bindtap="onRefreshTap">刷新</text>
+  </view>
+
+  <view wx:if="{{!finalEnabled}}" class="message-board-disabled">暂不支持留言</view>
+
+  <view wx:else>
+    <view class="message-editor">
+      <view class="editor-input-box">
+        <textarea
+          class="message-input"
+          maxlength="500"
+          placeholder="写下留言"
+          value="{{content}}"
+          bindinput="onContentInput"
+          auto-height
+        />
+        <view wx:if="{{imageUploading}}" class="image-uploading inline-image-uploading">图片上传中</view>
+        <view wx:if="{{selectedImage}}" class="selected-image inline-selected-image">
+          <image src="{{selectedImage.url}}" mode="aspectFill" bindtap="previewSelectedImage" />
+          <text bindtap="removeSelectedImage">删除</text>
+        </view>
+      </view>
+      <view class="message-tools">
+        <view class="message-tool" bindtap="toggleEmoji">表情</view>
+        <view class="message-tool" bindtap="chooseImage">{{selectedImage ? '换图' : '图片'}}</view>
+        <view class="message-submit {{submitting || imageUploading ? 'message-submit-disabled' : ''}}" bindtap="onSubmitMessage">
+          {{submitting ? '发送中' : '发送'}}
+        </view>
+      </view>
+
+      <view wx:if="{{emojiOpen}}" class="emoji-panel">
+        <text wx:for="{{emojis}}" wx:key="index" class="emoji-item" data-emoji="{{item}}" bindtap="onEmojiTap">{{item}}</text>
+      </view>
+
+    </view>
+
+    <view wx:if="{{loading}}" class="message-loading">加载中</view>
+
+    <view wx:else>
+      <view wx:if="{{messages.length === 0}}" class="message-empty">暂无留言</view>
+
+      <block wx:for="{{messages}}" wx:key="objectId">
+        <view class="message-item {{item.isPinned ? 'message-item-pinned' : ''}}">
+          <image class="message-avatar" src="{{item.authorAvatar}}" mode="aspectFill" />
+          <view class="message-body">
+            <view class="message-meta">
+              <view class="message-author">
+                <text>{{item.authorName}}</text>
+                <text wx:if="{{item.isFeatured}}" class="message-badge">精选</text>
+                <text wx:if="{{item.isPinned}}" class="message-badge message-badge-pin">置顶</text>
+              </view>
+              <text class="message-time">{{item.authorCity}} {{item.timeText}}</text>
+            </view>
+            <view class="message-content">{{item.content}}</view>
+            <image
+              wx:if="{{item.imageUrl}}"
+              class="message-photo"
+              src="{{item.imageUrl}}"
+              mode="aspectFill"
+              data-url="{{item.imageUrl}}"
+              bindtap="previewMessageImage"
+            />
+
+            <view class="message-actions">
+              <text bindtap="onReplyTap" data-id="{{item.objectId}}">回复</text>
+              <text wx:if="{{item.canDelete}}" class="message-action-danger" bindtap="onDeleteMessage" data-id="{{item.objectId}}">删除</text>
+              <text wx:if="{{item.replies.length > 0}}" bindtap="onToggleReplies" data-id="{{item.objectId}}">
+                {{item.repliesExpanded ? '收起回复' : '查看回复'}}
+              </text>
+            </view>
+
+            <view wx:if="{{activeReplyParentId === item.objectId}}" class="reply-editor">
+              <view class="editor-input-box">
+                <textarea
+                  class="reply-input"
+                  maxlength="300"
+                  placeholder="写下回复"
+                  value="{{replyContent}}"
+                  bindinput="onReplyInput"
+                  auto-height
+                />
+                <view wx:if="{{replyImageUploading}}" class="image-uploading inline-image-uploading">图片上传中</view>
+                <view wx:if="{{replySelectedImage}}" class="selected-image inline-selected-image">
+                  <image src="{{replySelectedImage.url}}" mode="aspectFill" bindtap="previewReplySelectedImage" />
+                  <text bindtap="removeReplySelectedImage">删除</text>
+                </view>
+              </view>
+
+              <view class="message-tools reply-tools">
+                <view class="message-tool" bindtap="toggleReplyEmoji">表情</view>
+                <view class="message-tool" bindtap="chooseReplyImage">{{replySelectedImage ? '换图' : '图片'}}</view>
+                <view class="reply-submit {{submitting || replyImageUploading ? 'message-submit-disabled' : ''}}" bindtap="onSubmitReply" data-id="{{item.objectId}}">
+                  {{submitting ? '发送中' : '回复'}}
+                </view>
+              </view>
+
+              <view wx:if="{{replyEmojiOpen}}" class="emoji-panel">
+                <text wx:for="{{emojis}}" wx:key="index" class="emoji-item" data-emoji="{{item}}" bindtap="onReplyEmojiTap">{{item}}</text>
+              </view>
+
+            </view>
+
+            <view wx:if="{{item.replies.length > 0 && item.repliesExpanded}}" class="reply-list">
+              <block wx:for="{{item.replies}}" wx:key="objectId" wx:for-item="reply">
+                <view class="reply-item">
+                  <image class="reply-avatar" src="{{reply.authorAvatar}}" mode="aspectFill" />
+                  <view class="reply-body">
+                    <view class="reply-meta">
+                      <text>{{reply.authorName}}</text>
+                      <text>{{reply.authorCity}} {{reply.timeText}}</text>
+                    </view>
+                    <view class="reply-content">{{reply.content}}</view>
+                    <image
+                      wx:if="{{reply.imageUrl}}"
+                      class="reply-photo"
+                      src="{{reply.imageUrl}}"
+                      mode="aspectFill"
+                      data-url="{{reply.imageUrl}}"
+                      bindtap="previewMessageImage"
+                    />
+                    <view wx:if="{{reply.canDelete}}" class="reply-delete" bindtap="onDeleteMessage" data-id="{{reply.objectId}}">删除</view>
+                  </view>
+                </view>
+              </block>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <view wx:if="{{hasMore}}" class="message-load-more" bindtap="onLoadMore">
+        {{loadingMore ? '加载中' : '加载更多'}}
+      </view>
+    </view>
+  </view>
+</view>

@@ -22,6 +22,7 @@ Page({
     isfist: true,
     userId: '', //用户id
     hasJoined: false, //是否已报名
+    detailMessageEnabled: true,
   },
   /**
    * 求职热线跳转
@@ -64,7 +65,8 @@ Page({
         content: results,
         companyName: results.companyName,
         num: results.entNum,
-        photoList: results.photoImgs.split('|'), // Populate photoList
+        photoList: results.photoImgs ? results.photoImgs.split('|') : [], // Populate photoList
+        detailMessageEnabled: results.detailMessageEnabled !== false && results.messageBoardEnabled !== false && results.allowMessage !== false,
       });
     }).catch(function (error) {
       // 查询失败

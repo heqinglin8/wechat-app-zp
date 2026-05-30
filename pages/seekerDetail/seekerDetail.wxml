@@ -51,6 +51,9 @@
   <view class="det-money-list det-money-list-text">
     <rich-text nodes="{{content.recoExtra}}"></rich-text>
   </view>
+  <view class="message-board-host">
+    <message-board target-type="job_seek" target-id="{{jobSeekId}}" detail-message-enabled="{{detailMessageEnabled}}"></message-board>
+  </view>
   <view class="det-nav">
     <ul>
       <li style="background-color:#3bae56;" ><button class="conbtn" open-type="contact">微信咨询</button></li>
