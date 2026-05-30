@@ -132,32 +132,7 @@ Page({
             success: function(res) {
               if (res.confirm) {
                 // 用户点击确认，执行取消报名逻辑
-                results[0].destroy().then(function() {
-                  wx.showToast({
-                    title: '取消报名成功',
-                    icon: 'success',
-                    duration: 2000
-                  });
-                  // 更新报名人数
-                  var detailQuery = Bmob.Query("JobInfo");
-                  detailQuery.get(that.data.jobId).then(function(result) {
-                    result.set('entNum', Math.max(0, that.data.num - 1));
-                    result.save();
-                    that.setData({
-                      num: Math.max(0, that.data.num - 1),
-                      hasJoined: false
-                    });
-                    that.onShow();
-                  }).catch(function(error) {
-                    // 更新失败
-                  });
-                }).catch(function(error) {
-                  wx.showToast({
-                    title: '取消报名失败',
-                    image: "../../images/warning.png",
-                    duration: 2000
-                  })  
-                });
+                that.cancelJoin();
               }
             }
           });
@@ -167,6 +142,72 @@ Page({
       });
     }
   },
+
+  // 取消报名：删除 uid 和 jobId 同时匹配的报名记录
+  cancelJoin: function () {
+    var that = this;
+    wx.showModal({
+      title: '取消报名',
+      content: '确认取消该岗位报名吗？',
+      cancelText: '再想想',
+      confirmText: '确认取消',
+      success: function (res) {
+        if (!res.confirm) {
+          return;
+        }
+
+        var query = Bmob.Query("MyJoinInfo");
+        query.equalTo("uid", "==", that.data.uid);
+        query.equalTo("jobId", "==", that.data.jobId);
+        query.find().then(function (results) {
+          if (!results || results.length === 0) {
+            that.setData({
+              hasJoined: false
+            });
+            return;
+          }
+
+          var destroyTasks = results
+            .map(function (item) {
+              return item && item.objectId;
+            })
+            .filter(function (id) {
+              return !!id;
+            })
+            .map(function (id) {
+              return query.destroy(id);
+            });
+
+          Promise.all(destroyTasks).then(function () {
+            wx.showToast({
+              title: '取消报名成功',
+              icon: 'success',
+              duration: 2000
+            });
+            that.setData({
+              hasJoined: false
+            });
+            that.onShow();
+          }).catch(function (e) {
+            console.error('取消报名失败:', e)
+            wx.showToast({
+              title: '取消报名失败',
+              image: "../../images/warning.png",
+              duration: 2000
+            });
+          });
+        }).catch(function (e) {
+          console.error("取消报名失败,e:",e);
+          wx.showToast({
+            title: '取消报名失败',
+            image: "../../images/warning.png",
+            duration: 2000
+          });
+        });
+      }
+    });
+  },
+
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
@@ -179,7 +220,7 @@ Page({
    */
   onShow: function () {
     var that = this;
-    
+    console.log('uid'+that.data.uid+' jobId:'+that.data.jobId)
     // 查询是否已报名
     var query = Bmob.Query("MyJoinInfo");
     query.equalTo("uid", "==", that.data.uid);
@@ -265,6 +306,9 @@ Page({
       //console.log('用户存在');
     var query = Bmob.Query("_User");
     var uid = currentUser.objectId
+    that.setData({
+      uid: uid,
+    })
     query.equalTo("objectId", "==", uid);
         // 查询用户是否存在
     query.find().then(function(results) {
@@ -277,8 +321,7 @@ Page({
         //用户存在
         that.setData({
           username: results[0].username,
-          userphone: results[0].userphone,
-          uid: uid,
+          userphone: results[0].userphone
         });
         //console.log('用户存在');
       }
