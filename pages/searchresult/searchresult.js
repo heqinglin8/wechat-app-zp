@@ -9,8 +9,9 @@ Page({
    */
   data: {
     searchValue: '',
-    jobInfo: [],
-    isnull:0,
+    searchResults: [],
+    isnull: -1,
+    loadingTip: '',
     currentCityCode: city.DEFAULT_CITY.cityCode,
     
   },
@@ -51,41 +52,103 @@ Page({
       return list;
     }.bind(this));
   },
+  loadCurrentCitySeekers: function (pageIndex, acc) {
+    var query = Bmob.Query("JobSeeker");
+    city.applyJobSeekerFilter(query);
+    query.order('-updatedAt');
+    query.limit(100);
+    query.skip((pageIndex || 0) * 100);
+    return query.find().then(function (rows) {
+      var list = (acc || []).concat(rows || []);
+      if (rows && rows.length === 100) {
+        return this.loadCurrentCitySeekers((pageIndex || 0) + 1, list);
+      }
+      return list;
+    }.bind(this));
+  },
+  markResultType: function (rows, resultType) {
+    return util.formatList(rows || []).map(function (row) {
+      row.resultType = resultType;
+      row.resultKey = resultType + '_' + row.objectId;
+      if (resultType === 'jobSeeker') {
+        row.displayTitle = row.title || row.recoName || '求职信息';
+        row.displayCount = row.collectNum || 0;
+      } else {
+        row.displayTitle = row.title || row.detName || row.recoJobIntent || '职位信息';
+        row.displayCount = row.entNum || 0;
+      }
+      return row;
+    });
+  },
+  sortSearchResults: function (rows) {
+    return (rows || []).sort(function (a, b) {
+      var at = Date.parse(a.updatedAt || a.createdAt || '') || 0;
+      var bt = Date.parse(b.updatedAt || b.createdAt || '') || 0;
+      return bt - at;
+    });
+  },
   //查询搜索结果是否存在
   loadinfor: function(){
     var that=this;
     var keyword = String(that.data.searchValue || '').trim();
+    that.setData({
+      searchResults: [],
+      isnull: -1,
+      loadingTip: ''
+    });
     wx.showToast({
       title: "正在查询",
       icon: 'loading',
       duration: 1500
     });
-    that.loadCurrentCityJobs(0, []).then(function(results) {
-      var filtered = (results || []).filter(function (row) {
+    Promise.all([
+      that.loadCurrentCityJobs(0, []),
+      that.loadCurrentCitySeekers(0, [])
+    ]).then(function(results) {
+      var jobs = results[0] || [];
+      var seekers = results[1] || [];
+      var filteredJobs = jobs.filter(function (row) {
         return city.rowMatchesKeyword(row, keyword, ['title', 'jobDescription', 'companyName']);
       });
-      //console.log("查询到的信息 " + results.length + "条记录");
+      var filteredSeekers = seekers.filter(function (row) {
+        return city.rowMatchesKeyword(row, keyword, ['title', 'recoJobIntent']);
+      });
+      var mixedResults = that.sortSearchResults(
+        that.markResultType(filteredJobs, 'jobInfo')
+          .concat(that.markResultType(filteredSeekers, 'jobSeeker'))
+      );
+      //console.log("查询到的信息 " + mixedResults.length + "条记录");
       that.setData({
-        jobInfo: util.formatList(filtered),
-        isnull: filtered.length ? 1 : 0
+        searchResults: mixedResults,
+        isnull: mixedResults.length ? 1 : 0,
+        loadingTip: mixedResults.length ? '没有更多内容' : ''
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
+      that.setData({
+        searchResults: [],
+        isnull: 0,
+        loadingTip: ''
+      });
     });
 
   },
+  scrolltolower: function () {},
   //点击招聘列表页面跳转，页面传参
   showDetail: function (e) {
     var that = this;
     // 获取wxml元素绑定的index值
     var index = e.currentTarget.dataset.index;
-    //console.log("1111111" + index);
-    // 取出objectId
-    var objectId = that.data.jobInfo[index].objectId;
-    ////console.log("1111111" + objectId);
-    // 跳转到详情页
+    var item = that.data.searchResults[index];
+    if (!item) return;
+    if (item.resultType === 'jobSeeker') {
+      wx.navigateTo({
+        url: '../seekerDetail/seekerDetail?jobSeekId=' + item.objectId
+      });
+      return;
+    }
     wx.navigateTo({
-      url: '../jobDetail/jobDetail?jobId=' + objectId
+      url: '../jobDetail/jobDetail?jobId=' + item.objectId
     });
   },
 

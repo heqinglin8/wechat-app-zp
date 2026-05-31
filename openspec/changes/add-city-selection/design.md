@@ -96,7 +96,7 @@ JobInfo.cityCode == currentCity.cityCode
 JobSeeker.cityCode == currentCity.cityCode
 ```
 
-搜索结果：
+搜索结果中的岗位：
 
 ```text
 JobInfo.cityCode == currentCity.cityCode
@@ -107,7 +107,17 @@ AND (
 )
 ```
 
-现有排序、分页、tab 条件继续保留。首页、今日招聘和今日求职只追加城市条件；搜索结果同时追加城市条件和关键词模糊匹配条件。最后一页剩余数据查询也必须追加同样城市条件，避免分页尾页把其他城市数据混入。
+搜索结果中的求职信息：
+
+```text
+JobSeeker.cityCode == currentCity.cityCode
+AND (
+  JobSeeker.title contains searchValue
+  OR JobSeeker.recoJobIntent contains searchValue
+)
+```
+
+现有排序、分页、tab 条件继续保留。首页、今日招聘和今日求职只追加城市条件；搜索结果同时追加城市条件和关键词模糊匹配条件，并展示 `JobInfo` + `JobSeeker` 混合结果。混合结果按更新时间倒序展示，`JobInfo` 和 `JobSeeker` 使用不同样式 item，并按类型跳转到对应详情页。最后一页剩余数据查询也必须追加同样城市条件，避免分页尾页把其他城市数据混入。
 
 首页、今日招聘和今日求职首屏查询结果为 0 时，列表区域展示“暂无信息”和“重新刷新”按钮。点击按钮清空旧状态并按当前城市、当前 tab 重新查询，不改变当前城市或 tab。
 

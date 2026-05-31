@@ -117,15 +117,23 @@
 - **AND** 用户点击“重新刷新”后系统 SHALL 按当前城市和当前分类重新查询求职信息
 
 ### Requirement: 搜索结果按当前城市和关键词模糊过滤
-系统 SHALL 在搜索结果中同时使用当前城市和原搜索关键词过滤岗位，关键词匹配 SHALL 使用模糊匹配，并覆盖岗位标题、岗位描述和公司名。
+系统 SHALL 在搜索结果中同时使用当前城市和原搜索关键词过滤岗位与求职信息，关键词匹配 SHALL 使用模糊匹配。岗位匹配 SHALL 覆盖岗位标题、岗位描述和公司名；求职信息匹配 SHALL 覆盖标题和求职意向。
 
 #### Scenario: 搜索当前城市岗位
 - **WHEN** 用户提交搜索关键词并进入搜索结果页
 - **THEN** 系统 SHALL 查询 `JobInfo.cityCode` 等于当前城市 `cityCode` 且 (`JobInfo.title` 包含搜索关键词 OR `JobInfo.jobDescription` 包含搜索关键词 OR `JobInfo.companyName` 包含搜索关键词) 的岗位
 
+#### Scenario: 搜索当前城市求职信息
+- **WHEN** 用户提交搜索关键词并进入搜索结果页
+- **THEN** 系统 SHALL 查询 `JobSeeker.cityCode` 等于当前城市 `cityCode` 且 (`JobSeeker.title` 包含搜索关键词 OR `JobSeeker.recoJobIntent` 包含搜索关键词) 的求职信息
+
 #### Scenario: 搜索不展示其他城市岗位
 - **WHEN** 其他城市存在 `title`、`jobDescription` 或 `companyName` 包含搜索关键词的岗位
 - **THEN** 搜索结果 SHALL NOT 展示这些其他城市岗位
+
+#### Scenario: 搜索不展示其他城市求职信息
+- **WHEN** 其他城市存在 `title` 或 `recoJobIntent` 包含搜索关键词的求职信息
+- **THEN** 搜索结果 SHALL NOT 展示这些其他城市求职信息
 
 #### Scenario: 标题模糊命中
 - **WHEN** 当前城市存在 `title` 包含搜索关键词的岗位
@@ -138,6 +146,16 @@
 #### Scenario: 公司名模糊命中
 - **WHEN** 当前城市存在 `companyName` 包含搜索关键词的岗位
 - **THEN** 搜索结果 SHALL 展示该岗位
+
+#### Scenario: 求职意向模糊命中
+- **WHEN** 当前城市存在 `recoJobIntent` 包含搜索关键词的求职信息
+- **THEN** 搜索结果 SHALL 展示该求职信息
+
+#### Scenario: 混合结果区分样式
+- **WHEN** 搜索结果同时包含 `JobInfo` 和 `JobSeeker`
+- **THEN** 系统 SHALL 在同一个搜索结果列表中混合展示两类结果
+- **AND** `JobInfo` 和 `JobSeeker` SHALL 使用不同样式的 item
+- **AND** 点击 `JobInfo` 结果 SHALL 跳转岗位详情，点击 `JobSeeker` 结果 SHALL 跳转求职详情
 
 ### Requirement: Bmob 数据库更新提醒
 系统 SHALL 在实现完成说明中告知 Bmob 表字段修改和历史数据手动补齐方式，但 SHALL NOT 实现迁移脚本或运行时补数据逻辑。

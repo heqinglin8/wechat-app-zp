@@ -13,7 +13,7 @@
 - 发送留言时默认带上当前省市区和省市区码；留言表写入 `displayCityName`，留言列表直接使用 `displayCityName` 展示城市名。
 - 首页、今日招聘、今日求职按当前 `cityCode` 过滤数据。
 - 首页、今日招聘、今日求职查询结果为 0 时展示“暂无信息”和“重新刷新”按钮。
-- 搜索结果按当前城市和原关键词共同过滤，即 `cityCode == 当前城市 cityCode` 且 (`title` 模糊匹配搜索关键词 OR `jobDescription` 模糊匹配搜索关键词 OR `companyName` 模糊匹配搜索关键词)。
+- 搜索结果按当前城市和原关键词共同过滤，展示 `JobInfo` 和 `JobSeeker` 混合结果；`JobInfo` 匹配 `title`、`jobDescription`、`companyName`，`JobSeeker` 匹配 `title`、`recoJobIntent`。
 - 生成实现后需要提醒如何在 Bmob 控制台新增表字段、如何手动补历史数据默认城市字段；不实现迁移脚本或运行时补数据逻辑。
 
 ## Capabilities
