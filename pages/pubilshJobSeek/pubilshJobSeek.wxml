@@ -20,8 +20,13 @@
       </view>
 
       <view class="award-list-name">
-        <view class="name-text">姓名</view>
-        <input class="name-input" type="text" placeholder="求职者姓名" value="{{recoName}}" bindinput="onRecoNameInput" />
+        <view class="name-text">标题</view>
+        <input class="name-input" type="text" maxlength="40" placeholder="如：叉车司机求职" value="{{title}}" bindinput="onTitleInput" />
+      </view>
+
+      <view class="award-list-name">
+        <view class="name-text">称呼</view>
+        <input class="name-input" type="text" placeholder="称呼" value="{{recoName}}" bindinput="onRecoNameInput" />
       </view>
 
       <view class="award-list-name award-picker-row">
@@ -72,12 +77,12 @@
 
       <view class="award-list-textarea">
         <view class="label-block">自我介绍</view>
-        <textarea class="award-textarea" placeholder="简述经历与技能（选填）" value="{{recoIntro}}" bindinput="onRecoIntroInput" maxlength="800" />
+        <textarea class="award-textarea" placeholder="简述经历与技能（选填）" value="{{recoIntro}}" bindinput="onRecoIntroInput" maxlength="400" />
       </view>
 
       <view class="award-list-textarea award-list-textarea-extra">
         <view class="label-block">其他补充</view>
-        <textarea class="award-textarea" placeholder="备注说明（选填）" value="{{recoExtra}}" bindinput="onRecoExtraInput" maxlength="800" />
+        <textarea class="award-textarea" placeholder="备注说明（选填）" value="{{recoExtra}}" bindinput="onRecoExtraInput" maxlength="400" />
       </view>
     </view>
 

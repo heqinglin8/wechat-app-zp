@@ -283,7 +283,8 @@
   border-radius: 10rpx;
   border: 1px #fc3 solid;
   width: 100%;
-  min-height: 160rpx;
+  height: 160rpx;
+  min-height: 80rpx;
   padding: 16rpx;
   box-sizing: border-box;
   font-size: 14px;

@@ -1,5 +1,5 @@
 // pages/award/award.js
-// JobSeeker（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoIntro recoExtra、
+// JobSeeker（Bmob）：控制台 Class 须含 title recoEducation recoContact recoJobIntent recoIntro recoExtra、
 // photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
@@ -15,6 +15,7 @@ var ALLOWED_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
 Page({
   data: {
     userName: '',
+    title: '',
     recoName: '',
     recoContact: '',
     recoJobIntent: '',
@@ -36,6 +37,9 @@ Page({
 
   onRecoNameInput: function (e) {
     this.setData({ recoName: (e.detail && e.detail.value) || '' });
+  },
+  onTitleInput: function (e) {
+    this.setData({ title: (e.detail && e.detail.value) || '' });
   },
   onRecoContactInput: function (e) {
     this.setData({ recoContact: (e.detail && e.detail.value) || '' });
@@ -310,8 +314,12 @@ Page({
 
   validateForm: function () {
     var d = this.data;
+    if (!(d.title && String(d.title).trim())) {
+      wx.showToast({ title: '请填写标题', image: '../../images/warning.png', duration: 2000 });
+      return false;
+    }
     if (!(d.recoName && String(d.recoName).trim())) {
-      wx.showToast({ title: '请填写求职者姓名', image: '../../images/warning.png', duration: 2000 });
+      wx.showToast({ title: '请填写称呼', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
     if (!(d.recoContact && String(d.recoContact).trim())) {
@@ -366,6 +374,7 @@ Page({
     var edu = this.educationLabel();
     row.set('commitUsername', d.userName);
     row.set('commitUid', d.objectId || '');
+    row.set('title', String(d.title).trim());
     row.set('recoName', String(d.recoName).trim());
     row.set('recoEducation', edu);
     row.set('recoContact', String(d.recoContact).trim());
