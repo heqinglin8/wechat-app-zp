@@ -45,40 +45,50 @@
 }
 
 .award-city-row {
-  width: 80%;
-  margin: 10px auto 0;
-  padding: 18rpx 20rpx;
-  box-sizing: border-box;
-  border: 1px solid #fc3;
-  border-radius: 10rpx;
-  box-shadow: 0 0 3px rgba(55, 55, 55, 0.25);
-  background: #fffdf4;
-}
-
-.award-city-main {
   display: flex;
   align-items: center;
+  width: 80%;
+  margin: 10px auto 0;
+  min-height: 100rpx;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .award-city-label {
-  width: 140rpx;
+  width: 20%;
   flex-shrink: 0;
+  line-height: 80rpx;
+  text-align: left;
   color: #333;
-  font-size: 28rpx;
+  font-size: 15px;
 }
 
 .award-city-value {
-  flex: 1;
+  flex: none;
+  width: 78%;
+  margin-left: auto;
   min-width: 0;
+  min-height: 80rpx;
+  padding: 8rpx 16rpx;
+  box-sizing: border-box;
+  border: 1px #fc3 solid;
+  border-radius: 10rpx;
+  box-shadow: 0px 0px 3px rgba(55, 55, 55, 0.5);
   color: #111;
   font-size: 28rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.award-city-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .award-city-tip {
-  margin-top: 8rpx;
+  margin-top: 4rpx;
   color: #888;
   font-size: 22rpx;
 }

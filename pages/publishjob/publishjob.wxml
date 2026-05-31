@@ -12,11 +12,11 @@
    -->
     <view class="award-list">
       <view class="award-city-row">
-        <view class="award-city-main">
-          <text class="award-city-label">发布城市</text>
-          <text class="award-city-value">{{currentCityText}}</text>
+        <view class="award-city-label">城市</view>
+        <view class="award-city-value">
+          <text class="award-city-text">{{currentCityText}}</text>
+          <text class="award-city-tip">只能发布本城市的信息</text>
         </view>
-        <view class="award-city-tip">只能发布本城市的信息</view>
       </view>
 
       <view class="award-list-name">
