@@ -4,6 +4,7 @@
 var Bmob = require('../../utils/Bmob-2.5.30.min');
 wx.Bmob = Bmob;
 var util = require('../../utils/util');
+var city = require('../../utils/city');
 var app=getApp();
 Page({
 
@@ -13,7 +14,9 @@ Page({
   data: {
     loadingTip:"上拉加载更多",
     page_index:0,
-    jobInfo:"",
+    jobInfo: [],
+    isEmpty: false,
+    currentCityCode: city.DEFAULT_CITY.cityCode,
 
     swiperCurrent: 0,
     indicatorDots: true,
@@ -84,9 +87,34 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
+    this.refreshCityState();
     this.getswitchimg();
-   this.qbzwLoad();
+    this.qbzwLoad();
+  },
+  refreshCityState: function () {
+    var currentCity = city.initCurrentCity();
+    var changed = this.data.currentCityCode &&
+      this.data.currentCityCode !== currentCity.cityCode;
+    this.setData({
+      currentCityCode: currentCity.cityCode
+    });
+    return changed;
+  },
+  reloadJobList: function () {
+    this.cleardata();
+    this.setData({
+      page_index: 0,
+      loadingTip: '上拉加载更多',
+      isEmpty: false
+    });
+    this.switchTabLoad(String(this.data.currentTab || 0));
+  },
+  onRetryLoad: function () {
+    this.reloadJobList();
+  },
+  onCityChange: function () {
+    this.refreshCityState();
+    this.reloadJobList();
   },
   //加载轮播图
   getswitchimg:function(){
@@ -129,6 +157,7 @@ Page({
          query.order('-detPayMax');
         break;
     }
+  city.applyJobInfoFilter(query);
   // 分页
   query.limit(page_size);
   query.skip(that.data.page_index * page_size);
@@ -137,22 +166,15 @@ Page({
   // 查询所有数据
   query.find().then(function(results) {
     // 请求成功将数据存入article_list
+    var currentList = Array.isArray(that.data.jobInfo) ? that.data.jobInfo : [];
+    var nextList = currentList.concat(util.formatList(results));
     that.setData({
-      jobInfo: that.data.jobInfo.concat(util.formatList(results))
+      jobInfo: nextList,
+      isEmpty: nextList.length === 0
     });
     //console.log('查询数量:' + results.length + '加载数量' + page_size)
 
     if(results.length < page_size){
-      //如果数据库中剩余的条数 不够下次分页加载则全部加载
-      var innerQuery = Bmob.Query("JobInfo");
-      innerQuery.skip(that.data.page_index * page_size);
-      innerQuery.find().then(function(results) {
-        //console.log('最后剩余数量：'+results.length)
-        that.setData({
-          jobInfo: that.data.jobInfo.concat(util.formatList(results))
-        });
-      });
-
       that.setData({
         loadingTip: '没有更多内容'
       });
@@ -165,6 +187,9 @@ Page({
    */
   scrolltolower: function () {
     //console.log('--下拉刷新-')
+    if (this.data.loadingTip == "没有更多内容" || this.data.isEmpty) {
+      return;
+    }
     this.setData({
       page_index: ++this.data.page_index
     });
@@ -273,7 +298,9 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
+    if (this.refreshCityState()) {
+      this.reloadJobList();
+    }
   },
 
   /**
@@ -367,6 +394,7 @@ Page({
         query.order('-entNum');
         break;
     }
+    city.applyJobInfoFilter(query);
     query.limit(10);
     wx.showToast({
       title: "正在加载",
@@ -377,10 +405,12 @@ Page({
     query.find().then(function(results) {
       //console.log("第一次加载 " + results.length + "条记录");
       //请求将数据存入jobInfo
+      var jobInfo = util.formatList(results);
       that.setData({
-        jobInfo: util.formatList(results),
+        jobInfo: jobInfo,
         page_index:0,
-        loadingTip:"上拉加载更多"
+        loadingTip: results.length < 10 ? "没有更多内容" : "上拉加载更多",
+        isEmpty: jobInfo.length === 0
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
@@ -392,6 +422,7 @@ Page({
     var that = this;
     // 动态添加列表详情
     var query = Bmob.Query("JobInfo");
+    city.applyJobInfoFilter(query);
     query.order('-updatedAt');
     query.limit(10);
     wx.showToast({
@@ -403,8 +434,12 @@ Page({
     query.find().then(function(results) {
       //console.log("第一次加载 " + results.length + "条记录");
       //请求将数据存入jobInfo
+      var jobInfo = util.formatList(results);
       that.setData({
-        jobInfo: util.formatList(results)
+        jobInfo: jobInfo,
+        page_index: 0,
+        loadingTip: results.length < 10 ? "没有更多内容" : "上拉加载更多",
+        isEmpty: jobInfo.length === 0
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
@@ -413,7 +448,8 @@ Page({
   //清空招聘列表
   cleardata: function(){
     this.setData({
-      jobInfo:[]
+      jobInfo:[],
+      isEmpty: false
     });
   },
 

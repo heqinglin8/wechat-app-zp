@@ -1,15 +1,18 @@
 //app.js
 //引入SDK
 const Bmob = require('/utils/Bmob-2.5.30.min.js');
+const city = require('/utils/city.js');
 //初始化Bmobkey
 Bmob.initialize("ba87e714fe642a8a", "489509");
 wx.Bmob = Bmob;
 App({
   globalData:{
     tabid:0,
-    userInfo: null
+    userInfo: null,
+    currentCity: city.DEFAULT_CITY
   },
   onLaunch: function () {
+    city.initCurrentCity()
     const info = wx.getAppBaseInfo()
     console.log('SDKVersion:',info.SDKVersion)
     // 展示本地存储能力

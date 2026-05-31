@@ -1,0 +1,6 @@
+<picker mode="region" value="{{regionValue}}" bindchange="onRegionChange">
+  <view class="city-selector">
+    <text class="city-selector-name">{{cityText}}</text>
+    <text class="city-selector-arrow">▾</text>
+  </view>
+</picker>

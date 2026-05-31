@@ -1,6 +1,7 @@
 //引入SDK
 var Bmob = wx.Bmob;
 var util = require('../../utils/util');
+var city = require('../../utils/city');
 var app = getApp();
 Page({
   /**
@@ -9,6 +10,9 @@ Page({
   data: {
     loadingTip: "上拉加载更多",
     page_index: 0,
+    jobseekInfo: [],
+    isEmpty: false,
+    currentCityCode: city.DEFAULT_CITY.cityCode,
 
     //tab 
     winHeight: "",//窗口高度
@@ -20,6 +24,7 @@ Page({
  * 生命周期函数--监听页面加载
  */
   onLoad: function (options) {
+    this.refreshCityState();
     if (typeof (app.globalData.tabid) == "undefined") { 
     // //console.log('onload');
     // if (options && options.searchValue) {
@@ -31,6 +36,19 @@ Page({
     this.qbzwLoad();
     }  
  
+  },
+  refreshCityState: function () {
+    var currentCity = city.initCurrentCity();
+    var changed = this.data.currentCityCode &&
+      this.data.currentCityCode !== currentCity.cityCode;
+    this.setData({ currentCityCode: currentCity.cityCode });
+    return changed;
+  },
+  reloadCurrentTab: function () {
+    this.switchTabLoad(String(this.data.currentTab || 0));
+  },
+  onRetryLoad: function () {
+    this.reloadCurrentTab();
   },
   wxSearchTab: function () {
     wx.redirectTo({
@@ -65,6 +83,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
+      var cityChanged = this.refreshCityState();
 
       if (typeof (app.globalData.tabid) == "undefined") { }
       else{
@@ -73,6 +92,9 @@ Page({
         });
         //console.log('onShow' + app.globalData.tabid);
         this.switchTabLoad(app.globalData.tabid);
+      }
+      if (typeof (app.globalData.tabid) == "undefined" && cityChanged) {
+        this.reloadCurrentTab();
       }
    
   },
@@ -134,6 +156,7 @@ Page({
         query.order('-detPayMax');
         break;
     }
+    city.applyJobSeekerFilter(query);
     // 分页
     query.limit(page_size);
     query.skip(that.data.page_index * page_size);
@@ -142,22 +165,15 @@ Page({
     // 查询所有数据
     query.find().then(function(results) {
       // 请求成功将数据存入article_list
+      var currentList = Array.isArray(that.data.jobseekInfo) ? that.data.jobseekInfo : [];
+      var nextList = currentList.concat(util.formatList(results));
       that.setData({
-        jobseekInfo: that.data.jobseekInfo.concat(util.formatList(results))
+        jobseekInfo: nextList,
+        isEmpty: nextList.length === 0
       });
       //console.log('查询数量:' + results.length + '加载数量' + page_size)
 
       if (results.length < page_size) {
-        //如果数据库中剩余的条数 不够下次分页加载则全部加载
-        var innerQuery = Bmob.Query("JobSeeker");
-        innerQuery.skip(that.data.page_index * page_size);
-        innerQuery.find().then(function(results) {
-          //console.log('最后剩余数量：' + results.length)
-          that.setData({
-            jobseekInfo: that.data.jobseekInfo.concat(util.formatList(results))
-          });
-        });
-
         that.setData({
           loadingTip: '没有更多内容'
         });
@@ -169,6 +185,9 @@ Page({
  */
   scrolltolower: function () {
     //console.log('--下拉刷新-')
+    if (this.data.loadingTip == "没有更多内容" || this.data.isEmpty) {
+      return;
+    }
     this.setData({
       page_index: ++this.data.page_index
     });
@@ -246,6 +265,7 @@ Page({
         query.order('-entNum');
         break;
     }
+    city.applyJobSeekerFilter(query);
     query.limit(10);
     wx.showToast({
       title: "正在加载",
@@ -256,10 +276,12 @@ Page({
     query.find().then(function(results) {
       //console.log("分类第一次加载 " + results.length + "条记录");
       //请求将数据存入jobseekInfo
+      var jobseekInfo = util.formatList(results);
       that.setData({
-        jobseekInfo: util.formatList(results),
+        jobseekInfo: jobseekInfo,
         page_index: 0,
-        loadingTip: "上拉加载更多"
+        loadingTip: results.length < 10 ? "没有更多内容" : "上拉加载更多",
+        isEmpty: jobseekInfo.length === 0
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
@@ -272,6 +294,7 @@ Page({
     var that = this;
     // 动态添加列表详情
     var query = Bmob.Query("JobSeeker");
+    city.applyJobSeekerFilter(query);
     query.order('-updatedAt');
     query.limit(10);
     wx.showToast({
@@ -283,8 +306,12 @@ Page({
     query.find().then(function(results) {
       //console.log("全部职位第一次加载 " + results.length + "条记录");
       //请求将数据存入jobseekInfo
+      var jobseekInfo = util.formatList(results);
       that.setData({
-        jobseekInfo: util.formatList(results)
+        jobseekInfo: jobseekInfo,
+        page_index: 0,
+        loadingTip: results.length < 10 ? "没有更多内容" : "上拉加载更多",
+        isEmpty: jobseekInfo.length === 0
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
@@ -293,7 +320,8 @@ Page({
   //清空招聘列表
   cleardata: function () {
     this.setData({
-      jobseekInfo: []
+      jobseekInfo: [],
+      isEmpty: false
     });
   }
 

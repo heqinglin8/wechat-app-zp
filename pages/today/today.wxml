@@ -43,7 +43,11 @@
                     </view>
                   </view>                  
                 </block>
-                <view class="loading">{{loadingTip}}</view>
+                <view wx:if="{{isEmpty}}" class="empty-state">
+                  <view class="empty-state__text">暂无信息</view>
+                  <button class="empty-state__button" bindtap="onRetryLoad">重新刷新</button>
+                </view>
+                <view wx:if="{{!isEmpty}}" class="loading">{{loadingTip}}</view>
             </scroll-view>
             
         </swiper-item>

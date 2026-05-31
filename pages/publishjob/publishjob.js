@@ -5,6 +5,7 @@
 
 var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
+var city = require('../../utils/city.js');
 
 var MAX_RECOMMEND_PHOTOS = 6;
 var MAX_PHOTO_BYTES = 3145728;
@@ -29,6 +30,8 @@ Page({
     replacePhotoIndex: -1,
     formSubmitting: false,
     chooseImageBusy: false,
+    currentCity: city.DEFAULT_CITY,
+    currentCityText: city.fullDisplayText(city.DEFAULT_CITY),
   },
 
   onRecoNameInput: function (e) {
@@ -62,7 +65,22 @@ Page({
     this.setData({ educationIndex: idx });
   },
 
-  onLoad: function () {},
+  onLoad: function () {
+    this.refreshCurrentCity();
+  },
+
+  onShow: function () {
+    this.refreshCurrentCity();
+  },
+
+  refreshCurrentCity: function () {
+    var currentCity = city.initCurrentCity();
+    this.setData({
+      currentCity: currentCity,
+      currentCityText: city.fullDisplayText(currentCity),
+    });
+    return currentCity;
+  },
 
   onReady: function () {
     var that = this;
@@ -360,6 +378,7 @@ Page({
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
     row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
+    city.applyCityFields(row, this.refreshCurrentCity());
   },
 
   put_infor: function () {

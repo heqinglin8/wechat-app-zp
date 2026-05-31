@@ -44,6 +44,45 @@
   margin-bottom: 24rpx;
 }
 
+.award-city-row {
+  width: 80%;
+  margin: 10px auto 0;
+  padding: 18rpx 20rpx;
+  box-sizing: border-box;
+  border: 1px solid #fc3;
+  border-radius: 10rpx;
+  box-shadow: 0 0 3px rgba(55, 55, 55, 0.25);
+  background: #fffdf4;
+}
+
+.award-city-main {
+  display: flex;
+  align-items: center;
+}
+
+.award-city-label {
+  width: 140rpx;
+  flex-shrink: 0;
+  color: #333;
+  font-size: 28rpx;
+}
+
+.award-city-value {
+  flex: 1;
+  min-width: 0;
+  color: #111;
+  font-size: 28rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.award-city-tip {
+  margin-top: 8rpx;
+  color: #888;
+  font-size: 22rpx;
+}
+
 .award-list-name {
   margin-top: 10px;
   font-size: 15px;

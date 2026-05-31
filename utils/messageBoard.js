@@ -1,4 +1,5 @@
 var util = require('./util.js');
+var city = require('./city.js');
 
 var Bmob = wx.Bmob;
 
@@ -22,6 +23,7 @@ var FIELD_SCHEMA = {
     authorName: 'display name from _User.username / nickname',
     authorAvatarPath: 'relative Bmob avatar path',
     authorCity: 'city/province/location text shown beside time',
+    displayCityName: 'city name displayed in message list',
     content: 'text with emoji characters',
     imagePath: 'relative Bmob file path',
     imageUrl: 'display URL for the selected single image',
@@ -228,6 +230,7 @@ function normalizeMessage(row, currentUserId, admin) {
     authorName: row.authorName || row.userName || '匿名用户',
     authorAvatar: displayAvatar(row),
     authorCity: row.authorCity || row.location || row.ipCity || '',
+    displayCityName: row.displayCityName || row.authorCity || row.location || row.ipCity || '',
     content: row.content || '',
     imageUrl: imageUrl,
     imagePath: row.imagePath || '',
@@ -300,6 +303,7 @@ function createMessage(params) {
   var user = params.user || {};
   var parentId = params.parentId || '';
   var image = params.image || {};
+  var currentCity = city.getCurrentCity();
 
   query.set('targetType', params.targetType);
   query.set('targetId', params.targetId);
@@ -308,7 +312,7 @@ function createMessage(params) {
   query.set('authorId', user.objectId || '');
   query.set('authorName', displayName(user));
   query.set('authorAvatarPath', user.avatarPath || '');
-  query.set('authorCity', displayLocation(user));
+  query.set('authorCity', currentCity.cityDisplayName);
   query.set('content', content);
   query.set('imagePath', image.path || '');
   query.set('imageUrl', image.url || '');
@@ -318,6 +322,7 @@ function createMessage(params) {
   query.set('hiddenReason', params.hiddenReason || '');
   query.set('isFeatured', false);
   query.set('isPinned', parentId ? false : params.isPinned === true);
+  city.applyCityFields(query, currentCity, { displayField: 'displayCityName' });
   return query.save();
 }
 

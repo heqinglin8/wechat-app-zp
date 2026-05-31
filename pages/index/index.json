@@ -1,6 +1,7 @@
 {
   "onReachBottom": true,
   "usingComponents": {
-    "fab": "/components/fab/fab"
+    "fab": "/components/fab/fab",
+    "city-selector": "/components/city-selector/city-selector"
   }
 }

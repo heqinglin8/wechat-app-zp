@@ -11,6 +11,14 @@
     </view>
    -->
     <view class="award-list">
+      <view class="award-city-row">
+        <view class="award-city-main">
+          <text class="award-city-label">发布城市</text>
+          <text class="award-city-value">{{currentCityText}}</text>
+        </view>
+        <view class="award-city-tip">只能发布本城市的信息</view>
+      </view>
+
       <view class="award-list-name">
         <view class="name-text">标题</view>
         <input class="name-input" type="text" placeholder="标题" value="{{title}}" bindinput="onRecoNameInput" />

@@ -1,12 +1,15 @@
 <!--index.wxml-->
-<view class="weui-search-bar">
-  <view class="weui-search-bar__form">
-    <view class="weui-search-bar__box">
-      <icon class="weui-icon-search_in-box" type="search" size="14"></icon>
-      <input type="text" class="weui-search-bar__input"  disabled='true' placeholder="搜索工作：如上海、深圳、昆山" bindtap="wxSearchTab"/>
+<view class="index-topbar">
+  <city-selector bindchange="onCityChange" />
+  <view class="weui-search-bar">
+    <view class="weui-search-bar__form">
+      <view class="weui-search-bar__box">
+        <icon class="weui-icon-search_in-box" type="search" size="14"></icon>
+        <input type="text" class="weui-search-bar__input"  disabled='true' placeholder="搜索工作：如上海、深圳、昆山" bindtap="wxSearchTab"/>
+      </view>
     </view>
   </view>
- </view>
+</view>
 
 <!-- 右下角悬浮按钮入口 -->
 <fab />
@@ -132,9 +135,12 @@
                     </view>
                   </view>                  
                 </block>
-                <view class="loading">{{loadingTip}}</view>
+                <view wx:if="{{isEmpty}}" class="empty-state">
+                  <view class="empty-state__text">暂无信息</view>
+                  <button class="empty-state__button" bindtap="onRetryLoad">重新刷新</button>
+                </view>
+                <view wx:if="{{!isEmpty}}" class="loading">{{loadingTip}}</view>
             </scroll-view> 
         </swiper-item>
     </swiper>
 </view>
-

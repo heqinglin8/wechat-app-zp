@@ -8,6 +8,16 @@
 .weui-search-bar,.weui-search-bar__form,.weui-search-bar__box,.weui-search-bar__input{
   width:100%;
 }
+.index-topbar{
+  display:flex;
+  align-items:center;
+  width:100%;
+  background:#fc3;
+}
+.index-topbar .weui-search-bar{
+  flex:1;
+  width:auto;
+}
 .weui-search-bar{
   border: 0rpx;
   margin-top: 0rpx;
@@ -211,6 +221,31 @@ swiper-item image {
   border-top: 1px #F7F7F7 solid;
   border-bottom: 1px #F7F7F7 solid;
 }
+.empty-state{
+  min-height: 360rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 30rpx;
+}
+.empty-state__text{
+  margin-bottom: 24rpx;
+}
+.empty-state__button{
+  width: 180rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  padding: 0;
+  border-radius: 6rpx;
+  background: #fc3;
+  color: #000;
+  font-size: 28rpx;
+}
+.empty-state__button::after{
+  border: none;
+}
 /*滚动tab*/
 .tab-h{
     height: 80rpx;width: 100%; box-sizing: border-box;margin-left: auto;margin-right: auto;margin-top: 0;
@@ -226,4 +261,3 @@ background-color:#fff;
 button::after{
 border: none;
 }
-

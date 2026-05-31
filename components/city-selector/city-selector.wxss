@@ -1,0 +1,25 @@
+.city-selector {
+  display: flex;
+  align-items: center;
+  height: 72rpx;
+  padding: 0 12rpx;
+  box-sizing: border-box;
+  color: #222;
+  font-size: 28rpx;
+  white-space: nowrap;
+}
+
+.city-selector-name {
+  display: block;
+  max-width: 4.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.city-selector-arrow {
+  margin-left: 4rpx;
+  font-size: 20rpx;
+  color: #555;
+}

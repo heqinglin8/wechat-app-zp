@@ -52,7 +52,7 @@
                 <text wx:if="{{item.isFeatured}}" class="message-badge">精选</text>
                 <text wx:if="{{item.isPinned}}" class="message-badge message-badge-pin">置顶</text>
               </view>
-              <text class="message-time">{{item.authorCity}} {{item.timeText}}</text>
+              <text class="message-time">{{item.displayCityName}} {{item.timeText}}</text>
             </view>
             <view class="message-content">{{item.content}}</view>
             <image
@@ -110,7 +110,7 @@
                   <view class="reply-body">
                     <view class="reply-meta">
                       <text>{{reply.authorName}}</text>
-                      <text>{{reply.authorCity}} {{reply.timeText}}</text>
+                      <text>{{reply.displayCityName}} {{reply.timeText}}</text>
                     </view>
                     <view class="reply-content">{{reply.content}}</view>
                     <image
