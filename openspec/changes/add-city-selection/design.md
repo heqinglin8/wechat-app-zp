@@ -2,19 +2,19 @@
 
 当前项目是微信原生小程序，页面直接通过 `wx.Bmob` 查询和写入 Bmob 数据。职位列表分布在 `pages/index/index`、`pages/today/today`，求职列表分布在 `pages/todayjobseek/todayjobseek`，搜索结果在 `pages/searchresult/searchresult`，发布岗位和发布求职分别写入 `JobInfo`、`JobSeeker`。留言发布逻辑集中在 `utils/messageBoard.js`。
 
-本变更需要把“当前城市”变成跨页面共享状态：城市相关页面左上角展示、微信城市选择、发布默认带城市、留言默认带城市，以及列表和搜索统一按当前城市过滤。默认城市为 `广东省 / 广州市 / 天河区`，左上角展示 `广州`。
+本变更需要把“当前城市”变成跨页面共享状态：首页左上角展示和选择当前城市，发布默认带城市，留言默认带城市，列表和搜索统一按当前城市过滤。默认城市为 `广东省 / 广州市 / 天河区`，首页左上角展示 `广州`。
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- 提供一个全局可复用的当前城市模型，并在小程序左上角展示当前城市名。
+- 提供一个全局可复用的当前城市模型，并在小程序首页左上角展示当前城市名。
 - 使用微信 `picker mode="region"` 获取省、市、区/县名称和编码。
 - 仅允许切换到已开放城市：`广州`、`佛山`、`韶关`、`深圳`、`东莞`、`珠海`。
 - 将当前城市缓存到本地，并在下次进入小程序时继续有效。
 - 发布 `JobInfo`、`JobSeeker`、`MessageBoardMessage` 时写入省市区名称和编码。
 - 首页、今日招聘、今日求职、搜索结果按当前城市过滤。
-- 给实现完成后的表字段修改和历史数据补齐提供明确说明。
+- 给实现完成后的 Bmob 表字段修改和历史数据手动补齐提供明确提醒，不实现迁移脚本或运行时补数据逻辑。
 
 **Non-Goals:**
 
@@ -22,7 +22,7 @@
 - 不支持跨城市混合展示。
 - 不按区/县过滤列表；区/县只用于发布和留言记录的精确定位。
 - 不改变现有职位、求职 tab 的排序规则，只在现有查询条件上追加城市条件。
-- 搜索结果仅覆盖岗位标题 `title` 和岗位描述 `jobDescription` 的关键词模糊匹配，不扩展到地址、公司、薪资等其他字段。
+- 搜索结果仅覆盖岗位标题 `title`、岗位描述 `jobDescription` 和公司名 `companyName` 的关键词模糊匹配，不扩展到地址、薪资等其他字段。
 
 ## Decisions
 
@@ -62,9 +62,9 @@
 
 备选方案是直接用 `cityName` 过滤。这样更直观，但会受到名称格式和历史数据填法影响，后续维护成本更高。
 
-### 左上角使用微信 region picker，不新建城市列表页
+### 首页左上角使用微信 region picker，不新建城市列表页
 
-参与城市过滤的主要页面左上角挂载同一个城市选择入口，包括首页、今日招聘、今日求职和搜索结果页。左上角控件通过 `picker mode="region"` 打开微信省市区选择器。确认后读取：
+首页左上角挂载城市选择入口。左上角控件通过 `picker mode="region"` 打开微信省市区选择器。确认后读取：
 
 - `e.detail.value[0..2]` 作为省、市、区/县名称。
 - `e.detail.code[0..2]` 作为省码、市码、区码。
@@ -80,7 +80,7 @@
 - `app.globalData.currentCity`
 - `wx.setStorageSync(<cityKey>, currentCity)`
 
-页面在 `onLoad` / `onShow` 时读取当前城市，并在城市变化后刷新对应列表。对于 tab 页面，切回页面时应重新读取当前城市，避免城市在首页切换后今日招聘仍使用旧城市。
+页面在 `onLoad` / `onShow` 时读取当前城市，并在城市变化后刷新对应列表。对于今日招聘、今日求职、搜索结果等消费当前城市的页面，切回页面时应重新读取当前城市，避免城市在首页切换后这些页面仍使用旧城市。
 
 ### 查询在现有条件上追加城市过滤
 
@@ -103,6 +103,7 @@ JobInfo.cityCode == currentCity.cityCode
 AND (
   JobInfo.title contains searchValue
   OR JobInfo.jobDescription contains searchValue
+  OR JobInfo.companyName contains searchValue
 )
 ```
 
@@ -117,27 +118,30 @@ AND (
 只能发布本城市的信息
 ```
 
-发布页不提供修改入口。用户需要改城市时回到左上角全局城市选择。提交时从共享城市工具读取当前城市并写入 Bmob，而不是信任页面展示文本。
+发布页不提供修改入口。用户需要改城市时回到首页左上角城市选择入口。提交时从共享城市工具读取当前城市并写入 Bmob，而不是信任页面展示文本。
 
-### 留言保存完整城市，展示只显示城市名
+### 留言保存完整城市，并使用 `displayCityName` 展示城市
 
-发布留言或回复时，`MessageBoardMessage` 写入完整城市字段，并将现有 `authorCity` 设置为城市展示名，例如 `广州`。留言列表继续使用 `authorCity` 展示，因此用户只看到城市名，不看到省和区/县。
+发布留言或回复时，`MessageBoardMessage` 写入完整城市字段，并额外写入 `displayCityName`，例如 `广州`。留言列表直接读取 `displayCityName` 展示城市，因此用户只看到城市名，不看到省和区/县。
 
-这兼容当前留言组件的显示结构，同时为后续后台治理或城市分析保留完整区县信息。
+这让留言展示字段和城市归档字段分离：`displayCityName` 专门用于前台展示，省市区名称和编码用于后续后台治理或城市分析。
 
 ## Risks / Trade-offs
 
-- 历史数据没有 `cityCode`，上线过滤后会不可见 → 上线前批量补齐历史 `JobInfo`、`JobSeeker` 的默认城市字段。
+- 历史数据没有 `cityCode`，上线过滤后会不可见 → 上线前在 Bmob 控制台手动补齐历史 `JobInfo`、`JobSeeker` 的默认城市字段；代码不实现迁移逻辑。
 - Bmob 查询代码分散，多处分页尾页查询可能漏加城市条件 → 封装 `applyCityFilter(query, city)` 并在所有 `JobInfo` / `JobSeeker` 查询路径使用。
 - tab 页面通过 `app.globalData.tabid` 触发加载，城市切换后可能不刷新 → 页面 `onShow` 对比当前城市码，变化时清空列表并重新加载。
-- 微信 region picker 返回的城市名带“市”，左上角要求展示城市名且最多 4 个中文 → 统一通过 `cityDisplayName` 生成展示文本，并在样式层使用单行省略。
+- 微信 region picker 返回的城市名带“市”，首页左上角要求展示城市名且最多 4 个中文 → 统一通过 `cityDisplayName` 生成展示文本，并在样式层使用单行省略。
 - 只在客户端限制开放城市可能被绕过 → 当前项目写入本身在客户端完成，本阶段按现有架构实现；后续若有服务端或云函数写入，应在服务端重复校验城市开放状态。
-- Bmob 客户端查询若不支持一个查询内同时表达 `cityCode AND (title contains keyword OR jobDescription contains keyword)`，实现可能需要分别查询标题和描述后在客户端按 `objectId` 去重、合并和排序 → 搜索页应封装独立查询函数，避免污染列表分页逻辑。
+- Bmob 客户端查询若不支持一个查询内同时表达 `cityCode AND (title contains keyword OR jobDescription contains keyword OR companyName contains keyword)`，实现可能需要分别查询标题、描述和公司名后在客户端按 `objectId` 去重、合并和排序 → 搜索页应封装独立查询函数，避免污染列表分页逻辑。
 
 ## Migration Plan
 
-1. 在 Bmob `JobInfo`、`JobSeeker`、`MessageBoardMessage` 增加城市字段。
-2. 给历史 `JobInfo` 和 `JobSeeker` 补默认城市：
+本变更不实现迁移脚本、云函数迁移或运行时补数据逻辑。实现交付时只需要提醒在 Bmob 控制台完成以下数据库更新：
+
+1. 在 Bmob `JobInfo`、`JobSeeker` 增加城市字段：`provinceName`、`cityName`、`districtName`、`provinceCode`、`cityCode`、`districtCode`、`cityDisplayName`。
+2. 在 Bmob `MessageBoardMessage` 增加城市字段：`provinceName`、`cityName`、`districtName`、`provinceCode`、`cityCode`、`districtCode`、`displayCityName`。
+3. 给历史 `JobInfo` 和 `JobSeeker` 手动补默认城市：
    - `provinceName = 广东省`
    - `cityName = 广州市`
    - `districtName = 天河区`
@@ -145,9 +149,7 @@ AND (
    - `cityCode = 440100`
    - `districtCode = 440106`
    - `cityDisplayName = 广州`
-3. 发布新版小程序后，新增数据自动写入当前城市。
-4. 如需回滚代码，保留新增字段不影响旧版本读取；但城市过滤回滚后会恢复跨城市展示。
 
 ## Open Questions
 
-- 无。已确认默认区县为 `广东省 / 广州市 / 天河区`；列表按当前城市过滤；搜索条件为 `cityCode == 当前城市 cityCode` 且 (`title` 模糊匹配搜索关键词 OR `jobDescription` 模糊匹配搜索关键词)。
+- 无。已确认默认区县为 `广东省 / 广州市 / 天河区`；列表按当前城市过滤；搜索条件为 `cityCode == 当前城市 cityCode` 且 (`title` 模糊匹配搜索关键词 OR `jobDescription` 模糊匹配搜索关键词 OR `companyName` 模糊匹配搜索关键词)。
