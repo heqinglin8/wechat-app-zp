@@ -33,7 +33,7 @@
           <image src="../../images/sgry.png"/>
         </view>
         <view class="nav-text">
-          <text style="font-weight:600;">推荐职位</text>
+          <text style="font-weight:600;">最火职位</text>
         </view>
       </view>
 
@@ -88,7 +88,7 @@
           <image src="../../images/dh.png"/>
         </view>
         <view class="nav-text">
-          <text style="font-weight:600;">推荐职位</text>
+          <text style="font-weight:600;">发布招聘</text>
         </view>
       </view>
       <view class="nav-three-down nav-all"  bindtap="bindViewAward">
@@ -96,7 +96,7 @@
           <image src="../../images/jl.png"/>
         </view>
         <view class="nav-text">
-          <text style="font-weight:600;">推荐人才</text>
+          <text style="font-weight:600;">发布求职</text>
         </view>
       </view>
     </view>
