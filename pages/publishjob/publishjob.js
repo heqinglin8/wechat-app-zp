@@ -11,17 +11,39 @@ var MAX_RECOMMEND_PHOTOS = 3;
 var MAX_PHOTO_BYTES = 3145728;
 var WX_CHOOSE_IMAGE_MAX = 9;
 var ALLOWED_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+var LAST_PUBLISHED_COMPANY_KEY = 'lastPublishedCompanyForJob';
+
+function toNumberOrZero(value) {
+  var n = Number(value);
+  return isNaN(n) ? 0 : n;
+}
+
+function parsePositiveNumber(value) {
+  var text = String(value || '').trim();
+  if (!text) return NaN;
+  var n = Number(text);
+  return isNaN(n) ? NaN : n;
+}
 
 Page({
   data: {
     userName: '',
+    title: '',
     recoName: '',
     recoContact: '',
     recoJobIntent: '',
+    experience: '',
+    jobDirection: '',
+    jobDescription: '',
     detPayMin: '',
     detPayMax: '',
-    companyPeople: '',
-    financeStage: '',
+    companies: [],
+    selectedCompanyIndex: 0,
+    selectedCompanyId: '',
+    selectedCompanyName: '',
+    selectedCompany: null,
+    companySelectorVisible: false,
+    pendingCompanyIndex: -1,
     recoIntro: '',
     recoExtra: '',
     educationOptions: ['初中及以下', '中专 / 高中', '大专', '本科', '硕士及以上'],
@@ -37,7 +59,7 @@ Page({
   },
 
   onRecoNameInput: function (e) {
-    this.setData({ recoName: (e.detail && e.detail.value) || '' });
+    this.setData({ title: (e.detail && e.detail.value) || '' });
   },
   onRecoContactInput: function (e) {
     this.setData({ recoContact: (e.detail && e.detail.value) || '' });
@@ -48,12 +70,6 @@ Page({
   onDetAddrInput: function (e) {
     this.setData({ detAddr: (e.detail && e.detail.value) || '' });
   },
-  onCompanyPeopleInput: function (e) {
-    this.setData({ companyPeople: (e.detail && e.detail.value) || '' });
-  },
-  onFinanceStageInput: function (e) {
-    this.setData({ financeStage: (e.detail && e.detail.value) || '' });
-  },
   
   onDetPayMinInput: function (e) {
     this.setData({ detPayMin: (e.detail && e.detail.value) || '' });
@@ -63,6 +79,16 @@ Page({
   },
   onJobDescriptionInput: function (e) {
     this.setData({ jobDescription: (e.detail && e.detail.value) || '' });
+  },
+  onExperienceInput: function (e) {
+    this.setData({ experience: (e.detail && e.detail.value) || '' });
+  },
+  onJobDirectionInput: function (e) {
+    var value = (e.detail && e.detail.value) || '';
+    this.setData({
+      jobDirection: value,
+      recoJobIntent: value,
+    });
   },
   onJobRequirementsInput: function (e) {
     this.setData({ jobRequirements: (e.detail && e.detail.value) || '' });
@@ -75,10 +101,12 @@ Page({
 
   onLoad: function () {
     this.refreshCurrentCity();
+    this.loadCompanyOptions();
   },
 
   onShow: function () {
-    this.refreshCurrentCity();
+    this.consumeLastPublishedCompany();
+    this.loadCompanyOptions();
   },
 
   refreshCurrentCity: function () {
@@ -88,6 +116,145 @@ Page({
       currentCityText: city.fullDisplayText(currentCity),
     });
     return currentCity;
+  },
+
+  companyDisplayName: function (company) {
+    var name = company && company.name ? String(company.name).trim() : '';
+    var address = company ? city.fullDisplayText(company) : '';
+    return address ? name + '（' + address + '）' : name;
+  },
+
+  normalizeCompany: function (row) {
+    return {
+      objectId: row.objectId || '',
+      name: row.name || '',
+      companyPeople: toNumberOrZero(row.companyPeople),
+      financeStage: row.financeStage || '',
+      logo: row.logo || '',
+      photoImgs: row.photoImgs || '',
+      provinceName: row.provinceName || city.DEFAULT_CITY.provinceName,
+      cityName: row.cityName || city.DEFAULT_CITY.cityName,
+      districtName: row.districtName || city.DEFAULT_CITY.districtName,
+      provinceCode: String(row.provinceCode || city.DEFAULT_CITY.provinceCode),
+      cityCode: String(row.cityCode || city.DEFAULT_CITY.cityCode),
+      districtCode: String(row.districtCode || city.DEFAULT_CITY.districtCode),
+      cityDisplayName: row.cityDisplayName || city.DEFAULT_CITY.cityDisplayName,
+    };
+  },
+
+  loadCompanyOptions: function () {
+    var that = this;
+    var currentUser = Bmob.User.current();
+    if (!currentUser) {
+      this.setData({
+        companies: [],
+        selectedCompanyIndex: 0,
+      });
+      return;
+    }
+    var query = Bmob.Query('CompanyInfo');
+    query.equalTo('commitUid', '==', currentUser.objectId);
+    query.order('-updatedAt');
+    query.find().then(function (results) {
+      var companies = (results || []).map(function (row) {
+        return that.normalizeCompany(row);
+      });
+      var selectedCompanyId = that.data.selectedCompanyId;
+      var selectedCompanyIndex = companies.length;
+      var selectedCompany = that.data.selectedCompany;
+      var selectedCompanyName = that.data.selectedCompanyName;
+      for (var i = 0; i < companies.length; i++) {
+        if (companies[i].objectId && companies[i].objectId === selectedCompanyId) {
+          selectedCompanyIndex = i;
+          selectedCompany = companies[i];
+          selectedCompanyName = companies[i].name;
+          break;
+        }
+      }
+      that.setData({
+        companies: companies,
+        selectedCompanyIndex: selectedCompanyIndex,
+        selectedCompany: selectedCompany,
+        selectedCompanyName: selectedCompanyName,
+      });
+    }).catch(function () {
+      wx.showToast({ title: '公司列表加载失败', icon: 'none', duration: 2000 });
+    });
+  },
+
+  selectCompany: function (company, index) {
+    if (!company) return;
+    this.setData({
+      selectedCompanyIndex: index,
+      selectedCompanyId: company.objectId || '',
+      selectedCompanyName: company.name || '',
+      selectedCompany: company,
+      currentCity: city.normalizeCity(company),
+      currentCityText: city.fullDisplayText(company),
+    });
+  },
+
+  openCompanySelector: function () {
+    this.setData({
+      companySelectorVisible: true,
+      pendingCompanyIndex: this.data.selectedCompany ? this.data.selectedCompanyIndex : -1,
+    });
+    this.loadCompanyOptions();
+  },
+
+  closeCompanySelector: function () {
+    this.setData({
+      companySelectorVisible: false,
+      pendingCompanyIndex: -1,
+    });
+  },
+
+  onCompanyCandidateTap: function (e) {
+    var index = parseInt(e.currentTarget.dataset.index, 10);
+    if (isNaN(index) || index < 0) return;
+    this.setData({ pendingCompanyIndex: index });
+  },
+
+  confirmCompanySelection: function () {
+    var index = this.data.pendingCompanyIndex;
+    if (index < 0 || index >= this.data.companies.length) {
+      wx.showToast({ title: '请选择公司', icon: 'none', duration: 2000 });
+      return;
+    }
+    this.selectCompany(this.data.companies[index], index);
+    this.closeCompanySelector();
+  },
+
+  goPublishCompany: function () {
+    this.closeCompanySelector();
+    wx.navigateTo({ url: '../publishcompany/publishcompany' });
+  },
+
+  consumeLastPublishedCompany: function () {
+    var company = null;
+    try {
+      company = wx.getStorageSync(LAST_PUBLISHED_COMPANY_KEY);
+      if (company) wx.removeStorageSync(LAST_PUBLISHED_COMPANY_KEY);
+    } catch (e) {}
+    if (!company || !company.name) return;
+    var normalized = this.normalizeCompany(company);
+    var companies = this.data.companies.slice();
+    var index = -1;
+    for (var i = 0; i < companies.length; i++) {
+      if (companies[i].objectId && companies[i].objectId === normalized.objectId) {
+        index = i;
+        companies[i] = normalized;
+        break;
+      }
+    }
+    if (index < 0) {
+      companies.unshift(normalized);
+      index = 0;
+    }
+    this.setData({
+      companies: companies,
+    });
+    this.selectCompany(normalized, index);
   },
 
   onReady: function () {
@@ -110,7 +277,6 @@ Page({
       var uname = u.username || '';
       that.setData({
         userName: uname,
-        recoName: uname,
         recoContact: phone,
         userLoaded: true,
         uid: objectId,
@@ -121,6 +287,8 @@ Page({
   },
 
   onShareAppMessage: function () {},
+
+  noop: function () {},
 
   /** @returns {Promise<number>} file size in bytes */
   getFileSize: function (filePath) {
@@ -317,26 +485,30 @@ Page({
 
   validateForm: function () {
     var d = this.data;
-    if (!(d.recoName && String(d.recoName).trim())) {
-      wx.showToast({ title: '请填写求职者姓名', image: '../../images/warning.png', duration: 2000 });
+    if (!(d.selectedCompany && d.selectedCompanyName)) {
+      wx.showToast({ title: '请选择公司', image: '../../images/warning.png', duration: 2000 });
+      return false;
+    }
+    if (!(d.title && String(d.title).trim())) {
+      wx.showToast({ title: '请填写标题', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
     if (!(d.recoContact && String(d.recoContact).trim())) {
       wx.showToast({ title: '请填写联系方式', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.recoJobIntent && String(d.recoJobIntent).trim())) {
-      wx.showToast({ title: '请填写求职意向', image: '../../images/warning.png', duration: 2000 });
+    if (!(d.jobDirection && String(d.jobDirection).trim())) {
+      wx.showToast({ title: '请填写职位方向', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
     
-    var payMin = String(d.detPayMin || '').trim();
-    var payMax = String(d.detPayMax || '').trim();
-    if (!payMin || !payMax) {
+    var payMin = parsePositiveNumber(d.detPayMin);
+    var payMax = parsePositiveNumber(d.detPayMax);
+    if (isNaN(payMin) || isNaN(payMax) || payMin <= 0 || payMax <= 0) {
       wx.showToast({ title: '请填写薪资范围', icon:  'none', duration: 2000 });
       return false;
     }
-    if (Number(payMin) >= Number(payMax)) {
+    if (payMin >= payMax) {
       wx.showToast({ title: '最低薪资须小于最高', icon: 'none', duration: 2000 });
       return false;
     }
@@ -377,18 +549,27 @@ Page({
     var edu = this.educationLabel();
     row.set('commitUsername', d.userName);
     row.set('commitUid', d.uid || '');
-    row.set('recoName', String(d.recoName).trim());
+    row.set('title', String(d.title).trim());
+    row.set('recoName', String(d.title).trim());
+    row.set('education', edu);
     row.set('recoEducation', edu);
     row.set('recoContact', String(d.recoContact).trim());
-    row.set('recoJobIntent', String(d.recoJobIntent).trim());
-    row.set('companyPeople', String(d.companyPeople || '').trim());
-    row.set('financeStage', String(d.financeStage || '').trim());
-    row.set('detPayMin', String(d.detPayMin || '').trim());
-    row.set('detPayMax', String(d.detPayMax || '').trim());
+    row.set('experience', String(d.experience || '').trim());
+    row.set('jobIntent', String(d.jobDirection || '').trim());
+    row.set('jobRequirements', String(d.jobDescription || '').trim());
+    row.set('jobDescription', String(d.jobDescription || '').trim());
+    row.set('recoJobIntent', String(d.jobDirection || d.recoJobIntent || '').trim());
+    row.set('companyId', d.selectedCompanyId || '');
+    row.set('companyName', d.selectedCompanyName || '');
+    row.set('companyPeople', toNumberOrZero(d.selectedCompany && d.selectedCompany.companyPeople));
+    row.set('financeStage', String((d.selectedCompany && d.selectedCompany.financeStage) || '').trim());
+    row.set('companyLogo', (d.selectedCompany && d.selectedCompany.logo) || '');
+    row.set('detPayMin', parsePositiveNumber(d.detPayMin));
+    row.set('detPayMax', parsePositiveNumber(d.detPayMax));
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
     row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
-    city.applyCityFields(row, this.refreshCurrentCity());
+    city.applyCityFields(row, d.selectedCompany || d.currentCity);
   },
 
   put_infor: function () {

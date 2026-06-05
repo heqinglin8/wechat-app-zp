@@ -1,0 +1,69 @@
+<scroll-view class="company-scroll" scroll-y>
+  <view class="company-page">
+    <view class="company-list">
+      <view class="company-list-name company-picker-row">
+        <view class="name-text">公司地址</view>
+        <picker class="company-picker" mode="region" value="{{regionValue}}" bindchange="onRegionChange">
+          <view class="picker-display">{{companyAddressText}}</view>
+        </picker>
+      </view>
+
+      <view class="company-list-name">
+        <view class="name-text">公司名</view>
+        <input class="name-input" type="text" placeholder="请输入公司名" value="{{name}}" bindinput="onNameInput" />
+      </view>
+
+      <view class="company-list-name">
+        <view class="name-text">公司规模</view>
+        <input class="name-input" type="number" placeholder="请输入人数，如 10000" value="{{companyPeople}}" bindinput="onCompanyPeopleInput" />
+      </view>
+
+      <view class="company-list-name">
+        <view class="name-text">融资阶段</view>
+        <input class="name-input" type="text" placeholder="如 不需要融资 / 已上市 / A轮" value="{{financeStage}}" bindinput="onFinanceStageInput" />
+      </view>
+
+      <view class="company-photo-section">
+        <view class="label-block">公司logo（必填，最多 1 张）</view>
+        <view class="company-photo-grid company-logo-grid">
+          <view wx:if="{{logoPhoto.url || logoPhoto.tempPath}}" class="company-photo-cell company-logo-cell">
+            <image wx:if="{{logoPhoto.uploading}}" class="company-photo-thumb" src="{{logoPhoto.tempPath}}" mode="aspectFill" />
+            <image wx:elif="{{logoPhoto.url}}" class="company-photo-thumb" src="{{logoPhoto.url}}" mode="aspectFill" />
+            <view wx:if="{{logoPhoto.uploading}}" class="company-photo-mask">上传中</view>
+            <view class="company-photo-actions">
+              <text class="company-photo-act" catchtap="onChooseLogo">替换</text>
+              <text class="company-photo-act danger" catchtap="onRemoveLogo">删除</text>
+            </view>
+          </view>
+          <view wx:else class="company-photo-add company-logo-add" bindtap="onChooseLogo">
+            <text class="company-photo-add-plus">+</text>
+            <text class="company-photo-add-text">添加logo</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="company-photo-section">
+        <view class="label-block">公司照片（选填，最多 6 张）</view>
+        <view class="company-photo-grid">
+          <block wx:for="{{companyPhotos}}" wx:key="index">
+            <view class="company-photo-cell">
+              <image wx:if="{{item.uploading}}" class="company-photo-thumb" src="{{item.tempPath}}" mode="aspectFill" />
+              <image wx:elif="{{item.url}}" class="company-photo-thumb" src="{{item.url}}" mode="aspectFill" />
+              <view wx:if="{{item.uploading}}" class="company-photo-mask">上传中</view>
+              <view class="company-photo-actions">
+                <text class="company-photo-act" catchtap="onReplaceCompanyPhoto" data-index="{{index}}">替换</text>
+                <text class="company-photo-act danger" catchtap="onRemoveCompanyPhoto" data-index="{{index}}">删除</text>
+              </view>
+            </view>
+          </block>
+          <view wx:if="{{companyPhotos.length < 6}}" class="company-photo-add" bindtap="onAddCompanyPhotos">
+            <text class="company-photo-add-plus">+</text>
+            <text class="company-photo-add-text">添加</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="company-btn" bindtap="submitCompany">确定</view>
+  </view>
+</scroll-view>
