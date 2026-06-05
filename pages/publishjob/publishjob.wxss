@@ -209,21 +209,24 @@
 .award-photo-grid {
   display: flex;
   flex-wrap: wrap;
-  margin: -8rpx;
 }
 
 .award-photo-cell {
   position: relative;
-  width: 200rpx;
-  height: 200rpx;
-  margin: 8rpx;
+  width: 31.333%;
+  height: 188rpx;
+  margin: 1%;
   border-radius: 10rpx;
   overflow: hidden;
   box-shadow: 0 0 3px rgba(55, 55, 55, 0.35);
   border: 1px solid #fc3;
+  box-sizing: border-box;
 }
 
 .award-photo-thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
   display: block;
@@ -265,9 +268,9 @@
 }
 
 .award-photo-add {
-  width: 200rpx;
-  height: 200rpx;
-  margin: 8rpx;
+  width: 31.333%;
+  height: 188rpx;
+  margin: 1%;
   border-radius: 10rpx;
   border: 1px dashed #ccc;
   box-sizing: border-box;
