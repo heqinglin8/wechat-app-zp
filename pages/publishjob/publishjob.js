@@ -1,13 +1,13 @@
 // pages/award/award.js
-// JobInfo（Bmob）：控制台 Class 须含 recoEducation recoContact recoJobIntent recoIntro recoExtra、
+// JobInfo（Bmob）：控制台 Class 须含 companyPeople financeStage recoEducation recoContact recoJobIntent recoIntro recoExtra、
 // photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
-// 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
+// 配图：最多 3 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
 var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
 
-var MAX_RECOMMEND_PHOTOS = 6;
+var MAX_RECOMMEND_PHOTOS = 3;
 var MAX_PHOTO_BYTES = 3145728;
 var WX_CHOOSE_IMAGE_MAX = 9;
 var ALLOWED_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
@@ -20,6 +20,8 @@ Page({
     recoJobIntent: '',
     detPayMin: '',
     detPayMax: '',
+    companyPeople: '',
+    financeStage: '',
     recoIntro: '',
     recoExtra: '',
     educationOptions: ['初中及以下', '中专 / 高中', '大专', '本科', '硕士及以上'],
@@ -45,6 +47,12 @@ Page({
   },
   onDetAddrInput: function (e) {
     this.setData({ detAddr: (e.detail && e.detail.value) || '' });
+  },
+  onCompanyPeopleInput: function (e) {
+    this.setData({ companyPeople: (e.detail && e.detail.value) || '' });
+  },
+  onFinanceStageInput: function (e) {
+    this.setData({ financeStage: (e.detail && e.detail.value) || '' });
   },
   
   onDetPayMinInput: function (e) {
@@ -277,7 +285,7 @@ Page({
     if (this.data.chooseImageBusy) return;
     var n = this.data.recommendPhotos.length;
     if (n >= MAX_RECOMMEND_PHOTOS) {
-      wx.showToast({ title: '最多 6 张图片', icon: 'none', duration: 2000 });
+      wx.showToast({ title: '最多 3 张图片', icon: 'none', duration: 2000 });
       return;
     }
     this.setData({ replacePhotoIndex: -1 });
@@ -373,6 +381,8 @@ Page({
     row.set('recoEducation', edu);
     row.set('recoContact', String(d.recoContact).trim());
     row.set('recoJobIntent', String(d.recoJobIntent).trim());
+    row.set('companyPeople', String(d.companyPeople || '').trim());
+    row.set('financeStage', String(d.financeStage || '').trim());
     row.set('detPayMin', String(d.detPayMin || '').trim());
     row.set('detPayMax', String(d.detPayMax || '').trim());
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');

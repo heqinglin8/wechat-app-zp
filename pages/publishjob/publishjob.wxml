@@ -24,6 +24,16 @@
         <input class="name-input" type="text" placeholder="标题" value="{{title}}" bindinput="onRecoNameInput" />
       </view>
 
+      <view class="award-list-name">
+        <view class="name-text">公司规模</view>
+        <input class="name-input" type="text" placeholder="如 1000-9999人 / 10000人以上" value="{{companyPeople}}" bindinput="onCompanyPeopleInput" />
+      </view>
+
+      <view class="award-list-name">
+        <view class="name-text">融资阶段</view>
+        <input class="name-input" type="text" placeholder="如 不需要融资 / 已上市 / A轮" value="{{financeStage}}" bindinput="onFinanceStageInput" />
+      </view>
+
       <view class="award-list-name award-picker-row">
         <view class="name-text">最低学历</view>
         <picker class="award-picker" mode="selector" range="{{educationOptions}}" value="{{educationIndex}}" bindchange="onEducationChange">
@@ -37,8 +47,8 @@
       </view>
 
       <view class="award-list-name">
-        <view class="name-text">职位方向</view>
-        <input class="name-input" type="text" placeholder="岗位或方向" value="{{recoJobIntent}}" bindinput="onRecoJobIntentInput" />
+        <view class="name-text">经验</view>
+        <input class="name-input" type="text" placeholder="3-5年/不限经验" value="{{experience}}" bindinput="onRecoJobIntentInput" />
       </view>
 
       <view class="award-list-name award-salary-row">
@@ -50,7 +60,7 @@
       </view>
 
       <view class="award-photo-section">
-        <view class="label-block">上传图片（选填，最多 6 张）</view>
+        <view class="label-block">上传图片（选填，最多 3 张）</view>
         <view class="award-photo-grid">
           <block wx:for="{{recommendPhotos}}" wx:key="index">
             <view class="award-photo-cell">
@@ -63,7 +73,7 @@
               </view>
             </view>
           </block>
-          <view wx:if="{{recommendPhotos.length < 6}}" class="award-photo-add" bindtap="onAddPhotos">
+          <view wx:if="{{recommendPhotos.length < 3}}" class="award-photo-add" bindtap="onAddPhotos">
             <text class="award-photo-add-plus">+</text>
             <text class="award-photo-add-text">添加</text>
           </view>
@@ -71,13 +81,13 @@
       </view>
 
       <view class="award-list-textarea">
-        <view class="label-block">自我介绍</view>
-        <textarea class="award-textarea" placeholder="简述经历与技能（选填）" value="{{recoIntro}}" bindinput="onRecoIntroInput" maxlength="800" />
+        <view class="label-block">职位方向</view>
+        <textarea class="award-textarea" placeholder="职位方向/类别" value="{{jobDirection}}" bindinput="onRecoIntroInput" maxlength="800" />
       </view>
 
       <view class="award-list-textarea award-list-textarea-extra">
-        <view class="label-block">其他补充</view>
-        <textarea class="award-textarea" placeholder="备注说明（选填）" value="{{recoExtra}}" bindinput="onRecoExtraInput" maxlength="800" />
+        <view class="label-block">职位描述</view>
+        <textarea class="award-textarea" placeholder="职位描述" value="{{jobDescription}}" bindinput="onRecoExtraInput" maxlength="800" />
       </view>
     </view>
 

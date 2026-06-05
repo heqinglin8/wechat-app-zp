@@ -65,12 +65,12 @@ function decorateJobCards(list) {
     item.cardFinancing = firstText(item.financeStage, '未写融资');
     item.cardExperience = firstText(item.experience, '未写经验');
     item.cardEducation = firstText(item.education, '未写学历');
-    var jobIntents = splitTags(item.jobIntent);
-    item.cardDirection = firstText(jobIntents[0], '未写方向');
+    var jobDirections = splitTags(item.jobDirection);
+    item.cardDirection = firstText(jobDirections[0], '未写方向');
     item.cardTags = compactTags([
       item.cardExperience,
       item.cardEducation
-    ].concat(jobIntents));
+    ].concat(jobDirections));
     item.cardRecruiter = recruiter
       ? recruiter + ' · ' + recruiterRole
       : '未写招聘者 · ' + recruiterRole;
