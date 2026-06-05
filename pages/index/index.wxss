@@ -95,103 +95,143 @@
   width:100%;
   height:40rpx;
 }
-/********招聘公司列表*********/ 
-.detail-list{
-  margin-top: 10px;
-  width:100%;
-  height:220rpx;
-  box-shadow: 0px 0px 3px rgba(55,55,55,0.5);
-}
-.detail-list view{
-  float: left;
-}
-.list-image{
-  margin-left: 8px;
-  width:22%;
-  height:77%;
-  margin-top: 3%;
-}
-.list-image image{
-  width:100%;
-  height:100%;
-  border-radius:5px;
-}
-/* .list-image image{
-  border: 1px solid #13227a;
-  width:100%;
-  height:100%;
-} */
-.list-text{
-  height:100%;
-  width:75%;
-}
-.list-text view{
-  height:33px;
-  line-height:33px;
-}
-.list-text-name{
-  height: 45rpx;
-  line-height: 45rpx;
-  width:93%;
-  padding-left:8px;
-  margin-top:7px;
-}
-.list-text-name-one{
-  text-align: left;
-  float: left;
-  height: 45rpx;
-  line-height: 45rpx;
-  width:70%;
-  color:#000;
-  font-size:15px;
-  font-weight:700;
-}
-.list-text-entnum{
-  float: right;
-  width:30%;
-  height: 45rpx;
-  line-height: 45rpx;
-  font-size: 14px;
-  text-align:right;
-  color:#888;
-}
-.list-text-detpay{
-  height: 21px;
-  float: left;
-  padding-left: 8px;
-  padding-right: 8px;
-  width: 97%;
-}
-.list-text-detpay-one{
-  float: right;
+/********招聘公司列表*********/
+.scoll-h{
   height: 100%;
-  width: 60%;
-  text-align:right;
-  color:red;
-  font-weight:600;
-  font-size:14px;
-  line-height: 21px;
+  margin: 0;
+  background: #f5f5f5;
+  box-sizing: border-box;
+  padding: 16rpx 16rpx 24rpx;
 }
-.list-text-adder{
-  height: 100%;
-  float: left;
-  width: 35%;
-  text-align:left;
-  color:#888;
-  font-size:14px;
-  line-height: 21px;
+.job-card{
+  margin-bottom: 18rpx;
+  padding: 28rpx 26rpx 26rpx;
+  border-radius: 14rpx;
+  background: #fff;
+  box-sizing: border-box;
 }
-.list-text-time{
-  padding-left: 8px;
-  height: 45rpx;
-  line-height: 45rpx;
-  font-size: 14px;
-  float: left;
-  width:95%;
-  margin-left: auto;
-  margin-right: auto;
-  text-align:left;
-  color:#888;
+.job-card__header{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+.job-card__title-wrap{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.job-card__title{
+  max-width: 100%;
+  color: #111;
+  font-size: 36rpx;
+  line-height: 48rpx;
+  font-weight: 700;
+}
+.job-card__salary{
+  flex: none;
+  color: #13aaa3;
+  font-size: 34rpx;
+  line-height: 48rpx;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.job-card__badge{
+  height: 32rpx;
+  line-height: 30rpx;
+  margin-left: 10rpx;
+  padding: 0 8rpx;
+  border: 2rpx solid #9b9b9b;
+  border-radius: 8rpx;
+  color: #777;
+  font-size: 22rpx;
+  box-sizing: border-box;
+}
+.job-card__badge--primary{
+  border-color: #b8794e;
+  color: #b8794e;
+}
+.job-card__company{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 28rpx;
+  margin-top: 18rpx;
+  color: #666;
+  font-size: 28rpx;
+  line-height: 40rpx;
+}
+.job-card__company text{
+  margin-right: 28rpx;
+}
+.job-card__tags{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin-top: 20rpx;
+}
+.job-card__tag{
+  max-width: 100%;
+  height: 44rpx;
+  line-height: 44rpx;
+  padding: 0 18rpx;
+  border-radius: 8rpx;
+  background: #f4f4f4;
+  color: #666;
+  font-size: 26rpx;
+  margin-right: 14rpx;
+  margin-bottom: 14rpx;
+}
+.job-card__footer{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  margin-top: 26rpx;
+}
+.job-card__recruiter{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.job-card__avatar{
+  flex: none;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #e9e9e9;
+}
+.job-card__avatar--empty{
+  position: relative;
+}
+.job-card__avatar--empty::after{
+  content: "";
+  position: absolute;
+  left: 14rpx;
+  top: 14rpx;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: #bdbdbd;
+}
+.job-card__recruiter-name{
+  margin-left: 14rpx;
+  color: #333;
+  font-size: 27rpx;
+  line-height: 38rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.job-card__location{
+  flex: none;
+  max-width: 260rpx;
+  color: #777;
+  font-size: 26rpx;
+  line-height: 38rpx;
+  text-align: right;
 }
 /*轮播图*/
 swiper {
@@ -253,7 +293,6 @@ swiper-item image {
 .tab-item{margin:0;display: inline-block;width: 25%;text-align: center;}
 .tab-item.active{position: relative;background: #fc3;}
 .tab-content{margin-top: 3rpx;height:1000rpx;}
-.scoll-h{height: 100%;margin: 0;}
 
 .conbtn{
 background-color:#fff;
