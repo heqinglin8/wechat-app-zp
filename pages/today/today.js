@@ -3,6 +3,80 @@ var Bmob = wx.Bmob;
 var util = require('../../utils/util');
 var city = require('../../utils/city');
 var app = getApp();
+
+function firstText() {
+  for (var i = 0; i < arguments.length; i++) {
+    var value = arguments[i];
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      return String(value).trim();
+    }
+  }
+  return '';
+}
+
+function salaryText(item) {
+  var min = Number(firstText(item.detPayMin));
+  var max = Number(firstText(item.detPayMax));
+  var hasMin = !isNaN(min) && min > 0;
+  var hasMax = !isNaN(max) && max > 0;
+  var formatMonthly = function (value) {
+    if (value >= 1000) {
+      var k = value / 1000;
+      return (k % 1 === 0 ? String(k) : String(Number(k.toFixed(1)))) + 'k';
+    }
+    return String(value);
+  };
+  if (hasMin && hasMax) {
+    if (max >= 10000 && min < 1000) return formatMonthly(max);
+    return formatMonthly(min) + '-' + formatMonthly(max);
+  }
+  if (hasMax) return formatMonthly(max);
+  if (hasMin) return formatMonthly(min);
+  return '待补充薪资';
+}
+
+function compactTags(tags) {
+  return tags.filter(function (tag) {
+    return tag && String(tag).trim();
+  });
+}
+
+function splitTags(value) {
+  var text = firstText(value);
+  if (!text) return [];
+  return text.split('|').map(function (tag) {
+    return String(tag).trim();
+  }).filter(function (tag) {
+    return !!tag;
+  });
+}
+
+function decorateJobCards(list) {
+  return (list || []).map(function (item) {
+    var recruiter = firstText(item.commitUsername, '未写招聘者姓名');
+    var recruiterRole = firstText(item.commitJobRole, '未写招聘者职位');
+    item.cardTitle = firstText(item.title, '未写标题');
+    item.cardSalary = salaryText(item);
+    item.cardCompany = firstText(item.companyName, '未写公司名称');
+    item.cardCompanySize = firstText(item.companyPeople, '未写规模');
+    item.cardFinancing = firstText(item.financeStage, '未写融资');
+    item.cardExperience = firstText(item.experience, '未写经验');
+    item.cardEducation = firstText(item.education, '未写学历');
+    var jobDirections = splitTags(item.jobDirection);
+    item.cardDirection = firstText(jobDirections[0], '未写方向');
+    item.cardTags = compactTags([
+      item.cardExperience,
+      item.cardEducation
+    ].concat(jobDirections));
+    item.cardRecruiter = recruiter
+      ? recruiter + ' · ' + recruiterRole
+      : '未写招聘者 · ' + recruiterRole;
+    item.cardLocation = firstText(item.cityDisplayName, item.cityName, '未写地点');
+    item.cardBadge = item.payType == 1 ? '临' : '';
+    return item;
+  });
+}
+
 Page({
   /**
    * 页面的初始数据
@@ -164,7 +238,7 @@ Page({
     query.find().then(function(results) {
       // 请求成功将数据存入article_list
       var currentList = Array.isArray(that.data.jobInfo) ? that.data.jobInfo : [];
-      var nextList = currentList.concat(util.formatList(results));
+      var nextList = currentList.concat(decorateJobCards(util.formatList(results)));
       that.setData({
         jobInfo: nextList,
         isEmpty: nextList.length === 0
@@ -274,7 +348,7 @@ Page({
     query.find().then(function(results) {
       //console.log("分类第一次加载 " + results.length + "条记录");
       //请求将数据存入jobInfo
-      var jobInfo = util.formatList(results);
+      var jobInfo = decorateJobCards(util.formatList(results));
       that.setData({
         jobInfo: jobInfo,
         page_index: 0,
@@ -304,7 +378,7 @@ Page({
     query.find().then(function(results) {
       //console.log("全部职位第一次加载 " + results.length + "条记录");
       //请求将数据存入jobInfo
-      var jobInfo = util.formatList(results);
+      var jobInfo = decorateJobCards(util.formatList(results));
       that.setData({
         jobInfo: jobInfo,
         page_index: 0,
