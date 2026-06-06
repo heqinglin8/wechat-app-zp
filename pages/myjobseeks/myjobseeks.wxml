@@ -8,27 +8,33 @@
 <view class='content'>
 
   <scroll-view bindscrolltolower="scrolltolower" scroll-y="true"    class="scoll-h" >
-      <block wx:for="{{infor}}" wx:key="2*this">
-        <view class="detail-list" bindtap="showDetail" data-index="{{index}}">
-          <view class="list-image">
-              <image src="{{item.firstPhoto}}"/>
-          </view>
-          <view class="list-text">
-            <view class='list-text-name'>
-              <text class='list-text-name-one'>{{item.recoName}}</text>
+      <block wx:for="{{infor}}" wx:key="objectId">
+        <view class="job-card" bindtap="showDetail" data-index="{{index}}">
+          <view class="job-card__header">
+            <view class="job-card__title-wrap">
+              <text class="job-card__title">{{item.cardTitle}}</text>
+              <text wx:if="{{item.cardBadge}}" class="job-card__badge job-card__badge--primary">{{item.cardBadge}}</text>
             </view>
-            <view  class='list-text-detpay' wx:if="{{item.payType==0}}"> 
-                <view class='list-text-adder' >{{item.recoEducation}}</view> 
-                <view class='list-text-detpay-one'>{{item.detPayMin}}-{{item.detPayMax}}元/月</view> 
-            </view> 
-            <view class='list-text-detpay' wx:else>
-                
-                <view class='list-text-adder' >{{item.recoEducation}}</view> 
-                <view class='list-text-detpay-one'>{{item.detPayMin}}-{{item.detPayMax}}元/小时</view> 
-            </view>
-            <text class='list-text-time' >意向：{{item.recoJobIntent}}</text>
+            <text class="job-card__salary">{{item.cardSalary}}</text>
           </view>
-        </view>                  
+          <view class="job-card__company">
+            <text class="job-card__summary">{{item.cardSummary}}</text>
+          </view>
+          <view class="job-card__tags">
+            <text class="job-card__tag" wx:for="{{item.cardTags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+          </view>
+          <view wx:if="{{item.cardPhotos.length > 0}}" class="job-card__photos">
+            <image class="job-card__photo" wx:for="{{item.cardPhotos}}" wx:for-item="photo" wx:key="*this" src="{{photo}}" mode="aspectFill" />
+          </view>
+          <view class="job-card__footer">
+            <view class="job-card__recruiter">
+              <image wx:if="{{item.avatar}}" class="job-card__avatar" src="{{item.avatar}}" mode="aspectFill" />
+              <view wx:else class="job-card__avatar job-card__avatar--empty"></view>
+              <text class="job-card__recruiter-name">{{item.cardSeeker}}</text>
+            </view>
+            <text class="job-card__location">{{item.cardLocation}}</text>
+          </view>
+        </view>
       </block>
       <view class="loading">{{loadingTip}}</view>
   </scroll-view>
