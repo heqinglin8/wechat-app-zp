@@ -56,8 +56,8 @@ function splitTags(value) {
 
 function decorateJobCards(list) {
   return (list || []).map(function (item) {
-    var recruiter = firstText(item.recruiterName,"未写招聘者姓名");
-    var recruiterRole = firstText(item.recruiterRole, '未写招聘者职位');
+    var recruiter = firstText(item.commitUsername,"未写招聘者姓名");
+    var recruiterRole = firstText(item.commitJobRole, '未写招聘者职位');
     item.cardTitle = firstText(item.title, '未写标题');
     item.cardSalary = salaryText(item);
     item.cardCompany = firstText(item.companyName, '未写公司名称');
