@@ -182,7 +182,7 @@ function isAdminUser(user) {
 function displayImageUrl(value) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value) || String(value).charAt(0) === '/') return value;
-  return util.toAvatarDisplayUrl(value);
+  return util.toDisplayUrl(value);
 }
 
 function displayAvatar(userOrMessage) {
@@ -426,7 +426,7 @@ function uploadImage(imageInfo) {
     var path = util.extractRelativePathFromUrl(url);
     return {
       path: path,
-      url: util.toAvatarDisplayUrl(path),
+      url: util.toDisplayUrl(path),
       width: imageInfo.width,
       height: imageInfo.height,
       size: imageInfo.size,

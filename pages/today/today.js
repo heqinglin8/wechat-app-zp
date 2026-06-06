@@ -53,6 +53,7 @@ function splitTags(value) {
 
 function decorateJobCards(list) {
   return (list || []).map(function (item) {
+    console.log('commitAvatar:',item.commitAvatar,'firstPhoto:',item.firstPhoto);
     var recruiter = firstText(item.commitUsername, '未写招聘者姓名');
     var recruiterRole = firstText(item.commitJobRole, '未写招聘者职位');
     item.cardTitle = firstText(item.title, '未写标题');
@@ -73,6 +74,7 @@ function decorateJobCards(list) {
       : '未写招聘者 · ' + recruiterRole;
     item.cardLocation = firstText(item.cityDisplayName, item.cityName, '未写地点');
     item.cardBadge = item.payType == 1 ? '临' : '';
+    item.avatar = util.toDisplayUrl(item.commitAvatar)? util.toDisplayUrl(item.commitAvatar):item.firstPhoto;
     return item;
   });
 }

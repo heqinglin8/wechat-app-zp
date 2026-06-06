@@ -71,7 +71,7 @@ Page({
       // 处理photoImgs分割成photoList数组
       var photoList = [];
       if (results.photoImgs && results.photoImgs.length > 0) {
-        photoList = results.photoImgs.split('|').map(path => util.toAvatarDisplayUrl(path));
+        photoList = results.photoImgs.split('|').map(path => util.toDisplayUrl(path));
       }
       console.log("onLoad results：", results, " photoList:", photoList)
       that.setData({

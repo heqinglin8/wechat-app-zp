@@ -76,6 +76,7 @@ function decorateJobCards(list) {
       : '未写招聘者 · ' + recruiterRole;
     item.cardLocation = firstText(item.cityDisplayName, item.cityName, '未写地点');
     item.cardBadge = item.payType == 1 ? '临' : '';
+    item.avatar = util.toDisplayUrl(item.commitAvatar)? util.toDisplayUrl(item.commitAvatar):item.firstPhoto;
     return item;
   });
 }

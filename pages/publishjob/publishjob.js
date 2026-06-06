@@ -426,7 +426,7 @@ Page({
       if (!url && saved._url) url = saved._url;
       if (!url) return Promise.reject(new Error('no url'));
       var relativePath = util.extractRelativePathFromUrl(url);
-      var replace_url = util.toAvatarDisplayUrl(relativePath);
+      var replace_url = util.toDisplayUrl(relativePath);
       var type = ext || util.extFromPath(relativePath) || 'unknown';
 
       // 保存文件元信息到 file 表，不阻断主上传流程

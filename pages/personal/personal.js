@@ -207,7 +207,7 @@ Page({
             return userObj.save().then(function () {
               var latestUserInfo = that.data.userInfo || {};
               latestUserInfo.avatarPath = avatarPath;
-              latestUserInfo.avatarUrl = util.toAvatarDisplayUrl(avatarPath);
+              latestUserInfo.avatarUrl = util.toDisplayUrl(avatarPath);
               that.setData({
                 userInfo: latestUserInfo
               });
@@ -366,7 +366,7 @@ Page({
   },
 
   applyUserInfo: function (userInfo) {
-    userInfo.avatarUrl = util.toAvatarDisplayUrl(userInfo.avatarPath);
+    userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath);
     this.setData({
       userInfo: userInfo,
       nickname: userInfo.nickname || '',
@@ -388,7 +388,7 @@ Page({
 
              // 登录成功
             var userInfo = res;
-            userInfo.avatarUrl = util.toAvatarDisplayUrl(userInfo.avatarPath);
+            userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath);
             console.log("个人中心登录:查询到 " + userInfo.objectId+":" +userInfo.sessionToken);
             that.setData({
               userInfo: userInfo,

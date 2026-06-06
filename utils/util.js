@@ -20,7 +20,7 @@ const formatList = results => {
     item.firstPhoto = (typeof photoImgs === 'string' && photoImgs.length > 0)
       ? photoImgs.split('|')[0]
       : ''
-    item.firstPhoto = toAvatarDisplayUrl(item.firstPhoto)
+    item.firstPhoto = toDisplayUrl(item.firstPhoto)
     return item
   })
 }
@@ -37,7 +37,7 @@ const extractRelativePathFromUrl = url => {
   return m ? m[1] : clean.replace(/^\/+/, '')
 }
 
-const toAvatarDisplayUrl = value => {
+const toDisplayUrl = value => {
   if (!value) return ''
   if (/^https?:\/\//i.test(value)) return value
   return 'http://files.yueqiu.me/' + String(value).replace(/^\/+/, '')
@@ -48,5 +48,5 @@ module.exports = {
   formatList: formatList,
   extFromPath: extFromPath,
   extractRelativePathFromUrl: extractRelativePathFromUrl,
-  toAvatarDisplayUrl: toAvatarDisplayUrl
+  toDisplayUrl: toDisplayUrl
 }

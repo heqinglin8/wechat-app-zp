@@ -1,15 +1,6 @@
 <!--pages/pubilshJobSeek/pubilshJobSeek.wxml-->
 <scroll-view class="award-scroll" scroll-y>
   <view class="award">
-  <!--
-    <view class="award-image" style="position: relative;">
-      <image src="../../images/topimage.png" mode="aspectFill" style="width: 100%; display: block;" />
-      <view class="award-intro">
-        <view class="text-one">请填写求职者信息，提交后与账号关联存档。</view>
-        <view class="text-tow">查询推荐记录：个人中心 — 我的推荐</view>
-      </view>
-    </view>
-   -->
     <view class="award-list">
       <view class="award-city-row">
         <view class="award-city-label">城市</view>
@@ -54,6 +45,16 @@
         </view>
       </view>
 
+      <view class="award-list-textarea award-list-textarea-extra">
+        <view class="label-block">摘要</view>
+        <textarea class="award-textarea" placeholder="摘要优先展示：请一句话凸显你自己..." value="{{summary}}" bindinput="onSummaryInput" maxlength="400" />
+      </view>
+
+      <view class="award-list-textarea">
+        <view class="label-block">自我介绍</view>
+        <textarea class="award-textarea" placeholder="简述经历与技能（选填）" value="{{recoIntro}}" bindinput="onRecoIntroInput" maxlength="400" />
+      </view>
+
       <view class="award-photo-section">
         <view class="label-block">上传图片（选填，最多 6 张）</view>
         <view class="award-photo-grid">
@@ -75,15 +76,6 @@
         </view>
       </view>
 
-      <view class="award-list-textarea">
-        <view class="label-block">自我介绍</view>
-        <textarea class="award-textarea" placeholder="简述经历与技能（选填）" value="{{recoIntro}}" bindinput="onRecoIntroInput" maxlength="400" />
-      </view>
-
-      <view class="award-list-textarea award-list-textarea-extra">
-        <view class="label-block">其他补充</view>
-        <textarea class="award-textarea" placeholder="备注说明（选填）" value="{{recoExtra}}" bindinput="onRecoExtraInput" maxlength="400" />
-      </view>
     </view>
 
     <view class="award-btn" bindtap="put_infor">确定</view>

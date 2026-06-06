@@ -73,7 +73,7 @@ Page({
     query.find().then(function(results) {
       console.log("个人中心判断:共查询到 objectId："+objectId+" " + results.length + " 条记录");
       var userInfo = results[0]
-      var avatarUrl = util.toAvatarDisplayUrl(userInfo.avatarPath)
+      var avatarUrl = util.toDisplayUrl(userInfo.avatarPath)
       console.log('avatarUrl:',avatarUrl)
         //用户已注册
         that.setData({

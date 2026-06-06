@@ -136,7 +136,7 @@ Page({
       if (!url && saved && saved._url) url = saved._url;
       if (!url) return Promise.reject(new Error('no url'));
       var relativePath = util.extractRelativePathFromUrl(url);
-      var displayUrl = util.toAvatarDisplayUrl(relativePath);
+      var displayUrl = util.toDisplayUrl(relativePath);
       var fileQuery = Bmob.Query('file');
       fileQuery.set('name', fileName);
       fileQuery.set('path', relativePath);

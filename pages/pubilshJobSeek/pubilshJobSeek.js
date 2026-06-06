@@ -1,5 +1,5 @@
 // pages/award/award.js
-// JobSeeker（Bmob）：控制台 Class 须含 title recoEducation recoContact recoJobIntent recoIntro recoExtra、
+// JobSeeker（Bmob）：控制台 Class 须含 title recoEducation recoContact recoJobIntent recoIntro summary
 // photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
@@ -22,7 +22,7 @@ Page({
     detPayMin: '',
     detPayMax: '',
     recoIntro: '',
-    recoExtra: '',
+    summary: '',
     educationOptions: ['初中及以下', '中专 / 高中', '大专', '本科', '硕士及以上'],
     educationIndex: 2,
     userLoaded: false,
@@ -57,8 +57,8 @@ Page({
   onRecoIntroInput: function (e) {
     this.setData({ recoIntro: (e.detail && e.detail.value) || '' });
   },
-  onRecoExtraInput: function (e) {
-    this.setData({ recoExtra: (e.detail && e.detail.value) || '' });
+  onSummaryInput: function (e) {
+    this.setData({ summary: (e.detail && e.detail.value) || '' });
   },
   onEducationChange: function (e) {
     var idx = parseInt(e.detail.value, 10);
@@ -240,7 +240,7 @@ Page({
       if (!saveUrl) return Promise.reject(new Error('no url'));
       
       var relativePath = util.extractRelativePathFromUrl(saveUrl);
-      var replace_url = util.toAvatarDisplayUrl(relativePath);
+      var replace_url = util.toDisplayUrl(relativePath);
       var type = ext || util.extFromPath(relativePath) || 'unknown';
 
       // 保存文件元信息到 file 表，不阻断主上传流程
@@ -463,7 +463,7 @@ Page({
     row.set('detPayMin', Number(d.detPayMin || ''));
     row.set('detPayMax', Number(d.detPayMax || ''));
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
-    row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
+    row.set('summary', (d.summary && String(d.summary).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
     city.applyCityFields(row, this.refreshCurrentCity());
   },

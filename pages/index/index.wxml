@@ -131,7 +131,7 @@
                     </view>
                     <view class="job-card__footer">
                       <view class="job-card__recruiter">
-                        <image wx:if="{{item.firstPhoto}}" class="job-card__avatar" src="{{item.firstPhoto}}" mode="aspectFill" />
+                        <image wx:if="{{item.avatar}}" class="job-card__avatar" src="{{item.firstPhoto}}" mode="aspectFill" />
                         <view wx:else class="job-card__avatar job-card__avatar--empty"></view>
                         <text class="job-card__recruiter-name">{{item.cardRecruiter}}</text>
                       </view>
