@@ -64,11 +64,7 @@ Page({
           }).then(function (latestUserInfo) {
             //用户已注册
             that.applyUserInfo(latestUserInfo);
-            wx.showToast({
-              title: '登录成功',
-              icon: 'success',
-              duration: 1500
-            });
+            console.log('login success')
           }).catch(function (error) {
             console.log('onShow 设置角色信息失败:', error);
             that.applyUserInfo(userInfo);
