@@ -77,7 +77,7 @@ function decorateJobCards(list) {
     item.cardLocation = firstText(item.cityDisplayName, item.cityName, '未写地点');
     item.cardBadge = item.payType == 1 ? '临' : '';
     item.avatar = util.toDisplayUrl(item.commitAvatar)? util.toDisplayUrl(item.commitAvatar):item.firstPhoto;
-    console.log('item.avatar:',item.avatar)
+    // console.log('item.avatar:',item.avatar)
     return item;
   });
 }

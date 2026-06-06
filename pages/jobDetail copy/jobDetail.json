@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "岗位详情",
+  "usingComponents": {
+    "message-board": "/components/message-board/message-board"
+  }
+}

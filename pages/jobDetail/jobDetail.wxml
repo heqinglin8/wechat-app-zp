@@ -22,45 +22,79 @@
     </view>
      -->
   </view>
-  <view class="det-list">
-    <view class='det-list-one'>{{content.detName}}</view>
-    <view class='det-list-tow'>
-      <view class='det-list-tow-one' wx:if="{{content.payType==0}}">{{content.detPayMin}}-{{content.detPayMax}}元/月</view>
-      <view class='det-list-tow-one' wx:else>{{content.detPayMax}}元/小时</view>
-      <view class='det-list-tow-tow'>已报名{{content.entNum}}人</view>
+  <view class="det-main">
+    <view class="det-list">
+      <view class='det-list-one'>{{viewData.title}}</view>
+      <view class='det-list-tow'>
+        <view class='det-list-tow-one'>{{viewData.topPayText}}</view>
+        <view class="det-list-actions">
+          <button class="det-list-action" open-type="share">
+            <text class="det-list-action-icon">↗</text>
+            <text class="det-list-action-text">分享</text>
+          </button>
+          <button class="det-list-action" bindtap="bindCollectJob">
+            <text class="det-list-action-icon">{{hasCollected ? '★' : '☆'}}</text>
+            <text class="det-list-action-text">收藏</text>
+          </button>
+        </view>
+      </view>
+      <view class='det-list-meta'>
+        <view class='det-list-meta-item'>
+          <text class="det-list-meta-icon">📍</text>
+          <text class="det-list-meta-text">{{viewData.locationText}}</text>
+        </view>
+        <view class='det-list-meta-item'>
+          <text class="det-list-meta-icon">💼</text>
+          <text class="det-list-meta-text">{{viewData.experienceText}}</text>
+        </view>
+        <view class='det-list-meta-item'>
+          <text class="det-list-meta-icon">🎓</text>
+          <text class="det-list-meta-text">{{viewData.educationText}}</text>
+        </view>
+      </view>
     </view>
-    <view class='det-list-three'>{{content.detAddr}}</view>
+
+    <view class="det-money"><view>薪资详情</view></view>
+    <view class="det-money-list">
+      <view class="det-info-row"><text class="det-info-label">薪资范围：</text><text class="det-info-value">{{viewData.salaryRangeText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">发薪日期：</text><text class="det-info-value">{{viewData.salaryDateText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">提成方式：</text><text class="det-info-value">{{viewData.commissionText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">已报名：</text><text class="det-info-value">{{viewData.entNumText}}人</text></view>
+    </view>
+
+    <view class="det-money"><view>职位详情</view></view>
+    <view class="det-money-list det-money-list-text">
+      <view class="det-sub-title">【岗位说明】</view>
+      <rich-text nodes="{{viewData.jobDescriptionText}}"></rich-text>
+      <view class="det-sub-title">【岗位要求】</view>
+      <rich-text nodes="{{viewData.jobRequirementsText}}"></rich-text>
+      <view class="det-sub-title">【福利待遇】</view>
+      <rich-text nodes="{{viewData.boardDescriptionText}}"></rich-text>
+      <view class="det-sub-title">【温馨提示】</view>
+      <rich-text nodes="{{viewData.kindlyReminderText}}"></rich-text>
+      <view class="det-sub-title">【公司介绍】</view>
+      <rich-text nodes="{{viewData.companyIntroText}}"></rich-text>
+    </view>
+
+    <view class="message-board-host" wx:if="{{detailMessageEnabled}}">
+      <message-board target-type="job" target-id="{{jobId}}" detail-message-enabled="{{detailMessageEnabled}}"></message-board>
+    </view>
   </view>
-  <view class="det-money"><view>岗位说明</view></view>
-  <view class="det-money-list">
-          <rich-text nodes="{{content.jobDescription}}"></rich-text>
-  </view>
-   <view class="det-money"><view>招聘要求</view></view>
-  <view class="det-money-list">
-          <rich-text nodes="{{content.jobRequirements}}"></rich-text>
-  </view>
-  <view class="det-money"><view>福利说明</view></view>
-  <view class="det-money-list">
-          <rich-text nodes="{{content.boardDescription}}"></rich-text>
-  </view>
-  <view class="det-money"><view>温馨提示</view></view>
-  <view class="det-money-list">
-          <rich-text nodes="{{content.kindlyReminder}}"></rich-text>  
-  </view>
-  <view class="det-money"><view>公司介绍</view></view>
-  <view class="det-money-list det-money-list-text">
-    <rich-text nodes="{{content.detCompany}}"></rich-text>
-  </view>
-  <view class="message-board-host">
-    <message-board target-type="job" target-id="{{jobId}}" detail-message-enabled="{{detailMessageEnabled}}"></message-board>
-  </view>
+
   <view class="det-nav">
-    <ul>
-      <li style="background-color:#3bae56;" ><button class="conbtn" open-type="contact">微信咨询</button></li>
-      <li style="background-color:#56abe4;" bindtap="bindViewServicePhone">电话咨询</li>
-      <li style="background-color:#f0ad4e;" bindtap="bindViewIndex">返回首页</li>
-      <li wx:if="{{hasJoined}}" style="background-color:#eb4f38;" bindtap="cancelJoin">取消报名</li>
-      <li wx:else style="background-color:#eb4f38;" bindtap="bindViewPutinfor">马上报名</li>
-    </ul>
+    <view class="det-nav-left">
+      <image wx:if="{{viewData.recruiterAvatar}}" class="det-nav-avatar" src="{{viewData.recruiterAvatar}}" mode="aspectFill"></image>
+      <view wx:else class="det-nav-avatar det-nav-avatar--placeholder">招</view>
+      <view class="det-nav-recruiter">
+        <view class="det-nav-name">{{viewData.recruiterName}}</view>
+        <view class="det-nav-role">{{viewData.recruiterRole}}</view>
+      </view>
+    </view>
+    <view class="det-nav-right">
+      <view class="det-nav-btn" bindtap="bindViewServicePhone">电话咨询</view>
+      <button class="det-nav-btn det-nav-contact" bindtap="bindViewXWZX">微信咨询</button>
+      <view wx:if="{{hasJoined}}" class="det-nav-btn" bindtap="cancelJoin">取消报名</view>
+      <view wx:else class="det-nav-btn" bindtap="bindViewPutinfor">马上报名</view>
+    </view>
   </view>
 </view>
