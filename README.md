@@ -9,7 +9,7 @@
 *  detail  职位详情
 *  index   主页
 *  map    地图导航
-*  myaward    推荐奖励
+*  myjobseeks    推荐奖励
 *  myjoin    我的加入
 *  personal   个人中心
 *  register    注册

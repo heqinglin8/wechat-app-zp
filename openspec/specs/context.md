@@ -74,7 +74,7 @@ images/               → 静态图标与图片资源
 | `search` / `searchresult` | 搜索页跳转结果：`detAddr == 搜索关键词` |
 | `register` | `Bmob.User.register`，校验手机与密码，查重 `_User.userphone` |
 | `setinfor` | 修改用户名/手机，`_User.get`/`save`，换号时防重复注册 |
-| `myjoin` / `myaward` | 报名列表、`JobSeeker` 以 `recoName` 与用户名的查询（推荐侧展示） |
+| `myjoin` / `myjobseeks` | 报名列表、`JobSeeker` 以 `recoName` 与用户名的查询（推荐侧展示） |
 | `servicephone` | 内置多个经理称呼与电话号码，`wx.makePhoneCall` |
 | `map` | `wx.getLocation` 后 `wx.openLocation`，展示固定门店文案（韶关地区人力资源公司地址） |
 

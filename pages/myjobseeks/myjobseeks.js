@@ -1,4 +1,4 @@
-// pages/myaward/myaward.js
+// pages/myjobseeks/myjobseeks.js
 var Bmob = wx.Bmob;
 var util = require('../../utils/util');
 Page({

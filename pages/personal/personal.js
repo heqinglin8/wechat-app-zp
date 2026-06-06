@@ -151,7 +151,7 @@ Page({
   bindViewMyaward:function(){
     var user = this.data.userInfo.username
     wx.navigateTo({
-      url: '../myaward/myaward?username=' + user
+      url: '../myjobseeks/myjobseeks?username=' + user
     })
   },
   // 点击头像修改
