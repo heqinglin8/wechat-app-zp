@@ -42,9 +42,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-   
     //console.log("onShow")
-    
       var that = this;
       let currentUser = Bmob.User.current()
       var sessionToken = currentUser ? currentUser.sessionToken : '';
@@ -55,7 +53,7 @@ Page({
       query.equalTo("objectId", "==", objectId);
       // 查询用户是否注册
       query.find().then(function(results) {
-        console.log("个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
+        console.log("onShow 个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
         if (results.length != 0) {
           var userInfo = results[0];
           userInfo.sessionToken = sessionToken;
@@ -67,7 +65,7 @@ Page({
             //用户已注册
             that.applyUserInfo(latestUserInfo);
             wx.showToast({
-              title: '设置角色成功',
+              title: '登录成功',
               icon: 'success',
               duration: 1500
             });
@@ -81,15 +79,12 @@ Page({
             });
           });
         } else {
-          console.log("没有注册，objectId: " + objectId);
-          that.setData({
-            userInfo: {},
-            nickname: '',
-            hasUserInfo: false
-          });
+          console.log("onShow 没有注册，objectId: " + objectId);
+          that.logoutCurrentUser();
         }
       }).catch(function(error) {
         console.log("查询失败: " + error.code + " " + error.message);
+        that.logoutCurrentUser();
       });
     }else{
       console.log("没有登录，objectId: " + objectId);
@@ -251,20 +246,7 @@ Page({
           return;
         }
 
-        // wx.removeStorageSync('weapp');
-        // wx.removeStorageSync('userInfo');
-
-        try {
-          Bmob.User.logout();
-        } catch (e) {
-          console.log("退出登录失败: " + e.code + " " + e.message);
-        }
-
-        that.setData({
-          userInfo: {},
-          username: '',
-          hasUserInfo: false
-        });
+        that.logoutCurrentUser();
 
         
         wx.showToast({
@@ -276,6 +258,19 @@ Page({
     });
   },
 //点击个人中心里登录页面跳转
+
+  logoutCurrentUser: function () {
+    try {
+      Bmob.User.logout();
+    } catch (e) {
+      console.log("退出登录失败: " + e.code + " " + e.message);
+    }
+    this.setData({
+      userInfo: {},
+      nickname: '',
+      hasUserInfo: false
+    });
+  },
 
   isEmptyRole: function (role) {
     if (role === undefined || role === null) {
