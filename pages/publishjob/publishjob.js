@@ -118,6 +118,11 @@ Page({
   },
 
   onShow: function () {
+    var currentUser = Bmob.User.current();
+    if (!currentUser) {
+      this.handleUnloginRedirect();
+      return;
+    }
     this.consumeLastPublishedCompany();
     this.loadCompanyOptions();
   },
@@ -274,18 +279,24 @@ Page({
     var that = this;
     var currentUser = Bmob.User.current();
     if (!currentUser) {
-      wx.showToast({ title: '请先登录后再推荐', icon: 'none', duration: 2000 });
+      that.handleUnloginRedirect();
       return;
     }
-     var objectId = currentUser.objectId;
+    var objectId = currentUser.objectId;
     var query = Bmob.Query('_User');
     query.equalTo('objectId', '==', objectId);
     query.find().then(function (results) {
       if (!results.length) {
         wx.showToast({ title: '未找到用户信息，请先登录', icon: 'none', duration: 2000 });
+        that.handleUnloginRedirect();
         return;
       }
       var u = results[0];
+      var role = u.role == null ? '' : String(u.role).trim();
+      if (!that.isAllowedPublisherRole(role)) {
+        that.handlePublisherRoleDenied();
+        return;
+      }
       var phone = u.userphone != null ? String(u.userphone).trim() : '';
       var uname = u.username || '';
       that.setData({
@@ -296,12 +307,82 @@ Page({
       });
     }).catch(function () {
       wx.showToast({ title: '用户信息加载失败', icon: 'none', duration: 2000 });
+      that.handleUnloginRedirect();
     });
   },
 
   onShareAppMessage: function () {},
 
   noop: function () {},
+
+  isAllowedPublisherRole: function (role) {
+    var roleText = role == null ? '' : String(role).trim();
+    return roleText === '1' || roleText === '100' || roleText === '1000';
+  },
+
+  handlePublisherRoleDenied: function () {
+    var that = this;
+    if (that._isHandlingRoleDenied) {
+      return;
+    }
+    that._isHandlingRoleDenied = true;
+    wx.showToast({
+      title: '招聘者才能发布招聘信息',
+      icon: 'none',
+      duration: 2000
+    });
+    setTimeout(function () {
+      var pages = getCurrentPages();
+      if (pages.length > 1) {
+        wx.navigateBack({
+          delta: 1,
+          complete: function () {
+            that._isHandlingRoleDenied = false;
+          }
+        });
+        return;
+      }
+      that._isHandlingRoleDenied = false;
+      wx.switchTab({
+        url: '/pages/index/index'
+      });
+    }, 1000);
+  },
+
+  handleUnloginRedirect: function () {
+    console.log('handleUnloginRedirect()')
+    var that = this;
+    if (that._isHandlingLoginRedirect) {
+      return;
+    }
+    that._isHandlingLoginRedirect = true;
+    wx.showModal({
+      title: '提示',
+      content: '当前用户未登录，跳转到个人中心',
+      showCancel: false,
+      confirmText: '确定',
+      success: function () {
+        var pages = getCurrentPages();
+        if (pages.length > 1) {
+          wx.navigateBack({
+            delta: 1,
+            complete: function () {
+              wx.switchTab({
+                url: '/pages/personal/personal'
+              });
+            }
+          });
+          return;
+        }
+        wx.switchTab({
+          url: '/pages/personal/personal'
+        });
+      },
+      complete: function () {
+        that._isHandlingLoginRedirect = false;
+      }
+    });
+  },
 
   /** @returns {Promise<number>} file size in bytes */
   getFileSize: function (filePath) {

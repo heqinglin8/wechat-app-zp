@@ -67,11 +67,18 @@ Page({
   },
 
   onLoad: function () {
+    this._objectId = '';
     this.refreshCurrentCity();
   },
 
   onShow: function () {
+    var currentUser = Bmob.User.current();
+    if (!currentUser) {
+      this.handleUnloginRedirect();
+      return;
+    }
     this.refreshCurrentCity();
+    this.loadCurrentUserProfile(currentUser.objectId);
   },
 
   refreshCurrentCity: function () {
@@ -84,22 +91,98 @@ Page({
   },
 
   onReady: function () {
+    
+  },
+
+  onShareAppMessage: function () {},
+
+  isAllowedJobSeekerRole: function (role) {
+    var roleText = role == null ? '' : String(role).trim();
+    return roleText === '2' || roleText === '100' || roleText === '1000';
+  },
+
+  handleUnloginRedirect: function () {
     var that = this;
-    var currentUser = Bmob.User.current();
-    if (!currentUser) {
-      wx.showToast({ title: '请先登录后再推荐', icon: 'none', duration: 2000 });
+    if (that._isHandlingLoginRedirect) {
       return;
     }
-    var objectId = currentUser.objectId;
+    that._isHandlingLoginRedirect = true;
+    wx.showModal({
+      title: '提示',
+      content: '当前用户未登录，跳转到个人中心',
+      showCancel: false,
+      confirmText: '确定',
+      success: function () {
+        var pages = getCurrentPages();
+        if (pages.length > 1) {
+          wx.navigateBack({
+            delta: 1,
+            complete: function () {
+              wx.switchTab({
+                url: '/pages/personal/personal'
+              });
+            }
+          });
+          return;
+        }
+        wx.switchTab({
+          url: '/pages/personal/personal'
+        });
+      },
+      complete: function () {
+        that._isHandlingLoginRedirect = false;
+      }
+    });
+  },
+
+  handleJobSeekerRoleDenied: function () {
+    var that = this;
+    if (that._isHandlingRoleDenied) {
+      return;
+    }
+    that._isHandlingRoleDenied = true;
+    wx.showToast({
+      title: '求职者才能发布求职信息',
+      icon: 'none',
+      duration: 2000
+    });
+    setTimeout(function () {
+      var pages = getCurrentPages();
+      if (pages.length > 1) {
+        wx.navigateBack({
+          delta: 1,
+          complete: function () {
+            that._isHandlingRoleDenied = false;
+          }
+        });
+        return;
+      }
+      that._isHandlingRoleDenied = false;
+      wx.switchTab({
+        url: '/pages/index/index'
+      });
+    }, 1000);
+  },
+
+  loadCurrentUserProfile: function (objectId) {
+    var that = this;
     var query = Bmob.Query('_User');
     query.equalTo('objectId', '==', objectId);
     query.find().then(function (results) {
       if (!results.length) {
         wx.showToast({ title: '未找到用户信息，请先登录', icon: 'none', duration: 2000 });
+        that.handleUnloginRedirect();
         return;
       }
       var u = results[0];
-       console.log("onReady 个人中心当前用户_User : " ,u);
+      var role = u.role == null ? '' : String(u.role).trim();
+      if (!that.isAllowedJobSeekerRole(role)) {
+        that.setData({
+          userLoaded: false
+        });
+        that.handleJobSeekerRoleDenied();
+        return;
+      }
       var phone = u.userphone != null ? String(u.userphone).trim() : '';
       var uname = u.username || '';
       that.setData({
@@ -107,14 +190,12 @@ Page({
         recoName: uname,
         recoContact: phone,
         userLoaded: true,
-        objectId: objectId,
       });
+      that._objectId = objectId;
     }).catch(function () {
       wx.showToast({ title: '用户信息加载失败', icon: 'none', duration: 2000 });
     });
   },
-
-  onShareAppMessage: function () {},
 
   /** @returns {Promise<number>} file size in bytes */
   getFileSize: function (filePath) {
@@ -373,7 +454,7 @@ Page({
     var d = this.data;
     var edu = this.educationLabel();
     row.set('commitUsername', d.userName);
-    row.set('commitUid', d.objectId || '');
+    row.set('commitUid', this._objectId || '');
     row.set('title', String(d.title).trim());
     row.set('recoName', String(d.recoName).trim());
     row.set('recoEducation', edu);
