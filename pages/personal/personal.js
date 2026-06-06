@@ -18,6 +18,9 @@ Page({
     username:'',
     hasUserInfo: false,
     avatarUrl: defaultAvatarUrl,
+    showRoleDialog: false,
+    selectedRole: 2,
+    roleJobRole: '',
   },
 
   /**
@@ -44,8 +47,8 @@ Page({
     
       var that = this;
       let currentUser = Bmob.User.current()
-      var sessionToken = currentUser.sessionToken;
-      var objectId = currentUser.objectId;
+      var sessionToken = currentUser ? currentUser.sessionToken : '';
+      var objectId = currentUser ? currentUser.objectId : '';
       //获取用户当前信息
     if (objectId!=undefined && objectId.length > 0) {
       var query = Bmob.Query("_User");
@@ -55,14 +58,27 @@ Page({
         console.log("个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
         if (results.length != 0) {
           var userInfo = results[0];
+          userInfo.sessionToken = sessionToken;
           console.log("onShow 个人中心当前用户: " ,userInfo);
-          userInfo.avatarUrl = util.toAvatarDisplayUrl(userInfo.avatarPath);
-          //用户已注册
-          that.setData({
-            userInfo: userInfo,
-            nickname: userInfo.nickname ||'',
-            hasUserInfo: true,
-            avatarUrl: userInfo.avatarUrl || defaultAvatarUrl
+          var rolePromise = that.isEmptyRole(userInfo.role) ? that.promptUserRole() : Promise.resolve(null);
+          rolePromise.then(function (roleInfo) {
+            return that.updateRoleUserInfo(userInfo, roleInfo);
+          }).then(function (latestUserInfo) {
+            //用户已注册
+            that.applyUserInfo(latestUserInfo);
+            wx.showToast({
+              title: '设置角色成功',
+              icon: 'success',
+              duration: 1500
+            });
+          }).catch(function (error) {
+            console.log('onShow 设置角色信息失败:', error);
+            that.applyUserInfo(userInfo);
+            wx.showToast({
+              title: '设置角色信息失败',
+              icon: 'none',
+              duration: 1500
+            });
           });
         } else {
           console.log("没有注册，objectId: " + objectId);
@@ -260,6 +276,109 @@ Page({
     });
   },
 //点击个人中心里登录页面跳转
+
+  isEmptyRole: function (role) {
+    if (role === undefined || role === null) {
+      return true;
+    }
+    var roleText = String(role).trim();
+    return roleText === '' || roleText === '0';
+  },
+
+  promptUserRole: function () {
+    var that = this;
+    if (that._rolePromise) {
+      return that._rolePromise;
+    }
+
+    that._rolePromise = new Promise(function (resolve) {
+      that._roleResolve = resolve;
+      that.setData({
+        showRoleDialog: true,
+        selectedRole: 2,
+        roleJobRole: ''
+      });
+    });
+
+    return that._rolePromise;
+  },
+
+  onRoleSelect: function (e) {
+    var role = Number(e.currentTarget.dataset.role);
+    var nextData = {
+      selectedRole: role
+    };
+    if (role === 2) {
+      nextData.roleJobRole = '';
+    }
+    this.setData(nextData);
+  },
+
+  onRoleJobInput: function (e) {
+    this.setData({
+      roleJobRole: e.detail.value
+    });
+  },
+
+  confirmRoleDialog: function () {
+    var selectedRole = Number(this.data.selectedRole);
+    var jobRole = ((this.data.roleJobRole || '') + '').trim();
+
+    if (selectedRole === 1 && !jobRole) {
+      wx.showToast({
+        title: '请输入职位角色',
+        icon: 'none',
+        duration: 1500
+      });
+      return;
+    }
+
+    var resolve = this._roleResolve;
+    this._roleResolve = null;
+    this._rolePromise = null;
+    this.setData({
+      showRoleDialog: false,
+      roleJobRole: selectedRole === 1 ? jobRole : ''
+    });
+
+    if (resolve) {
+      resolve({
+        role: String(selectedRole),
+        jobRole: selectedRole === 1 ? jobRole : ''
+      });
+    }
+  },
+
+  noop: function () {},
+
+  updateRoleUserInfo: function (userInfo, roleInfo) {
+    if (!roleInfo) {
+      return Promise.resolve(userInfo);
+    }
+
+    var query = Bmob.Query('_User');
+    return query.get(userInfo.objectId).then(function (userObj) {
+      var role = String(roleInfo.role);
+      userObj.set('sessionToken', userInfo.sessionToken);
+      userObj.set('role', role);
+      userObj.set('jobRole', roleInfo.jobRole);
+      return userObj.save();
+    }).then(function () {
+      userInfo.role = String(roleInfo.role);
+      userInfo.jobRole = roleInfo.jobRole;
+      return userInfo;
+    });
+  },
+
+  applyUserInfo: function (userInfo) {
+    userInfo.avatarUrl = util.toAvatarDisplayUrl(userInfo.avatarPath);
+    this.setData({
+      userInfo: userInfo,
+      nickname: userInfo.nickname || '',
+      hasUserInfo: true,
+      avatarUrl: userInfo.avatarUrl || defaultAvatarUrl
+    });
+  },
 
   bingLogin:function(){
       // 登录

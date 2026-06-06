@@ -64,5 +64,19 @@
   </view>
 </view>
 
+<view wx:if="{{showRoleDialog}}" class="role-dialog-mask" catchtouchmove="noop">
+  <view class="role-dialog" catchtap="noop">
+    <view class="role-dialog-title">请选择身份</view>
+    <view class="role-options">
+      <view class="role-option {{selectedRole == 1 ? 'role-option-active' : ''}}" data-role="1" bindtap="onRoleSelect">招聘者</view>
+      <view class="role-option {{selectedRole == 2 ? 'role-option-active' : ''}}" data-role="2" bindtap="onRoleSelect">求职者</view>
+    </view>
+    <view wx:if="{{selectedRole == 1}}" class="role-field">
+      <input class="role-input" type="text" maxlength="30" placeholder="请输入职位角色" value="{{roleJobRole}}" bindinput="onRoleJobInput" />
+    </view>
+    <button class="role-confirm" bindtap="confirmRoleDialog">确定</button>
+  </view>
+</view>
+
 <!-- 右下角悬浮按钮入口 -->
 <fab />
