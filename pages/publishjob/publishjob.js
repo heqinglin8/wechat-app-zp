@@ -34,6 +34,7 @@ Page({
     recoJobIntent: '',
     experience: '',
     jobDirection: '',
+    summary: '',
     jobDescription: '',
     detPayMin: '',
     detPayMax: '',
@@ -89,6 +90,18 @@ Page({
       jobDirection: value,
       recoJobIntent: value,
     });
+  },
+  onSummaryInput: function (e) {
+    var value = (e.detail && e.detail.value) || '';
+    value = String(value).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    var lines = value.split('\n');
+    if (lines.length > 2) {
+      value = lines.slice(0, 2).join('\n');
+    }
+    if (value.length > 40) {
+      value = value.slice(0, 40);
+    }
+    this.setData({ summary: value });
   },
   onJobRequirementsInput: function (e) {
     this.setData({ jobRequirements: (e.detail && e.detail.value) || '' });
@@ -547,6 +560,11 @@ Page({
     console.log("applyJobSeekerFields row:",row);
     var d = this.data;
     var edu = this.educationLabel();
+    var summaryText = String(d.summary || '').trim();
+    var jobDescriptionText = String(d.jobDescription || '').trim();
+    if (!summaryText && jobDescriptionText) {
+      summaryText = jobDescriptionText.slice(0, 40);
+    }
     row.set('commitUsername', d.userName);
     row.set('commitUid', d.uid || '');
     row.set('title', String(d.title).trim());
@@ -556,8 +574,9 @@ Page({
     row.set('recoContact', String(d.recoContact).trim());
     row.set('experience', String(d.experience || '').trim());
     row.set('jobIntent', String(d.jobDirection || '').trim());
-    row.set('jobRequirements', String(d.jobDescription || '').trim());
-    row.set('jobDescription', String(d.jobDescription || '').trim());
+    row.set('summary', summaryText);
+    row.set('jobRequirements', jobDescriptionText);
+    row.set('jobDescription', jobDescriptionText);
     row.set('recoJobIntent', String(d.jobDirection || d.recoJobIntent || '').trim());
     row.set('companyId', d.selectedCompanyId || '');
     row.set('companyName', d.selectedCompanyName || '');

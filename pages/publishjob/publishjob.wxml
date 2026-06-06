@@ -57,6 +57,21 @@
         </view>
       </view>
 
+      <view class="award-list-textarea">
+        <view class="label-block">职位方向</view>
+        <textarea class="jobDirection-textarea" placeholder="职位方向/类别，多个可用 | 分隔" value="{{jobDirection}}" bindinput="onJobDirectionInput" maxlength="400" />
+      </view>
+
+      <view class="award-list-textarea">
+        <view class="label-block">摘要</view>
+        <textarea class="jobDirection-textarea summary-textarea" placeholder="请输入职位摘要，字数在40以内..." value="{{summary}}" bindinput="onSummaryInput" maxlength="40" />
+      </view>
+
+      <view class="award-list-textarea award-list-textarea-extra">
+        <view class="label-block">职位描述</view>
+        <textarea class="award-textarea" placeholder="职位描述，多个要求可用 | 分隔" value="{{jobDescription}}" bindinput="onJobDescriptionInput" maxlength="800" />
+      </view>
+
       <view class="award-photo-section">
         <view class="label-block">上传图片（选填，最多 3 张）</view>
         <view class="award-photo-grid">
@@ -77,16 +92,7 @@
           </view>
         </view>
       </view>
-
-      <view class="award-list-textarea">
-        <view class="label-block">职位方向</view>
-        <textarea class="jobDirection-textarea" placeholder="职位方向/类别，多个可用 | 分隔" value="{{jobDirection}}" bindinput="onJobDirectionInput" maxlength="400" />
-      </view>
-
-      <view class="award-list-textarea award-list-textarea-extra">
-        <view class="label-block">职位描述</view>
-        <textarea class="award-textarea" placeholder="职位描述，多个要求可用 | 分隔" value="{{jobDescription}}" bindinput="onJobDescriptionInput" maxlength="800" />
-      </view>
+      
     </view>
 
     <view class="award-btn" bindtap="put_infor">确定</view>
