@@ -16,7 +16,8 @@
     "pages/todayjobseek/todayjobseek",
     "pages/seekerDetail/seekerDetail",
     "pages/publishjob/publishjob",
-    "pages/publishcompany/publishcompany"
+    "pages/publishcompany/publishcompany",
+    "pages/linkings/linkings"
   ],
   "window": {
     "navigationBarBackgroundColor": "#fc3",
