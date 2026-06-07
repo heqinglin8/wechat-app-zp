@@ -42,7 +42,7 @@
     <view class="per-mid-list4" bindtap='bindViewServicePhone'>
       <view class="per-mid-list4-left per-mid-list-left">
         <image src="../../images/mykefu.png"/>
-        <view class="per-mid-list4-left-text per-mid-list-left-text">我的客服</view>
+        <view class="per-mid-list4-left-text per-mid-list-left-text">求职热线</view>
       </view>
       <view class="per-mid-list4-right per-mid-list-right">
         <image src="../../images/jiantou.png"/>

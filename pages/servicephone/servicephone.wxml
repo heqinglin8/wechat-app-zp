@@ -12,7 +12,7 @@
       <image src="../../images/servicephone.png"/>
     </view>
   </view>
-  <view class="sp-one">
+  <!-- <view class="sp-one">
     <view class="number">{{phoneNameThree}}</view>
     <view class="number-image" bindtap='bindMakePhoneThree'>
       <image src="../../images/servicephone.png"/>
@@ -23,5 +23,5 @@
     <view class="number-image" bindtap='bindMakePhoneFour'>
       <image src="../../images/servicephone.png"/>
     </view>
-  </view>
+  </view> -->
 </view>

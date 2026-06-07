@@ -9,12 +9,12 @@ Page({
    * 页面的初始数据
    */
   data: {
-    phoneNumberOne:'15518560900',
-    phoneNumberTwo: '15239319818',
-    phoneNumberThree: '15839341286',
-    phoneNumberFour: '15090238998',
-    phoneNameOne:'张经理',
-    phoneNameTwo: '李经理',
+    phoneNumberOne:'17520040550',
+    phoneNumberTwo: '15622189139',
+    phoneNumberThree: '15622189139',
+    phoneNumberFour: '17520040550',
+    phoneNameOne:'求职热线-1',
+    phoneNameTwo: '求职热线-2',
     phoneNameThree: '张经理',
     phoneNameFour: '李经理',
   },

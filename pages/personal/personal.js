@@ -129,7 +129,7 @@ Page({
       url: '../myjoin/myjoin?username=' + user
     })
   },
-  //点击个人中心里我的客服页面跳转
+  //点击个人中心里求职热线页面跳转
   bindViewServicePhone: function () {
     wx.navigateTo({
       url: '../servicephone/servicephone'
@@ -147,7 +147,7 @@ Page({
       url: '../setinfor/setinfor' 
     })
   },
-  //点击个人中心里我的推荐跳转
+  //点击个人中心里我的求职跳转
   bindViewMyaward:function(){
     var user = this.data.userInfo.username
     wx.navigateTo({
