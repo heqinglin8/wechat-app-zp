@@ -57,6 +57,7 @@ Page({
     chooseImageBusy: false,
     currentCity: city.DEFAULT_CITY,
     currentCityText: city.fullDisplayText(city.DEFAULT_CITY),
+    currentUserRole: '',
   },
 
   onRecoNameInput: function (e) {
@@ -304,6 +305,7 @@ Page({
         recoContact: phone,
         userLoaded: true,
         uid: objectId,
+        currentUserRole: role,
       });
     }).catch(function () {
       wx.showToast({ title: '用户信息加载失败', icon: 'none', duration: 2000 });
@@ -318,6 +320,10 @@ Page({
   isAllowedPublisherRole: function (role) {
     var roleText = role == null ? '' : String(role).trim();
     return roleText === '1' || roleText === '100' || roleText === '1000';
+  },
+  resolvePublishActive: function () {
+    var roleText = String(this.data.currentUserRole || '').trim();
+    return (roleText === '100' || roleText === '1000') ? 1 : 0;
   },
 
   handlePublisherRoleDenied: function () {
@@ -669,6 +675,7 @@ Page({
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
     row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
+    row.set('active', this.resolvePublishActive());
     city.applyCityFields(row, d.selectedCompany || d.currentCity);
   },
 
@@ -692,6 +699,7 @@ Page({
     var query = Bmob.Query('JobInfo');
     query.equalTo('commitUsername', '==', that.data.userName);
     query.equalTo('title', '==', String(that.data.title).trim());
+    query.equalTo('active', '==', 1);
 
     query.find().then(function (results) {
       if (!results.length) {

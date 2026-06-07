@@ -41,6 +41,15 @@ Page({
       url: '../index/index'
     })
   },  
+  fetchActiveJobInfoById: function (jobId) {
+    if (!jobId) return Promise.resolve(null);
+    var query = Bmob.Query("JobInfo");
+    query.equalTo("objectId", "==", jobId);
+    query.equalTo("active", "==", 1);
+    return query.find().then(function (rows) {
+      return rows && rows.length ? rows[0] : null;
+    });
+  },
 
   /**
    * 生命周期函数--监听页面加载
@@ -58,8 +67,8 @@ Page({
     }
 
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("JobInfo");
-    query.get(that.data.jobId).then(function (results) {
+    that.fetchActiveJobInfoById(that.data.jobId).then(function (results) {
+      if (!results) return;
       console.log("onLoad results:", results);
       that.setData({
         content: results,
@@ -106,8 +115,8 @@ Page({
               duration: 2000
             });
             //更新招聘信息表
-            var detailQuery = Bmob.Query("JobInfo");
-            detailQuery.get(that.data.jobId).then(function(result) {
+            that.fetchActiveJobInfoById(that.data.jobId).then(function(result) {
+              if (!result) return;
               result.set('entNum', (that.data.num + 1));
               result.save();
               that.setData({
@@ -237,9 +246,8 @@ Page({
     if(that.data.isFist==false)
     {
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("JobInfo");
-    //查询单条数据，第一个参数是这条数据的jobId值
-    query.get(that.data.jobId).then(function(results) {
+    that.fetchActiveJobInfoById(that.data.jobId).then(function(results) {
+      if (!results) return;
       that.setData({
         content: results,
       });

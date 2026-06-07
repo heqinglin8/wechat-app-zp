@@ -40,6 +40,7 @@ Page({
   },
   loadCurrentCityJobs: function (pageIndex, acc) {
     var query = Bmob.Query("JobInfo");
+    query.equalTo("active", "==", 1);
     city.applyJobInfoFilter(query);
     query.order('-updatedAt');
     query.limit(100);
@@ -54,6 +55,7 @@ Page({
   },
   loadCurrentCitySeekers: function (pageIndex, acc) {
     var query = Bmob.Query("JobSeeker");
+    query.equalTo("active", "==", 1);
     city.applyJobSeekerFilter(query);
     query.order('-updatedAt');
     query.limit(100);

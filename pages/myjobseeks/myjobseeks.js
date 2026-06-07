@@ -113,6 +113,7 @@ Page({
     //获取报名信息
     var query = Bmob.Query("JobSeeker");
     query.equalTo("commitUsername", "==", that.data.username);
+    query.equalTo("active", "==", 1);
     // 查询所有数据
     query.find().then(function(results) {
       var list = decorateJobSeekerCards(util.formatList(results));

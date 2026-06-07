@@ -211,6 +211,7 @@ Page({
     var that = this;
     var page_size = 10;
     var query = Bmob.Query("JobInfo");
+    query.equalTo("active", "==", 1);
     ////console.log('分页传值:' + currentTaB);
     switch (that.data.currentTab) {
       case 0:
@@ -449,6 +450,7 @@ Page({
     var that = this;
     this.cleardata();
     var query = Bmob.Query("JobInfo");
+    query.equalTo("active", "==", 1);
     switch (e) {
       case '0':
         //console.log('全部职位');
@@ -497,6 +499,7 @@ Page({
     var that = this;
     // 动态添加列表详情
     var query = Bmob.Query("JobInfo");
+    query.equalTo("active", "==", 1);
     city.applyJobInfoFilter(query);
     query.order('-updatedAt');
     query.limit(10);

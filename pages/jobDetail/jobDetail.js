@@ -116,6 +116,15 @@ Page({
       viewData: this.buildViewData(result)
     });
   },
+  fetchActiveJobInfoById: function (jobId) {
+    if (!jobId) return Promise.resolve(null);
+    var query = Bmob.Query("JobInfo");
+    query.equalTo("objectId", "==", jobId);
+    query.equalTo("active", "==", 1);
+    return query.find().then(function (rows) {
+      return rows && rows.length ? rows[0] : null;
+    });
+  },
   /**
    * 求职热线跳转
    */
@@ -166,8 +175,15 @@ Page({
     }
 
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("JobInfo");
-    query.get(that.data.jobId).then(function (results) {
+    that.fetchActiveJobInfoById(that.data.jobId).then(function (results) {
+      if (!results) {
+        wx.showToast({
+          title: '岗位不存在或已下架',
+          icon: 'none',
+          duration: 2000
+        });
+        return;
+      }
       console.log("onLoad results:", results);
       that.applyJobResult(results);
     }).catch(function (error) {
@@ -208,8 +224,8 @@ Page({
               duration: 2000
             });
             //更新招聘信息表
-            var detailQuery = Bmob.Query("JobInfo");
-            detailQuery.get(that.data.jobId).then(function(result) {
+            that.fetchActiveJobInfoById(that.data.jobId).then(function(result) {
+              if (!result) return;
               result.set('entNum', (that.data.num + 1));
               result.save();
               that.setData({
@@ -437,9 +453,8 @@ Page({
     if(that.data.isFist==false)
     {
     // 向Bmob请求详情页数据
-    var query = Bmob.Query("JobInfo");
-    //查询单条数据，第一个参数是这条数据的jobId值
-    query.get(that.data.jobId).then(function(results) {
+    that.fetchActiveJobInfoById(that.data.jobId).then(function(results) {
+      if (!results) return;
       that.applyJobResult(results);
     }).catch(function(error) {
       // 查询失败
@@ -547,7 +562,7 @@ Page({
           linkingRow.save().then(function () {
            wx.showModal({
             title: '对方微信号',
-            content: wechatNo,verifyUserid,
+            content: wechatNo,
             showCancel: false,
             confirmText: '知道了'
           });

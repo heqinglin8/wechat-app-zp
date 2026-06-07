@@ -213,6 +213,7 @@ Page({
     var that = this;
     var page_size = 10;
     var query = Bmob.Query("JobSeeker");
+    query.equalTo("active", "==", 1);
     ////console.log('分页传值:' + currentTaB);
     //列表判断
     switch (that.data.currentTab) {
@@ -323,6 +324,7 @@ Page({
     //清空列表数据
     this.cleardata();
     var query = Bmob.Query("JobSeeker");
+    query.equalTo("active", "==", 1);
     var e=e+''
 
     switch (e) {
@@ -374,6 +376,7 @@ Page({
     var that = this;
     // 动态添加列表详情
     var query = Bmob.Query("JobSeeker");
+    query.equalTo("active", "==", 1);
     city.applyJobSeekerFilter(query);
     query.order('-updatedAt');
     query.limit(10);
