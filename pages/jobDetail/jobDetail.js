@@ -514,7 +514,6 @@ Page({
       });
       return;
     }
-
     var wechatNo = that.firstText(that.data.content && that.data.content.wxid);
     if (!wechatNo) {
       wx.showToast({
@@ -525,10 +524,42 @@ Page({
       return;
     }
     wx.showModal({
-      title: '对方微信号',
-      content: wechatNo,
-      showCancel: false,
-      confirmText: '知道了'
+      title: '提示',
+      content: '你正在申请对方的微信交换，同时你的微信将自动发给对方。',
+      cancelText: '取消',
+      confirmText: '确认',
+      success: function (modalRes) {
+        if (!modalRes.confirm) return;
+          var verifyUserid = that.firstText(that.data.content && that.data.content.commitUid);
+          console.log('111 jobinfo:',that.data.content)
+          if (!verifyUserid) {
+            wx.showToast({
+              title: '未获取到审核人信息',
+              image: "../../images/warning.png",
+              duration: 2000
+            });
+            return;
+          }
+          var linkingRow = Bmob.Query('linking');
+          linkingRow.set('applyUserid', that.data.userId);
+          linkingRow.set('verifyUserid', verifyUserid);
+          linkingRow.set('type', '2');
+          linkingRow.save().then(function () {
+           wx.showModal({
+            title: '对方微信号',
+            content: wechatNo,verifyUserid,
+            showCancel: false,
+            confirmText: '知道了'
+          });
+          }).catch(function (e) {
+            console.error('申请交换失败,e', e)
+            wx.showToast({
+              title: '申请交换失败',
+              image: "../../images/warning.png",
+              duration: 2000
+            });
+          });
+      }
     });
   },
   /**

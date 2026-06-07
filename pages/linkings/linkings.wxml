@@ -1,27 +1,17 @@
 <!--pages/linkings/linkings.wxml-->
 <view class="servicephone">
-  <view class="sp-one">
-    <view class="number">{{phoneNameOne}}</view>
-    <view class="number-image" bindtap='bindMakePhoneOne'>
-      <image src="../../images/servicephone.png"/>
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!linkings.length}}" class="state-text">暂无联系方式交换申请</view>
+  <view wx:for="{{linkings}}" wx:key="rowIndex" class="sp-one">
+    <view class="sp-left">
+      <image class="sp-avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+      <view class="sp-user">
+        <text class="sp-username">{{item.username}}</text>
+        <text class="sp-meta">{{item.meta}}</text>
+      </view>
+    </view>
+    <view class="sp-right" bindtap="onTapContactIcon" data-index="{{index}}">
+      <image src="{{item.icon}}" mode="aspectFit"></image>
     </view>
   </view>
-  <view class="sp-one">
-    <view class="number">{{phoneNameTwo}}</view>
-    <view class="number-image" bindtap='bindMakePhoneTwo'>
-      <image src="../../images/servicephone.png"/>
-    </view>
-  </view>
-  <!-- <view class="sp-one">
-    <view class="number">{{phoneNameThree}}</view>
-    <view class="number-image" bindtap='bindMakePhoneThree'>
-      <image src="../../images/servicephone.png"/>
-    </view>
-  </view>
-  <view class="sp-one">
-    <view class="number">{{phoneNameFour}}</view>
-    <view class="number-image" bindtap='bindMakePhoneFour'>
-      <image src="../../images/servicephone.png"/>
-    </view>
-  </view> -->
 </view>
