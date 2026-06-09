@@ -417,7 +417,7 @@ Page({
     var mobileReg = /^1[3-9]\d{9}$/;
     var landlineReg = /^0\d{2,3}-?\d{7,8}(?:-\d{1,6})?$/;
     if (!mobileReg.test(phone) && !landlineReg.test(phone)) {
-      wx.showToast({ title: '请填写正确的手机号或固话', image: '../../images/warning.png', duration: 2000 });
+      wx.showToast({ title: '手机号或固话不正确', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
     if (!(d.wxid && String(d.wxid).trim())) {
@@ -524,7 +524,7 @@ Page({
           wx.switchTab({ url: '../index/index' });
           setTimeout(function () {
             wx.showToast({
-              title: isPendingReview ? '发布成功，将在审核后展示' : '推荐成功',
+              title: isPendingReview ? '发布成功，将审核后展示' : '推荐成功',
               icon: 'success',
               duration: 2000
             });
