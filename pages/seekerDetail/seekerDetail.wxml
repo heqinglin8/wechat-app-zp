@@ -1,9 +1,9 @@
 <!--pages/index/seekerDetail.wxml-->
 <view class="detail">
   <view class="det-image">
-    <swiper 
+    <swiper
       class="swiper-container"
-      indicator-dots="{{false}}"
+      indicator-dots="{{photoList.length > 1}}"
       autoplay="true"
       interval="5000"
       duration="500"
@@ -11,56 +11,65 @@
       <swiper-item wx:for="{{photoList}}" wx:key="index">
         <image src="{{item}}" mode="aspectFill"/>
       </swiper-item>
+      <swiper-item wx:if="{{!photoList.length}}">
+        <view class="swiper-empty">求职图片未填写</view>
+      </swiper-item>
     </swiper>
-    <!-- 圆形指示器 -->
-    <view class="swiper-dots">
-      <view 
-        wx:for="{{photoList}}" 
-        wx:key="index"
-        class="dot {{currentPhotoIndex === index ? 'active' : ''}}">
+  </view>
+
+  <view class="det-main">
+    <view class="det-list">
+      <view class='det-list-one'>{{viewData.titleText}}</view>
+      <view class='det-list-tow'>
+        <view class='det-list-tow-one'>{{viewData.salaryText}}</view>
+        <view class='det-list-tow-tow'>{{viewData.collectNumText}}人收藏</view>
+      </view>
+      <view class='det-list-three'>伯乐：{{viewData.publisherText}}</view>
+      <view class='det-list-meta'>
+        <view class='det-list-meta-item'>
+          <text class="det-list-meta-icon">📍</text>
+          <text class="det-list-meta-text">{{viewData.locationText}}</text>
+        </view>
+        <view class='det-list-meta-item'>
+          <text class="det-list-meta-icon">🎓</text>
+          <text class="det-list-meta-text">{{viewData.educationText}}</text>
+        </view>
+        <view class='det-list-meta-item'>
+          <text class="det-list-meta-icon">💼</text>
+          <text class="det-list-meta-text">{{viewData.intentText}}</text>
+        </view>
       </view>
     </view>
-  </view>
-  <view class="det-list">
-    <view class='det-list-one'>{{content.recoName}}</view>
-    <view class='det-list-tow'>
-      <view class='.det-list-tow-left'>期待薪资：</view>
-      <view class='det-list-tow-one' wx:if="{{content.payType==0}}">{{content.detPayMin}}-{{content.detPayMax}}元/月</view>
-      <view class='det-list-tow-one' wx:else>{{content.detPayMax}}元/小时</view>
-      <view class='det-list-tow-tow'>{{num}}人收藏</view>
+
+    <view class="det-money"><view>求职信息</view></view>
+    <view class="det-money-list">
+      <view class="det-info-row"><text class="det-info-label">工种：</text><text class="det-info-value">{{viewData.payTypeText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">期望薪资：</text><text class="det-info-value">{{viewData.expectedSalaryText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">学历：</text><text class="det-info-value">{{viewData.educationText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">电话：</text><text class="det-info-value">{{viewData.phoneText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">微信：</text><text class="det-info-value">{{viewData.wxidText}}</text></view>
     </view>
-    <view class='det-list-three'>伯乐：{{content.commitUsername}}</view>
+
+    <view class="det-money"><view>个人详情</view></view>
+    <view class="det-money-list det-money-list-text">
+      <view class="det-sub-title">【个人摘要】</view>
+      <rich-text nodes="{{viewData.summaryText}}"></rich-text>
+      <view class="det-sub-title">【自我介绍】</view>
+      <rich-text nodes="{{viewData.introText}}"></rich-text>
+    </view>
+
+    <view class="message-board-host" wx:if="{{detailMessageEnabled}}">
+      <message-board target-type="job_seek" target-id="{{jobSeekId}}" detail-message-enabled="{{detailMessageEnabled}}"></message-board>
+    </view>
   </view>
-  <view class="det-money"><view>联系方式</view></view>
-  <view class="det-money-list">
-          <rich-text nodes="{{content.recoContact}}"></rich-text>
-  </view>
-  <view class="det-money"><view>求职意向</view></view>
-  <view class="det-money-list">
-          <rich-text nodes="{{content.recoJobIntent}}"></rich-text>
-  </view>
-  <view class="det-money"><view>学历</view></view>
-  <view class="det-money-list">
-          <rich-text nodes="{{content.recoEducation}}"></rich-text>
-  </view>
-  <view class="det-money"><view>个人介绍</view></view>
-  <view class="det-money-list">
-          <rich-text nodes="{{content.recoIntro}}"></rich-text>  
-  </view>
-  <view class="det-money"><view>其他</view></view>
-  <view class="det-money-list det-money-list-text">
-    <rich-text nodes="{{content.recoExtra}}"></rich-text>
-  </view>
-  <view class="message-board-host">
-    <message-board target-type="job_seek" target-id="{{jobSeekId}}" detail-message-enabled="{{detailMessageEnabled}}"></message-board>
-  </view>
+
   <view class="det-nav">
-    <ul>
-      <li style="background-color:#3bae56;" ><button class="conbtn" open-type="contact">微信咨询</button></li>
-      <li style="background-color:#56abe4;" bindtap="bindViewServicePhone">电话咨询</li>
-      <li style="background-color:#f0ad4e;" bindtap="bindViewIndex">返回首页</li>
-      <li wx:if="{{hasCollected}}" style="background-color:#eb4f38;" bindtap="cancelCollect">取消收藏</li>
-      <li wx:else style="background-color:#eb4f38;" bindtap="bindViewPutinfor">收藏</li>
-    </ul>
+    <view class="det-nav-btn det-nav-btn-contact">
+      <button class="det-nav-contact-btn" open-type="contact">微信咨询</button>
+    </view>
+    <view class="det-nav-btn det-nav-btn-phone" bindtap="bindViewServicePhone">电话咨询</view>
+    <view class="det-nav-btn det-nav-btn-home" bindtap="bindViewIndex">返回首页</view>
+    <view wx:if="{{hasCollected}}" class="det-nav-btn det-nav-btn-collect" bindtap="cancelCollect">取消收藏</view>
+    <view wx:else class="det-nav-btn det-nav-btn-collect" bindtap="bindViewPutinfor">收藏</view>
   </view>
 </view>
