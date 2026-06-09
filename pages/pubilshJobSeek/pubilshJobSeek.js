@@ -18,6 +18,7 @@ Page({
     title: '',
     recoName: '',
     recoContact: '',
+    wxid: '',
     recoJobIntent: '',
     detPayMin: '',
     detPayMax: '',
@@ -44,6 +45,9 @@ Page({
   },
   onRecoContactInput: function (e) {
     this.setData({ recoContact: (e.detail && e.detail.value) || '' });
+  },
+  onWxidInput: function (e) {
+    this.setData({ wxid: (e.detail && e.detail.value) || '' });
   },
   onRecoJobIntentInput: function (e) {
     this.setData({ recoJobIntent: (e.detail && e.detail.value) || '' });
@@ -406,7 +410,18 @@ Page({
       return false;
     }
     if (!(d.recoContact && String(d.recoContact).trim())) {
-      wx.showToast({ title: '请填写联系方式', image: '../../images/warning.png', duration: 2000 });
+      wx.showToast({ title: '请填写电话', image: '../../images/warning.png', duration: 2000 });
+      return false;
+    }
+    var phone = String(d.recoContact || '').trim();
+    var mobileReg = /^1[3-9]\d{9}$/;
+    var landlineReg = /^0\d{2,3}-?\d{7,8}(?:-\d{1,6})?$/;
+    if (!mobileReg.test(phone) && !landlineReg.test(phone)) {
+      wx.showToast({ title: '请填写正确的手机号或固话', image: '../../images/warning.png', duration: 2000 });
+      return false;
+    }
+    if (!(d.wxid && String(d.wxid).trim())) {
+      wx.showToast({ title: '请填写微信号', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
     if (!(d.recoJobIntent && String(d.recoJobIntent).trim())) {
@@ -465,6 +480,7 @@ Page({
     row.set('recoName', String(d.recoName).trim());
     row.set('recoEducation', edu);
     row.set('recoContact', String(d.recoContact).trim());
+    row.set('wxid', String(d.wxid).trim());
     row.set('recoJobIntent', String(d.recoJobIntent).trim());
     row.set('detPayMin', Number(d.detPayMin || ''));
     row.set('detPayMax', Number(d.detPayMax || ''));
@@ -504,9 +520,14 @@ Page({
         var created = Bmob.Query('JobSeeker');
         that.applyJobSeekerFields(created);
         return created.save().then(function () {
+          var isPendingReview = that.resolvePublishActive() === 0;
           wx.switchTab({ url: '../index/index' });
           setTimeout(function () {
-            wx.showToast({ title: '推荐成功', icon: 'success', duration: 2000 });
+            wx.showToast({
+              title: isPendingReview ? '发布成功，将在审核后展示' : '推荐成功',
+              icon: 'success',
+              duration: 2000
+            });
           }, 320);
         });
       }
@@ -536,9 +557,14 @@ Page({
           return existing.save();
         });
       }).then(function () {
+        var isPendingReview = that.resolvePublishActive() === 0;
         wx.switchTab({ url: '../index/index' });
         setTimeout(function () {
-          wx.showToast({ title: '档案已更新', icon: 'success', duration: 2000 });
+          wx.showToast({
+            title: isPendingReview ? '发布成功，将在审核后展示' : '档案已更新',
+            icon: 'success',
+            duration: 2000
+          });
         }, 320);
       });
     }).catch(function (e) {

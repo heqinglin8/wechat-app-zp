@@ -31,8 +31,13 @@
       </view>
 
       <view class="award-list-name">
-        <view class="name-text">联系方式</view>
-        <input class="name-input" type="text" maxlength="20" placeholder="手机号或微信号" value="{{recoContact}}" bindinput="onRecoContactInput" />
+        <view class="name-text">电话</view>
+        <input class="name-input" type="number" maxlength="20" placeholder="手机号" value="{{recoContact}}" bindinput="onRecoContactInput" />
+      </view>
+
+      <view class="award-list-name">
+        <view class="name-text">微信</view>
+        <input class="name-input" type="text" maxlength="40" placeholder="微信号" value="{{wxid}}" bindinput="onWxidInput" />
       </view>
 
       <view class="award-list-name">
