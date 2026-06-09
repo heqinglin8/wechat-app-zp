@@ -142,15 +142,16 @@
   font-weight: 600;
   color: #333;
 }
+.det-section-divider{
+  margin: 0 0rpx;
+  border-top: 1px solid #f0f0f0;
+}
 .det-company-card{
   margin: 0 32rpx 22rpx;
   padding: 26rpx 24rpx;
   display: flex;
   align-items: center;
   background: #fff;
-  border-radius: 18rpx;
-  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.04);
-  border: 1px solid #f0f0f0;
 }
 .det-company-logo{
   width: 104rpx;
@@ -191,7 +192,8 @@
   text-overflow: ellipsis;
 }
 .message-board-host{
-  padding: 0 28rpx 150rpx;
+  border-top: 1px solid #f0f0f0;
+  padding: 24rpx 28rpx 150rpx;
 }
 .det-nav{
   width: 100%;

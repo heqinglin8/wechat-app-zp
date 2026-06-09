@@ -70,6 +70,7 @@
       <rich-text nodes="{{viewData.boardDescriptionText}}"></rich-text>
     </view>
 
+    <view class="det-section-divider"></view>
     <view class="det-company-card">
       <image wx:if="{{viewData.companyLogo}}" class="det-company-logo" src="{{viewData.companyLogo}}" mode="aspectFill"></image>
       <view wx:else class="det-company-logo det-company-logo--placeholder">企</view>
