@@ -142,6 +142,54 @@
   font-weight: 600;
   color: #333;
 }
+.det-company-card{
+  margin: 0 32rpx 22rpx;
+  padding: 26rpx 24rpx;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 18rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.04);
+  border: 1px solid #f0f0f0;
+}
+.det-company-logo{
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 16rpx;
+  background: #eef6f5;
+  flex-shrink: 0;
+}
+.det-company-logo--placeholder{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8cb7b7;
+  font-size: 46rpx;
+  font-weight: 700;
+}
+.det-company-main{
+  margin-left: 24rpx;
+  min-width: 0;
+}
+.det-company-name{
+  font-size: 48rpx;
+  line-height: 1.25;
+  color: #222;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 36rpx;
+}
+.det-company-meta{
+  margin-top: 12rpx;
+  font-size: 30rpx;
+  line-height: 1.45;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .message-board-host{
   padding: 0 28rpx 150rpx;
 }

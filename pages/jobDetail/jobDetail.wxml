@@ -56,9 +56,9 @@
 
     <view class="det-money"><view>薪资详情</view></view>
     <view class="det-money-list">
-      <view class="det-info-row"><text class="det-info-label">薪资范围：</text><text class="det-info-value">{{viewData.salaryRangeText}}</text></view>
-      <view class="det-info-row"><text class="det-info-label">发薪日期：</text><text class="det-info-value">{{viewData.salaryDateText}}</text></view>
-      <view class="det-info-row"><text class="det-info-label">提成方式：</text><text class="det-info-value">{{viewData.commissionText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">工种：</text><text class="det-info-value">{{viewData.payTypeText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">职业方向：</text><text class="det-info-value">{{viewData.jobDirectionText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">最低学历/经验：</text><text class="det-info-value">{{viewData.educationExperienceText}}</text></view>
       <view class="det-info-row"><text class="det-info-label">已报名：</text><text class="det-info-value">{{viewData.entNumText}}人</text></view>
     </view>
 
@@ -66,14 +66,17 @@
     <view class="det-money-list det-money-list-text">
       <view class="det-sub-title">【岗位说明】</view>
       <rich-text nodes="{{viewData.jobDescriptionText}}"></rich-text>
-      <view class="det-sub-title">【岗位要求】</view>
-      <rich-text nodes="{{viewData.jobRequirementsText}}"></rich-text>
       <view class="det-sub-title">【福利待遇】</view>
       <rich-text nodes="{{viewData.boardDescriptionText}}"></rich-text>
-      <view class="det-sub-title">【温馨提示】</view>
-      <rich-text nodes="{{viewData.kindlyReminderText}}"></rich-text>
-      <view class="det-sub-title">【公司介绍】</view>
-      <rich-text nodes="{{viewData.companyIntroText}}"></rich-text>
+    </view>
+
+    <view class="det-company-card">
+      <image wx:if="{{viewData.companyLogo}}" class="det-company-logo" src="{{viewData.companyLogo}}" mode="aspectFill"></image>
+      <view wx:else class="det-company-logo det-company-logo--placeholder">企</view>
+      <view class="det-company-main">
+        <view class="det-company-name">{{viewData.companyNameText}}</view>
+        <view class="det-company-meta">{{viewData.companyIndustryText}} · {{viewData.companyFinanceText}} · {{viewData.companyScaleText}}</view>
+      </view>
     </view>
 
     <view class="message-board-host" wx:if="{{detailMessageEnabled}}">

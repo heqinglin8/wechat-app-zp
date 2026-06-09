@@ -32,6 +32,15 @@ Page({
     recoName: '',
     recoContact: '',
     wxid: '',
+    payType: '0',
+    payTypeText: '月结',
+    payTypeOptions: [
+      { label: '月结', value: '0' },
+      { label: '临时工', value: '1' },
+    ],
+    selectedPayTypeIndex: 0,
+    payTypeSelectorVisible: false,
+    pendingPayTypeIndex: 0,
     recoJobIntent: '',
     experience: '',
     jobDirection: '',
@@ -246,6 +255,38 @@ Page({
     }
     this.selectCompany(this.data.companies[index], index);
     this.closeCompanySelector();
+  },
+
+  openPayTypeSelector: function () {
+    this.setData({
+      payTypeSelectorVisible: true,
+      pendingPayTypeIndex: this.data.selectedPayTypeIndex || 0,
+    });
+  },
+
+  closePayTypeSelector: function () {
+    this.setData({
+      payTypeSelectorVisible: false,
+      pendingPayTypeIndex: this.data.selectedPayTypeIndex || 0,
+    });
+  },
+
+  onPayTypeCandidateTap: function (e) {
+    var index = parseInt(e.currentTarget.dataset.index, 10);
+    if (isNaN(index) || index < 0) return;
+    var options = this.data.payTypeOptions || [];
+    if (index < 0 || index >= options.length) {
+      wx.showToast({ title: '请选择工种', icon: 'none', duration: 2000 });
+      return;
+    }
+    var selected = options[index];
+    this.setData({
+      selectedPayTypeIndex: index,
+      payType: selected.value,
+      payTypeText: selected.label,
+      pendingPayTypeIndex: index,
+      payTypeSelectorVisible: false,
+    });
   },
 
   goPublishCompany: function () {
@@ -676,11 +717,9 @@ Page({
     row.set('recoContact', String(d.recoContact).trim());
     row.set('wxid', String(d.wxid).trim());
     row.set('experience', String(d.experience || '').trim());
-    row.set('jobIntent', String(d.jobDirection || '').trim());
     row.set('summary', summaryText);
-    row.set('jobRequirements', jobDescriptionText);
     row.set('jobDescription', jobDescriptionText);
-    row.set('recoJobIntent', String(d.jobDirection || d.recoJobIntent || '').trim());
+    row.set('jobDirection', String(d.jobDirection || '').trim());
     row.set('companyId', d.selectedCompanyId || '');
     row.set('companyName', d.selectedCompanyName || '');
     row.set('companyPeople', toNumberOrZero(d.selectedCompany && d.selectedCompany.companyPeople));
@@ -688,6 +727,7 @@ Page({
     row.set('companyLogo', (d.selectedCompany && d.selectedCompany.logo) || '');
     row.set('detPayMin', parsePositiveNumber(d.detPayMin));
     row.set('detPayMax', parsePositiveNumber(d.detPayMax));
+    row.set('payType', String(d.payType || '0'));
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
     row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());

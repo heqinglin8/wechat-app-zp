@@ -52,30 +52,41 @@ Page({
     if (hasMin) return this.toMonthlyK(min);
     return '未填薪资';
   },
-  formatSalaryDetail: function (item) {
-    var min = Number(this.firstText(item.detPayMin));
-    var max = Number(this.firstText(item.detPayMax));
-    var hasMin = !isNaN(min) && min > 0;
-    var hasMax = !isNaN(max) && max > 0;
-    if (hasMin && hasMax) return String(min) + '-' + String(max) + '元/月';
-    if (hasMax) return String(max) + '元/月';
-    if (hasMin) return String(min) + '元/月';
-    return '未填薪资范围';
-  },
   resolveRecruiterAvatar: function (item) {
     var avatar = this.firstText(item.commitAvatar, item.firstPhoto);
     return avatar ? util.toDisplayUrl(avatar) : '';
   },
+  resolveCompanyLogo: function (item) {
+    var logo = this.firstText(item.companyLogo, item.logo);
+    return logo ? util.toDisplayUrl(logo) : '';
+  },
+  formatCompanyScale: function (item) {
+    var raw = this.firstText(item.companyPeople, item.companyScale, item.companyPeopleText);
+    if (!raw) return '';
+    var normalized = String(raw).replace(/\s+/g, '');
+    if (/^\d+$/.test(normalized)) {
+      return normalized + '人以上';
+    }
+    return normalized;
+  },
   buildViewData: function (item) {
     var topPayText = this.formatTopSalary(item);
-    var salaryRangeText = this.formatSalaryDetail(item);
-    var salaryDateText = this.firstText(item.salaryDate, item.payDate, item.payday, item.salaryDay);
-    var commissionText = this.firstText(item.commissionDesc, item.commissionMode, item.salaryTips);
+    var payTypeValue = this.firstText(item.payType);
+    var payTypeText = '未填工种';
+    if (payTypeValue === '0') {
+      payTypeText = '月结';
+    } else if (payTypeValue === '1') {
+      payTypeText = '临时工';
+    }
+    var jobDirectionText = this.firstText(item.jobDirection,'未填职业方向');
+    var educationForDetail = this.firstText(item.education, '未填最低学历');
+    var experienceForDetail = this.firstText(item.experience, '未填经验');
     var jobDescriptionText = this.firstText(item.jobDescription);
-    var jobRequirementsText = this.firstText(item.jobRequirements);
     var boardDescriptionText = this.firstText(item.boardDescription);
-    var kindlyReminderText = this.firstText(item.kindlyReminder);
-    var companyIntroText = this.firstText(item.detCompany, item.companyIntroduction, item.companyDesc);
+    var companyNameText = this.firstText(item.companyName, item.company, '未填公司名称');
+    var companyIndustryText = this.firstText(item.companyIndustry, '未填行业');
+    var companyFinanceText = this.firstText(item.financeStage, item.finance, '未填融资阶段');
+    var companyScaleText = this.formatCompanyScale(item) || '未填规模';
     var cityName = this.firstText(item.cityName);
     var districtName = this.firstText(item.districtName);
     var locationText = '未填市区';
@@ -89,18 +100,20 @@ Page({
     return {
       title: this.firstText(item.title, item.detName, '未填职位名称'),
       topPayText: topPayText,
-      salaryRangeText: salaryRangeText,
+      payTypeText: payTypeText,
+      jobDirectionText: jobDirectionText,
+      educationExperienceText: educationForDetail + ' / ' + experienceForDetail,
       entNumText: this.firstText(item.entNum, '0'),
       locationText: locationText,
       experienceText: this.firstText(item.experience, '未填经验要求'),
       educationText: this.firstText(item.education, '未填学历要求'),
-      salaryDateText: salaryDateText || '未填发薪日期',
-      commissionText: commissionText || '未填提成方式',
       jobDescriptionText: jobDescriptionText || '未填岗位说明',
-      jobRequirementsText: jobRequirementsText || '未填招聘要求',
       boardDescriptionText: boardDescriptionText || '未填福利说明',
-      kindlyReminderText: kindlyReminderText || '未填温馨提示',
-      companyIntroText: companyIntroText || '未填公司介绍',
+      companyNameText: companyNameText,
+      companyIndustryText: companyIndustryText,
+      companyFinanceText: companyFinanceText,
+      companyScaleText: companyScaleText,
+      companyLogo: this.resolveCompanyLogo(item),
       recruiterName: this.firstText(item.commitUsername, '未填招聘者姓名'),
       recruiterRole: this.firstText(item.commitJobRole, '未填招聘者职位'),
       recruiterAvatar: this.resolveRecruiterAvatar(item)
