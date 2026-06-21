@@ -33,11 +33,15 @@ TBD - created by archiving change redesign-seeker-detail-ui. Update Purpose afte
 
 #### Scenario: 月结求职信息展示
 - **WHEN** `payType` 为 `0` 且薪资字段完整
-- **THEN** 页面 MUST 展示“月结”并按月薪格式展示期望薪资
+- **THEN** 页面 MUST 展示“月结”并按 `元/月` 语义展示期望薪资
 
 #### Scenario: 临时工求职信息展示
 - **WHEN** `payType` 为 `1` 且薪资字段完整
-- **THEN** 页面 MUST 展示“临时工”并按天薪资语义展示期望薪资
+- **THEN** 页面 MUST 展示“临时工”并按 `元/天` 语义展示期望薪资
+
+#### Scenario: payType 缺失时按月单位回退
+- **WHEN** `payType` 缺失或值不在约定范围内
+- **THEN** 页面薪资展示 MUST 使用 `元/月` 语义，且 MUST NOT 使用“元/小时”文案
 
 ### Requirement: 页面不得展示 recoExtra 与公司域信息
 `seekerDetail` 页面 MUST NOT 渲染 `recoExtra` 区块，也 MUST NOT 渲染公司域展示区块（如公司卡片、公司名/行业/融资/规模）。
