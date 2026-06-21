@@ -14,8 +14,20 @@ Page({
     nickname: '',
     //手机号
     userphone:'',
+    // 出生日期
+    birthday: '',
+    gender: '',
+    genderOptions: ['男', '女'],
+    genderIndex: 0,
+    registerDate: '',
     objectId: '',
-  
+    showInputDialog: false,
+    dialogField: '',
+    dialogTitle: '',
+    dialogPlaceholder: '',
+    dialogInputType: 'text',
+    dialogMaxLength: 30,
+    dialogValue: '',
   },
   //获取用户输入的用户名
   userNameInput: function (e) {
@@ -23,16 +35,108 @@ Page({
       username: e.detail.value
     })
   },
-  //获取用户输入的昵称
-  nicknameInput: function (e) {
-     var nickname = ((e.detail && e.detail.value) || '').trim();
-    this.setData({ nickname: nickname });
-  },
-  phoneInput: function (e) {
+  openNicknameDialog: function () {
     this.setData({
-      userphone: e.detail.value
-    })
+      showInputDialog: true,
+      dialogField: 'nickname',
+      dialogTitle: '请输入昵称',
+      dialogPlaceholder: '请输入昵称',
+      dialogInputType: 'nickname',
+      dialogMaxLength: 30,
+      dialogValue: this.data.nickname || ''
+    });
   },
+  openPhoneDialog: function () {
+    this.setData({
+      showInputDialog: true,
+      dialogField: 'userphone',
+      dialogTitle: '请输入手机号',
+      dialogPlaceholder: '请输入手机号',
+      dialogInputType: 'number',
+      dialogMaxLength: 11,
+      dialogValue: this.data.userphone || ''
+    });
+  },
+  onDialogInput: function (e) {
+    var value = (e.detail && e.detail.value) || '';
+    if (this.data.dialogField === 'userphone') {
+      value = value.replace(/[^\d]/g, '');
+    }
+    this.setData({
+      dialogValue: value
+    });
+  },
+  cancelInputDialog: function () {
+    this.setData({
+      showInputDialog: false
+    });
+  },
+  confirmInputDialog: function () {
+    var field = this.data.dialogField;
+    var value = ((this.data.dialogValue || '') + '').trim();
+    if (field === 'nickname') {
+      if (!this.validatenickname(value)) {
+        return;
+      }
+      this.setData({
+        nickname: value,
+        showInputDialog: false
+      });
+      return;
+    }
+    if (field === 'userphone') {
+      value = value.replace(/[^\d]/g, '');
+      if (!this.validatemobile(value)) {
+        return;
+      }
+      this.setData({
+        userphone: value,
+        showInputDialog: false
+      });
+    }
+  },
+  onBirthdayChange: function (e) {
+    this.setData({
+      birthday: e.detail.value
+    });
+  },
+  onGenderChange: function (e) {
+    var index = Number(e.detail.value || 0);
+    this.setData({
+      genderIndex: index,
+      gender: this.data.genderOptions[index] || ''
+    });
+  },
+  formatDateText: function (value) {
+    if (!value) {
+      return '';
+    }
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+    var date = new Date(value);
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+    var year = date.getFullYear();
+    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+    var day = ('0' + date.getDate()).slice(-2);
+    return year + '-' + month + '-' + day;
+  },
+  normalizeGender: function (genderValue) {
+    if (genderValue === undefined || genderValue === null) {
+      return '';
+    }
+    var text = ('' + genderValue).trim();
+    if (text === '1' || text === '男' || text.toLowerCase() === 'male') {
+      return '男';
+    }
+    if (text === '2' || text === '女' || text.toLowerCase() === 'female') {
+      return '女';
+    }
+    return text;
+  },
+  noop: function () {},
 
   //获取用户输入的密码
   passwordInput: function (e) {
@@ -54,6 +158,8 @@ Page({
       that._initphone = '';
       that._initusername = '';
       that._initnickname = '';
+      that._initbirthday = '';
+      that._initgender = '';
       let currentUser = Bmob.User.current()
       var sessionToken = currentUser.sessionToken;
       var objectId = currentUser.objectId;
@@ -74,18 +180,27 @@ Page({
       console.log("个人中心判断:共查询到 objectId："+objectId+" " + results.length + " 条记录");
       var userInfo = results[0]
       var avatarUrl = util.toDisplayUrl(userInfo.avatarPath)
+      var gender = that.normalizeGender(userInfo.gender || userInfo.sex || '');
+      var genderIndex = gender === '女' ? 1 : 0;
+      var registerDate = that.formatDateText(userInfo.createdAt);
       console.log('avatarUrl:',avatarUrl)
         //用户已注册
         that.setData({
           username: userInfo.username,
           nickname: userInfo.nickname,
-          userphone: userInfo.userphone || '',
+          userphone: userInfo.mobilePhoneNumber || '',
+          birthday: userInfo.birthday || '',
+          gender: gender,
+          genderIndex: gender ? genderIndex : 0,
+          registerDate: registerDate,
           objectId: userInfo.objectId,
           avatarUrl:avatarUrl,
         });
-        that._initphone = userInfo.userphone || '';
+        that._initphone = userInfo.mobilePhoneNumber || '';
         that._initusername = userInfo.username || '';
         that._initnickname = userInfo.nickname || '';
+        that._initbirthday = userInfo.birthday || '';
+        that._initgender = gender;
     }).catch(function(error) {
       console.log("查询失败: " + error.code + " " + error.message);
     });
@@ -96,6 +211,8 @@ Page({
     var username = ((that.data.username || '') + '').trim();
     var nickname = ((that.data.nickname || '') + '').trim();
     var userphone = ((that.data.userphone || '') + '').trim();
+    var birthday = ((that.data.birthday || '') + '').trim();
+    var gender = ((that.data.gender || '') + '').trim();
 
     if (that.isusername(username) == false || that.validatenickname(nickname) == false || that.validatemobile(userphone) == false) {
       return;
@@ -104,7 +221,9 @@ Page({
     that.setData({
       username: username,
       nickname: nickname,
-      userphone: userphone
+      userphone: userphone,
+      birthday: birthday,
+      gender: gender
     });
 
     var changedLabels = [];
@@ -112,7 +231,7 @@ Page({
 
     if (userphone !== (that._initphone || '')) {
       changedLabels.push('电话');
-      updatePayload.userphone = userphone;
+      updatePayload.mobilePhoneNumber = userphone;
     }
     if (username !== (that._initusername || '')) {
       changedLabels.push('用户名');
@@ -121,6 +240,14 @@ Page({
     if (nickname !== (that._initnickname || '')) {
       changedLabels.push('昵称');
       updatePayload.nickname = nickname;
+    }
+    if (birthday !== (that._initbirthday || '')) {
+      changedLabels.push('出生日期');
+      updatePayload.birthday = birthday;
+    }
+    if (gender !== (that._initgender || '')) {
+      changedLabels.push('性别');
+      updatePayload.gender = gender;
     }
 
     if (changedLabels.length === 0) {
@@ -151,6 +278,8 @@ Page({
             that._initusername = username;
             that._initnickname = nickname;
             that._initphone = userphone;
+            that._initbirthday = birthday;
+            that._initgender = gender;
             wx.showToast({
               title: '修改成功',
               icon: 'success',

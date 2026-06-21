@@ -15,7 +15,7 @@ Page({
     //微信官方信息
     userInfo:{},
     //数据库个人信息
-    username:'',
+    nickname:'',
     hasUserInfo: false,
     defaultAvatarUrl: defaultAvatarUrl,
     avatarUrl: defaultAvatarUrl,
@@ -125,9 +125,9 @@ Page({
   },
   //点击个人中心里我的报名页面跳转
   bindViewMyJoin: function () {
-    var user=this.data.userInfo.username
+    var userId=this.data.userInfo.objectId
     wx.navigateTo({
-      url: '../myjoin/myjoin?username=' + user
+      url: '../myjoin/myjoin?userId=' + userId
     })
   },
   //点击个人中心里求职热线页面跳转
@@ -157,9 +157,9 @@ Page({
   },
   //点击个人中心里我的求职跳转
   bindViewMyaward:function(){
-    var user = this.data.userInfo.username
+    var userId = this.data.userInfo.objectId
     wx.navigateTo({
-      url: '../myjobseeks/myjobseeks?username=' + user
+      url: '../myjobseeks/myjobseeks?userId=' + userId
     })
   },
   // 点击头像修改
@@ -373,7 +373,6 @@ Page({
     userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath);
     this.setData({
       userInfo: userInfo,
-      username: userInfo.username || '',
       nickname: userInfo.nickname || '',
       mobilePhoneNumber:userInfo.mobilePhoneNumber || '',
       hasUserInfo: true,
@@ -407,7 +406,7 @@ Page({
             that.setData({
               userInfo: userInfo,
               hasUserInfo: true,
-              username: userInfo.username
+              nickname: userInfo.nickname
             });
               wx.showToast({
               title: '登录成功',

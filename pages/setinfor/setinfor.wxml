@@ -1,27 +1,72 @@
 <!--pages/setinfor/setinfor.wxml-->
-<view class="login">
-  <view class="login-top">
-    <view class="login-top-image">
-      <image src="{{avatarUrl}}"/>
-    </view>
-    <view class="login-top-text">请认真填写要修改的信息</view>
+<view class="profile-page">
+  <view class="profile-card">
+    <view class="profile-label">头像</view>
+    <image class="profile-avatar" src="{{avatarUrl}}"></image>
   </view>
-  <view class="login-middle">
-    <view class="log-mid-list1">
-      <image src='../../images/loginme.png'/>
-      <input type='text' placeholder='请输入您的用户名' name="username" bindinput ="userNameInput"  value="{{username}}" />
+
+  <view class="info-list">
+    <view class="info-row" bindtap="openNicknameDialog">
+      <view class="info-row-label">昵称</view>
+      <view class="info-row-right">
+        <view class="info-row-value">{{nickname || '--'}}</view>
+        <view class="info-row-arrow"></view>
+      </view>
     </view>
-    <view class="log-mid-list1">
-      <image src='../../images/loginme.png'/>
-      <input type='text' placeholder='请输入您的昵称' type="nickname" name="nickname" bindinput ="nicknameInput"  value="{{nickname}}" />
+
+    <view class="info-row" bindtap="openPhoneDialog">
+      <view class="info-row-label">手机号</view>
+      <view class="info-row-right">
+        <view class="info-row-value">{{userphone || '--'}}</view>
+        <view class="info-row-arrow"></view>
+      </view>
     </view>
-    <view class="log-mid-list2">
-        <image src='../../images/loginphone.png'/>
-        <input type='text' placeholder='请输入手机号码' maxlength="11"  name="userPhone" bindinput ="phoneInput" value="{{userphone}}" />
+
+    <picker mode="selector" range="{{genderOptions}}" value="{{genderIndex}}" bindchange="onGenderChange">
+      <view class="info-row">
+        <view class="info-row-label">性别</view>
+        <view class="info-row-right">
+          <view class="info-row-value">{{gender || '请选择'}}</view>
+          <view class="info-row-arrow"></view>
+        </view>
+      </view>
+    </picker>
+
+    <picker mode="date" value="{{birthday}}" start="1900-01-01" end="2099-12-31" bindchange="onBirthdayChange">
+      <view class="info-row">
+        <view class="info-row-label">出生日期</view>
+        <view class="info-row-right">
+          <view class="info-row-value">{{birthday || '请选择出生日期'}}</view>
+          <view class="info-row-arrow"></view>
+        </view>
+      </view>
+    </picker>
+
+    <view class="info-row info-row-last">
+      <view class="info-row-label">注册日期</view>
+      <view class="info-row-right">
+        <view class="info-row-value">{{registerDate || '--'}}</view>
+      </view>
     </view>
   </view>
-  <view class="login-bottom" bindtap='bindViewPut' >提交</view>
-  <view class="text-one">注意事项：</view>
-  <view class="text-tow">1、如需修改用户名，请微信联系客服</view>
-  <view class="text-three">2、一个手机号只能注册一个账号，请认真填写</view>
+
+  <view class="save-button" bindtap="bindViewPut">保存</view>
+
+  <view wx:if="{{showInputDialog}}" class="input-dialog-mask" catchtouchmove="noop">
+    <view class="input-dialog" catchtap="noop">
+      <view class="input-dialog-title">{{dialogTitle}}</view>
+      <input
+        class="input-dialog-field"
+        type="{{dialogInputType}}"
+        maxlength="{{dialogMaxLength}}"
+        placeholder="{{dialogPlaceholder}}"
+        value="{{dialogValue}}"
+        bindinput="onDialogInput"
+      />
+      <view class="input-dialog-actions">
+        <view class="input-dialog-btn" bindtap="cancelInputDialog">取消</view>
+        <view class="input-dialog-btn input-dialog-btn-confirm" bindtap="confirmInputDialog">确定</view>
+      </view>
+    </view>
+  </view>
 </view>

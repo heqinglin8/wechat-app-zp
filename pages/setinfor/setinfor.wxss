@@ -1,111 +1,151 @@
 /* pages/setinfor/setinfor.wxss */
-/* pages/modifyinfo/modifyinfo.wxss */
-.login{
-  margin: 0;
-  padding: 0;
+.profile-page{
+  min-height: 100vh;
+  padding: 28rpx;
+  box-sizing: border-box;
+  background: #f5f5f5;
 }
-/* 头像文字提示 */
-.login-top{
-  width:100%;
-  height: 300rpx;
-}
-.login-top-image{
-  width:19%;
-  height: 150rpx;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 60rpx;
-}
-.login-top-image image{
-  width:100%;
-  height:100%;
-  border-radius: 75rpx;
-}
-.login-top-text{
-  font-size: 12px;
-  color: #888;
-  margin-top: 40rpx;
+
+.profile-card{
   width: 100%;
+  height: 190rpx;
+  padding: 0 28rpx;
+  border-radius: 16rpx;
+  background: #fff;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-avatar{
+  width: 116rpx;
+  height: 116rpx;
+  border-radius: 58rpx;
+  flex-shrink: 0;
+}
+
+.profile-label{
+  color: #111;
+  font-size: 38rpx;
+}
+
+.info-list{
+  margin-top: 20rpx;
+  border-radius: 16rpx;
+  background: #fff;
+  overflow: hidden;
+}
+
+.info-row{
+  height: 96rpx;
+  padding: 0 26rpx;
+  border-bottom: 1px solid #efefef;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.info-row-last{
+  border-bottom: none;
+}
+
+.info-row-label{
+  color: #111;
+  font-size: 32rpx;
+}
+
+.info-row-right{
+  max-width: 72%;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.info-row-value{
+  color: #666;
+  font-size: 30rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.info-row-arrow{
+  width: 16rpx;
+  height: 16rpx;
+  margin-left: 16rpx;
+  border-top: 3rpx solid #c7c7c7;
+  border-right: 3rpx solid #c7c7c7;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.save-button{
+  height: 86rpx;
+  line-height: 86rpx;
+  margin-top: 56rpx;
+  border-radius: 43rpx;
+  color: #111;
+  font-size: 32rpx;
+  text-align: center;
+  background: #fc3;
+}
+
+.input-dialog-mask{
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-dialog{
+  width: 84%;
+  border-radius: 20rpx;
+  background: #fff;
+  overflow: hidden;
+}
+
+.input-dialog-title{
+  padding: 40rpx 28rpx 24rpx;
+  color: #666;
+  font-size: 34rpx;
   text-align: center;
 }
 
-/* 表单提交数据 */
-
-.login-middle{
-  width: 100%;
-  height: 180rpx;
-  border-top: 1px #e5e5e5 solid;
-  border-bottom: 1px #e5e5e5 solid;
-}
-.log-mid-list1{
-  width: 90%;
-  float: right;
-  height: 49.8%;
-  border-bottom: 1px #e5e5e5 solid;
+.input-dialog-field{
+  width: calc(100% - 60rpx);
+  height: 80rpx;
+  margin: 0 30rpx 24rpx;
+  padding: 0 18rpx;
+  border-radius: 10rpx;
+  background: #f5f5f5;
+  box-sizing: border-box;
+  color: #111;
+  font-size: 30rpx;
 }
 
-.log-mid-list2{
-  width: 90%;
-  float: right;
-  height: 50%;
-}
-.log-mid-list1 image{
-  float: left;
-  height: 100%;
-  width: 11%;
-}
-.log-mid-list2 image{
-  float: left;
-  height: 100%;
-  width: 11%;
+.input-dialog-actions{
+  height: 92rpx;
+  border-top: 1px solid #efefef;
+  display: flex;
 }
 
-.log-mid-list1 input{
-  font-size: 13px;
-  height: 100%;
-  width: 80%;
-  float: right;
-}
-.log-mid-list2 input{
-  font-size: 13px;
-  height: 100%;
-  width: 80%;
-  float: right;
+.input-dialog-btn{
+  flex: 1;
+  line-height: 92rpx;
+  color: #666;
+  font-size: 34rpx;
+  text-align: center;
 }
 
-/* 提交按钮 */
-
-.login-bottom{
-height:43px;
-line-height:43px;
-text-align:center;
-margin-top:50px;
-width:80%;
-margin-left:auto;
-margin-right:auto;
-border-radius:5px;
-background:#fc3;
-
-}
-/*提示信息注意事项*/
-.text-three,.text-tow{
-  color:red;
-  font-size: 12px;
-  width:85%;
-  margin-left: auto;
-  margin-right: auto;
-}
-.text-one{
-  margin-top: 25px;
-  color:red;
-  font-size: 14px;
-  width:85%;
-  margin-left: auto;
-  margin-right: auto;
-  height: 40px;
-  line-height: 40px;
-}
-.text-three{
-  margin-top: 8px;
-  margin-bottom: 15px;
+.input-dialog-btn-confirm{
+  color: #0b8cff;
+  border-left: 1px solid #efefef;
 }

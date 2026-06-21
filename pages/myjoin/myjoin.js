@@ -31,7 +31,7 @@ Page({
     var that = this;
     //获取报名信息
     var query = Bmob.Query("MyJoinInfo");
-    query.equalTo("userName", "==", that.data.username);
+    query.equalTo("userId", "==", that.data.userId);
     // 查询所有数据
     query.find().then(function(results) {
       //console.log("共查询到 " + results.length + " 条记录");

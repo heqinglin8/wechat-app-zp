@@ -9,7 +9,7 @@
           <image class="personal-user-avatar" src="{{avatarUrl || defaultAvatarUrl}}" mode="aspectFill"></image>
         </view>
         <view class="personal-user-card-center">
-          <view class="personal-user-name">{{username || '请完善用户名'}}</view>
+          <view class="personal-user-name">{{nickname || '请完善用户名'}}</view>
           <view class="personal-user-no">手机号：{{mobilePhoneNumber || '--'}}</view>
         </view>
         <view class="personal-user-card-right">
@@ -21,7 +21,7 @@
           <image class="personal-user-avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
         </view>
         <view class="personal-user-card-center">
-          <view class="personal-user-name">{{username || '请完善用户名'}}</view>
+          <view class="personal-user-name">{{nickname || '请完善用户名'}}</view>
           <view class="personal-user-no">手机号：{{mobilePhoneNumber || '--'}}</view>
         </view>
         <view class="personal-user-card-right">
@@ -35,7 +35,7 @@
     <view class="per-mid-list1" bindtap='bindViewMyJoin'>
       <view class="per-mid-list1-left per-mid-list-left">
         <image src="../../images/mybaoming.png"/>
-        <view class="per-mid-list1-left-text per-mid-list-left-text">我的报名</view>
+        <view class="per-mid-list1-left-text per-mid-list-left-text">报名岗位</view>
       </view>
       <view class="per-mid-list1-right per-mid-list-right">
         <image src="../../images/jiantou.png"/>
