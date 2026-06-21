@@ -1,9 +1,9 @@
 <!--pages/setinfor/setinfor.wxml-->
 <view class="profile-page">
-  <view class="profile-card">
+  <button class="profile-card profile-card-button" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
     <view class="profile-label">头像</view>
     <image class="profile-avatar" src="{{avatarUrl}}"></image>
-  </view>
+  </button>
 
   <view class="info-list">
     <view class="info-row" bindtap="openNicknameDialog">

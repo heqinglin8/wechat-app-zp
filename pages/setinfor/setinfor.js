@@ -2,6 +2,7 @@
 var Bmob = wx.Bmob;
 var app = getApp()
 var util = require('../../utils/util.js');
+const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
 Page({
 
   /**
@@ -21,6 +22,7 @@ Page({
     genderIndex: 0,
     registerDate: '',
     objectId: '',
+    avatarUrl: defaultAvatarUrl,
     showInputDialog: false,
     dialogField: '',
     dialogTitle: '',
@@ -137,6 +139,54 @@ Page({
     return text;
   },
   noop: function () {},
+  onChooseAvatar: function (e) {
+    var that = this;
+    const avatarUrl = (e.detail && e.detail.avatarUrl) || '';
+    if (!avatarUrl) {
+      wx.showToast({
+        title: '未选择图片',
+        icon: 'none',
+        duration: 1500
+      });
+      return;
+    }
+
+    var objectId = that.data.objectId;
+    if (!objectId) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+        duration: 1500
+      });
+      return;
+    }
+
+    wx.showLoading({ title: '上传中...' });
+
+    util.uploadAndSaveUserAvatar({
+      Bmob: Bmob,
+      objectId: objectId,
+      avatarUrl: avatarUrl
+    }).then(function (avatarInfo) {
+      that.setData({
+        avatarUrl: avatarInfo.avatarUrl
+      });
+      wx.showToast({
+        title: '头像已更新',
+        icon: 'success',
+        duration: 1500
+      });
+    }).catch(function (err) {
+      console.log('头像上传或更新失败:', err);
+      wx.showToast({
+        title: '头像更新失败',
+        icon: 'none',
+        duration: 1500
+      });
+    }).finally(function () {
+      wx.hideLoading();
+    });
+  },
 
   //获取用户输入的密码
   passwordInput: function (e) {

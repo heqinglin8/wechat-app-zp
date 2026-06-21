@@ -179,49 +179,25 @@ Page({
         }
         var userInfo = that.data.userInfo
         var objectId = userInfo.objectId;
-        var ext = 'jpg';
-        var dotIndex = avatarUrl.lastIndexOf('.');
-        if (dotIndex > -1) {
-          ext = avatarUrl.substring(dotIndex + 1) || 'jpg';
-        }
-        var fileName = 'avatar-' + objectId + '-' + Date.now() + '.' + ext;
-        var file = new Bmob.File(fileName, avatarUrl);
 
         wx.showLoading({ title: '上传中...' });
 
-        file.save().then(function (saved) {
-          var avatarUrl = '';
-          if (saved && saved[0] && saved[0].url) {
-            avatarUrl = saved[0].url;
-          } else if (saved && saved._url) {
-            avatarUrl = saved._url;
-          }
-
-          if (!avatarUrl) {
-            return Promise.reject(new Error('no avatar url'));
-          }
-          var avatarPath = util.extractRelativePathFromUrl(avatarUrl);
-          if (!avatarPath) {
-            return Promise.reject(new Error('no avatar path'));
-          }
-          
-          var query = Bmob.Query('_User');
-          return query.get(objectId).then(function (userObj) {
-            userObj.set('avatarPath', avatarPath);
-            return userObj.save().then(function () {
-              var latestUserInfo = that.data.userInfo || {};
-              latestUserInfo.avatarPath = avatarPath;
-              latestUserInfo.avatarUrl = util.toDisplayUrl(avatarPath);
-              that.setData({
-                userInfo: latestUserInfo
-              });
-
-              wx.showToast({
-                title: '头像已更新',
-                icon: 'success',
-                duration: 1500
-              });
-            });
+        util.uploadAndSaveUserAvatar({
+          Bmob: Bmob,
+          objectId: objectId,
+          avatarUrl: avatarUrl
+        }).then(function (avatarInfo) {
+          var latestUserInfo = that.data.userInfo || {};
+          latestUserInfo.avatarPath = avatarInfo.avatarPath;
+          latestUserInfo.avatarUrl = avatarInfo.avatarUrl;
+          that.setData({
+            userInfo: latestUserInfo,
+            avatarUrl: avatarInfo.avatarUrl
+          });
+          wx.showToast({
+            title: '头像已更新',
+            icon: 'success',
+            duration: 1500
           });
         }).catch(function (err) {
           console.log('头像上传或更新失败:', err);
@@ -233,9 +209,6 @@ Page({
         }).finally(function () {
           wx.hideLoading();
         });
-      this.setData({
-        avatarUrl,
-      })
   },
   // 点击退出登录
   bindLogout: function () {
