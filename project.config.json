@@ -33,6 +33,10 @@
       {
         "type": "file",
         "value": "utils/underscore.js"
+      },
+      {
+        "type": "folder",
+        "value": "local_source"
       }
     ],
     "include": []
