@@ -373,7 +373,9 @@ Page({
     userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath);
     this.setData({
       userInfo: userInfo,
+      username: userInfo.username || '',
       nickname: userInfo.nickname || '',
+      mobilePhoneNumber:userInfo.mobilePhoneNumber || '',
       hasUserInfo: true,
       avatarUrl: userInfo.avatarUrl || defaultAvatarUrl
     });

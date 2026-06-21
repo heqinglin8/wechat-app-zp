@@ -9,11 +9,11 @@
           <image class="personal-user-avatar" src="{{avatarUrl || defaultAvatarUrl}}" mode="aspectFill"></image>
         </view>
         <view class="personal-user-card-center">
-          <view class="personal-user-name">{{nickname || '请完善昵称'}}</view>
-          <view class="personal-user-no">会员卡：{{userInfo.username || '--'}}</view>
+          <view class="personal-user-name">{{username || '请完善用户名'}}</view>
+          <view class="personal-user-no">手机号：{{mobilePhoneNumber || '--'}}</view>
         </view>
         <view class="personal-user-card-right">
-          <image src="../../images/jiantou.png"></image>
+          <view class="personal-user-arrow"></view>
         </view>
       </button>
       <view wx:else class="personal-user-card" bindtap="bindViewTodayGxz">
@@ -21,11 +21,11 @@
           <image class="personal-user-avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
         </view>
         <view class="personal-user-card-center">
-          <view class="personal-user-name">{{nickname || '请完善昵称'}}</view>
-          <view class="personal-user-no">会员卡：{{userInfo.username || '--'}}</view>
+          <view class="personal-user-name">{{username || '请完善用户名'}}</view>
+          <view class="personal-user-no">手机号：{{mobilePhoneNumber || '--'}}</view>
         </view>
         <view class="personal-user-card-right">
-          <image src="../../images/jiantou.png"></image>
+          <view class="personal-user-arrow"></view>
         </view>
       </view>
     </block>

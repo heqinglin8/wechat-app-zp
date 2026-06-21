@@ -5,28 +5,83 @@
 }
 .personal-top{
   width:100%;
-  height: 300rpx;
+  height: 240rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.personal-top-image{
-  width:150rpx;
-  height: 150rpx;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 60rpx;
-  padding-left: 0;
-  padding-right: 0;
+.personal-user-card{
+  width: 92%;
+  height: 220rpx;
+  /* padding: 0 20rpx; */
+  border-radius: 16rpx;
+  background: #fff;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 }
-.personal-top-image image{
-  width:100%;
-  height:100%;
+.personal-user-card-button{
+  margin: 0;
+  border: none;
+  line-height: normal;
 }
-.personal-top-text{
-  font-size: 12px;
-  color: #000;
-  margin-top: 40rpx;
-  text-align: center;
-  width: 320rex;
-  align-content: center;
+.personal-user-card-button::after{
+  border: none;
+}
+.personal-user-card-left{
+  width: 130rpx;
+  height: 130rpx;
+  flex-shrink: 0;
+}
+.personal-user-avatar{
+  width: 130rpx;
+  height: 130rpx;
+  border-radius: 65rpx;
+  overflow: hidden;
+}
+.personal-user-card-center{
+  flex: 1;
+  margin-left: 24rpx;
+  min-width: 0;
+  overflow: hidden;
+}
+.personal-user-name{
+  color: #111;
+  font-size: 40rpx;
+  font-weight: 500;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.personal-user-no{
+  margin-top: 16rpx;
+  color: #444;
+  font-size: 38rpx;
+  width: 100%;
+  text-align: left;
+  padding-left: 10rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.personal-user-card-right{
+  width: 56rpx;
+  height: 80rpx;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.personal-user-arrow{
+  width: 20rpx;
+  height: 20rpx;
+  border-top: 4rpx solid #c7c7c7;
+  border-right: 4rpx solid #c7c7c7;
+  transform: rotate(45deg);
 }
 .personal-middle{
   width: 100%;
