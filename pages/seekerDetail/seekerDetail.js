@@ -51,20 +51,10 @@ Page({
     var payType = this.firstText(item.payType);
     var min = this.firstText(item.detPayMin);
     var max = this.firstText(item.detPayMax);
-    if (payType === '0') {
-      if (min && max) return min + '-' + max + '元/月';
-      if (max) return max + '元/月';
-      if (min) return min + '元/月';
-      return '期望薪资未填写';
-    }
-    if (payType === '1') {
-      if (max) return max + '元/小时';
-      if (min) return min + '元/小时';
-      return '期望薪资未填写';
-    }
-    if (min && max) return min + '-' + max + '元';
-    if (max) return max + '元';
-    if (min) return min + '元';
+    var unit = payType === '1' ? '元/天' : '元/月';
+    if (min && max) return min + '-' + max + unit;
+    if (max) return max + unit;
+    if (min) return min + unit;
     return '期望薪资未填写';
   },
   buildPhotoList: function (item) {
@@ -165,7 +155,7 @@ Page({
     var that = this;
     if (that.data.userId.length == 0) {
       wx.showToast({
-        title: '请先注册',
+        title: '请先登录',
         image: "../../images/warning.png",
         duration: 1500
       });

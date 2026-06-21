@@ -42,14 +42,18 @@ Page({
     var k = num / 1000;
     return (k % 1 === 0 ? String(k) : String(Number(k.toFixed(1)))) + 'K';
   },
+  salaryUnitByPayType: function (payType) {
+    return this.firstText(payType) === '1' ? '元/天' : '元/月';
+  },
   formatTopSalary: function (item) {
     var min = Number(this.firstText(item.detPayMin));
     var max = Number(this.firstText(item.detPayMax));
     var hasMin = !isNaN(min) && min > 0;
     var hasMax = !isNaN(max) && max > 0;
-    if (hasMin && hasMax) return this.toMonthlyK(min) + '-' + this.toMonthlyK(max);
-    if (hasMax) return this.toMonthlyK(max);
-    if (hasMin) return this.toMonthlyK(min);
+    var unit = this.salaryUnitByPayType(item.payType);
+    if (hasMin && hasMax) return this.toMonthlyK(min) + '-' + this.toMonthlyK(max) + unit;
+    if (hasMax) return this.toMonthlyK(max) + unit;
+    if (hasMin) return this.toMonthlyK(min) + unit;
     return '未填薪资';
   },
   resolveRecruiterAvatar: function (item) {
@@ -206,12 +210,11 @@ Page({
   },
   //提交信息
   bindViewPutinfor: function (){
-    var companyName = this.data.companyName;
     var that = this;
     //判断用户是否注册
     if (that.data.userId.length == 0){
       wx.showToast({
-        title: '请先注册',
+        title: '请先登录',
         image: "../../images/warning.png",
         duration: 1500
       })  

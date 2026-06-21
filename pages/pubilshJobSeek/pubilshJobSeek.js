@@ -26,6 +26,9 @@ Page({
     summary: '',
     educationOptions: ['初中及以下', '中专 / 高中', '大专', '本科', '硕士及以上'],
     educationIndex: 2,
+    payTypeOptions: ['普通月结', '临时工'],
+    payTypeIndex: 0,
+    payType: 0,
     userLoaded: false,
     /** @type {{ url: string, tempPath: string, uploading: boolean }[]} */
     recommendPhotos: [],
@@ -69,6 +72,14 @@ Page({
     var idx = parseInt(e.detail.value, 10);
     if (isNaN(idx)) return;
     this.setData({ educationIndex: idx });
+  },
+  onPayTypeChange: function (e) {
+    var idx = parseInt(e.detail.value, 10);
+    if (isNaN(idx)) return;
+    this.setData({
+      payTypeIndex: idx,
+      payType: idx === 1 ? 1 : 0,
+    });
   },
 
   onLoad: function () {
@@ -482,6 +493,7 @@ Page({
     row.set('recoContact', String(d.recoContact).trim());
     row.set('wxid', String(d.wxid).trim());
     row.set('recoJobIntent', String(d.recoJobIntent).trim());
+    row.set('payType', Number(d.payType || 0));
     row.set('detPayMin', Number(d.detPayMin || ''));
     row.set('detPayMax', Number(d.detPayMax || ''));
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');

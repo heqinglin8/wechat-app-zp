@@ -42,12 +42,20 @@
         <input class="name-input" type="text" placeholder="期望岗位或方向" value="{{recoJobIntent}}" bindinput="onRecoJobIntentInput" />
       </view>
 
+      <view class="award-list-name award-picker-row">
+        <view class="name-text">工种</view>
+        <picker class="award-picker" mode="selector" range="{{payTypeOptions}}" value="{{payTypeIndex}}" bindchange="onPayTypeChange">
+          <view class="picker-display">{{payTypeOptions[payTypeIndex]}}</view>
+        </picker>
+      </view>
+
       <view class="award-list-name award-salary-row">
         <view class="name-text">薪资</view>
         <view class="award-salary-inputs">
           <input class="name-input award-salary-input" type="text" placeholder="最低" value="{{detPayMin}}" bindinput="onDetPayMinInput" />
           <input class="name-input award-salary-input" type="text" placeholder="最高" value="{{detPayMax}}" bindinput="onDetPayMaxInput" />
         </view>
+        <view class="award-salary-unit">{{payType == 1 ? '/天' : '/月'}}</view>
       </view>
 
       <view class="award-list-textarea award-list-textarea-extra">

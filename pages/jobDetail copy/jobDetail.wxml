@@ -26,7 +26,7 @@
     <view class='det-list-one'>{{content.detName}}</view>
     <view class='det-list-tow'>
       <view class='det-list-tow-one' wx:if="{{content.payType==0}}">{{content.detPayMin}}-{{content.detPayMax}}元/月</view>
-      <view class='det-list-tow-one' wx:else>{{content.detPayMax}}元/小时</view>
+      <view class='det-list-tow-one' wx:else>{{content.detPayMax}}元/天</view>
       <view class='det-list-tow-tow'>已报名{{content.entNum}}人</view>
     </view>
     <view class='det-list-three'>{{content.detAddr}}</view>

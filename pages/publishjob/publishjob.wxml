@@ -17,10 +17,9 @@
 
       <view class="award-list-name award-picker-row">
         <view class="name-text">工种</view>
-        <view class="award-picker company-select-input" bindtap="openPayTypeSelector">
-          <view class="picker-display">{{payTypeText}}</view>
-          <text class="company-select-arrow">›</text>
-        </view>
+        <picker class="award-picker" mode="selector" range="{{payTypeOptions}}" value="{{payTypeIndex}}" bindchange="onPayTypeChange">
+          <view class="picker-display">{{payTypeOptions[payTypeIndex]}}</view>
+        </picker>
       </view>
 
       <view class="award-list-name award-picker-row">
@@ -59,6 +58,7 @@
           <input class="name-input award-salary-input" type="number" placeholder="最低" value="{{detPayMin}}" bindinput="onDetPayMinInput" />
           <input class="name-input award-salary-input" type="number" placeholder="最高" value="{{detPayMax}}" bindinput="onDetPayMaxInput" />
         </view>
+        <view class="award-salary-unit">{{payType == '1' ? '/天' : '/月'}}</view>
       </view>
 
       <view class="award-list-textarea">
@@ -122,16 +122,4 @@
     </view>
   </view>
 
-  <view wx:if="{{payTypeSelectorVisible}}" class="company-selector-mask" catchtap="closePayTypeSelector">
-    <view class="company-selector-panel" catchtap="noop">
-      <view class="paytype-selector-header">
-        <text class="company-selector-title">选择工种</text>
-      </view>
-      <scroll-view class="company-selector-list" scroll-y>
-        <view wx:for="{{payTypeOptions}}" wx:key="value" class="company-selector-item {{pendingPayTypeIndex == index ? 'active' : ''}}" data-index="{{index}}" bindtap="onPayTypeCandidateTap">
-          <view class="company-selector-name">{{item.label}}</view>
-        </view>
-      </scroll-view>
-    </view>
-  </view>
 </scroll-view>

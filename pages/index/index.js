@@ -18,6 +18,7 @@ function firstText() {
 }
 
 function salaryText(item) {
+  var unit = firstText(item.payType) === '1' ? '元/天' : '元/月';
   var min = Number(firstText(item.detPayMin));
   var max = Number(firstText(item.detPayMax));
   var hasMin = !isNaN(min) && min > 0;
@@ -30,11 +31,11 @@ function salaryText(item) {
     return String(value);
   };
   if (hasMin && hasMax) {
-    if (max >= 10000 && min < 1000) return formatMonthly(max);
-    return formatMonthly(min) + '-' + formatMonthly(max);
+    if (max >= 10000 && min < 1000) return formatMonthly(max) + unit;
+    return formatMonthly(min) + '-' + formatMonthly(max) + unit;
   }
-  if (hasMax) return formatMonthly(max);
-  if (hasMin) return formatMonthly(min);
+  if (hasMax) return formatMonthly(max) + unit;
+  if (hasMin) return formatMonthly(min) + unit;
   return '待补充薪资';
 }
 

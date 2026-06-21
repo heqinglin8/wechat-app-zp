@@ -27,20 +27,15 @@ function parsePositiveNumber(value) {
 
 Page({
   data: {
+    userId:'',
     userName: '',
     title: '',
     recoName: '',
     recoContact: '',
     wxid: '',
     payType: '0',
-    payTypeText: '月结',
-    payTypeOptions: [
-      { label: '月结', value: '0' },
-      { label: '临时工', value: '1' },
-    ],
-    selectedPayTypeIndex: 0,
-    payTypeSelectorVisible: false,
-    pendingPayTypeIndex: 0,
+    payTypeOptions: ['普通月结', '临时工'],
+    payTypeIndex: 0,
     recoJobIntent: '',
     experience: '',
     jobDirection: '',
@@ -125,6 +120,14 @@ Page({
     if (isNaN(idx)) return;
     this.setData({ educationIndex: idx });
   },
+  onPayTypeChange: function (e) {
+    var idx = parseInt(e.detail.value, 10);
+    if (isNaN(idx)) return;
+    this.setData({
+      payTypeIndex: idx,
+      payType: idx === 1 ? '1' : '0',
+    });
+  },
 
   onLoad: function () {
     this.refreshCurrentCity();
@@ -134,7 +137,7 @@ Page({
   onShow: function () {
     var currentUser = Bmob.User.current();
     if (!currentUser) {
-      this.handleUnloginRedirect();
+      this.handleUnloginRedirect('onShow !currentUser');
       return;
     }
     this.consumeLastPublishedCompany();
@@ -257,38 +260,6 @@ Page({
     this.closeCompanySelector();
   },
 
-  openPayTypeSelector: function () {
-    this.setData({
-      payTypeSelectorVisible: true,
-      pendingPayTypeIndex: this.data.selectedPayTypeIndex || 0,
-    });
-  },
-
-  closePayTypeSelector: function () {
-    this.setData({
-      payTypeSelectorVisible: false,
-      pendingPayTypeIndex: this.data.selectedPayTypeIndex || 0,
-    });
-  },
-
-  onPayTypeCandidateTap: function (e) {
-    var index = parseInt(e.currentTarget.dataset.index, 10);
-    if (isNaN(index) || index < 0) return;
-    var options = this.data.payTypeOptions || [];
-    if (index < 0 || index >= options.length) {
-      wx.showToast({ title: '请选择工种', icon: 'none', duration: 2000 });
-      return;
-    }
-    var selected = options[index];
-    this.setData({
-      selectedPayTypeIndex: index,
-      payType: selected.value,
-      payTypeText: selected.label,
-      pendingPayTypeIndex: index,
-      payTypeSelectorVisible: false,
-    });
-  },
-
   goPublishCompany: function () {
     this.closeCompanySelector();
     wx.navigateTo({ url: '../publishcompany/publishcompany' });
@@ -325,19 +296,22 @@ Page({
     var that = this;
     var currentUser = Bmob.User.current();
     if (!currentUser) {
-      that.handleUnloginRedirect();
+      that.handleUnloginRedirect('onReady !currentUser');
       return;
     }
-    var objectId = currentUser.objectId;
+    // console.log('onReady currentUser:',currentUser)
+    var userId = currentUser.objectId;
     var query = Bmob.Query('_User');
-    query.equalTo('objectId', '==', objectId);
+    console.log('onReady userId:',userId)
+    query.equalTo('objectId', '==', userId);
     query.find().then(function (results) {
       if (!results.length) {
         wx.showToast({ title: '未找到用户信息，请先登录', icon: 'none', duration: 2000 });
-        that.handleUnloginRedirect();
+        that.handleUnloginRedirect('onReady !results.length');
         return;
       }
       var u = results[0];
+      console.log('onReady u:',u)
       var role = u.role == null ? '' : String(u.role).trim();
       if (!that.isAllowedPublisherRole(role)) {
         that.handlePublisherRoleDenied();
@@ -345,16 +319,18 @@ Page({
       }
       var phone = u.userphone != null ? String(u.userphone).trim() : '';
       var uname = u.username || '';
+      console.log('setData uname:',uname,' userId:',userId,' role:',role)
       that.setData({
         userName: uname,
         recoContact: phone,
         userLoaded: true,
-        uid: objectId,
+        userId: userId,
         currentUserRole: role,
       });
-    }).catch(function () {
+    }).catch(function (error) {
+      console.error('onReady 用户信息加载失败 objectId:',objectId,'error:',error)
       wx.showToast({ title: '用户信息加载失败', icon: 'none', duration: 2000 });
-      that.handleUnloginRedirect();
+      that.handleUnloginRedirect('onReady 用户信息加载失败');
     });
   },
 
@@ -400,8 +376,8 @@ Page({
     }, 1000);
   },
 
-  handleUnloginRedirect: function () {
-    console.log('handleUnloginRedirect()')
+  handleUnloginRedirect: function (caller) {
+    console.log('handleUnloginRedirect caller：'+caller)
     var that = this;
     if (that._isHandlingLoginRedirect) {
       return;
@@ -646,7 +622,7 @@ Page({
     var mobileReg = /^1[3-9]\d{9}$/;
     var landlineReg = /^0\d{2,3}-?\d{7,8}(?:-\d{1,6})?$/;
     if (!mobileReg.test(contact) && !landlineReg.test(contact)) {
-      wx.showToast({ title: '请填写正确的手机号或固话', image: '../../images/warning.png', duration: 2000 });
+      wx.showToast({ title: '手机号或固话不正确', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
     if (!(d.wxid && String(d.wxid).trim())) {
@@ -709,7 +685,7 @@ Page({
       summaryText = jobDescriptionText.slice(0, 40);
     }
     row.set('commitUsername', d.userName);
-    row.set('commitUid', d.uid || '');
+    row.set('commitUid', d.userid || '');
     row.set('title', String(d.title).trim());
     row.set('recoName', String(d.title).trim());
     row.set('education', edu);
@@ -727,7 +703,7 @@ Page({
     row.set('companyLogo', (d.selectedCompany && d.selectedCompany.logo) || '');
     row.set('detPayMin', parsePositiveNumber(d.detPayMin));
     row.set('detPayMax', parsePositiveNumber(d.detPayMax));
-    row.set('payType', String(d.payType || '0'));
+    row.set('payType', Number(d.payType || '0'));
     row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
     row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
@@ -738,7 +714,8 @@ Page({
   put_infor: function () {
     var that = this;
     if (that.data.formSubmitting) return;
-    if (!that.data.userLoaded || !that.data.userName) {
+    console.log('userLoaded:',that.data.userLoaded,' userId:',that.data.userId)
+    if (!that.data.userLoaded || !that.data.userId) {
       wx.showToast({ title: '请先登录后再推荐', image: '../../images/warning.png', duration: 2000 });
       return;
     }
@@ -766,7 +743,7 @@ Page({
           wx.switchTab({ url: '../index/index' });
           setTimeout(function () {
             wx.showToast({
-              title: isPendingReview ? '发布成功，将审核后展示' : '推荐成功',
+              title: isPendingReview ? '发布成功，将审核后展示' : '发布成功',
               icon: 'success',
               duration: 2000
             });

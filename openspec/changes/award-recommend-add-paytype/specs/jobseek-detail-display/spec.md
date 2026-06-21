@@ -11,6 +11,6 @@
 - **WHEN** `payType` 为 `1` 且薪资字段完整
 - **THEN** 页面 MUST 展示“临时工”并按 `元/天` 语义展示期望薪资
 
-#### Scenario: payType 缺失时的兜底展示
+#### Scenario: payType 缺失时按月单位回退
 - **WHEN** `payType` 缺失或值不在约定范围内
-- **THEN** 页面 MUST 返回工种与薪资的“未填写”兜底文案，且 MUST NOT 使用“元/小时”文案
+- **THEN** 页面薪资展示 MUST 使用 `元/月` 语义，且 MUST NOT 使用“元/小时”文案

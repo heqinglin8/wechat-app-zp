@@ -8,6 +8,8 @@ function pickText(value, fallback) {
 }
 
 function salaryText(item) {
+  var payType = item && item.payType !== undefined && item.payType !== null ? String(item.payType).trim() : '';
+  var unit = payType === '1' ? '元/天' : '元/月';
   var min = Number(item.detPayMin);
   var max = Number(item.detPayMax);
   var hasMin = !isNaN(min) && min > 0;
@@ -20,13 +22,13 @@ function salaryText(item) {
     return String(value);
   };
   if (hasMin && hasMax) {
-    return toK(min) + '-' + toK(max);
+    return toK(min) + '-' + toK(max) + unit;
   }
   if (hasMax) {
-    return toK(max);
+    return toK(max) + unit;
   }
   if (hasMin) {
-    return toK(min);
+    return toK(min) + unit;
   }
   return '薪资未填写';
 }
