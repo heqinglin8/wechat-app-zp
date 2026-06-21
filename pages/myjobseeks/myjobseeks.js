@@ -88,12 +88,14 @@ Page({
     //用户名
     username: '',
     //报名信息
-    infor: '',
+    infor: [],
     //将要删除的信息
     seleteinfor: '',
     num: '',
     isEmpty: false,
-    loadingTip: '没有更多内容'
+    loadingTip: '没有更多内容',
+    selectedSeekIds: [],
+    selectedCount: 0
   },
 
   /**
@@ -120,7 +122,9 @@ Page({
       that.setData({
         infor: list,
         num: list.length,
-        isEmpty: list.length === 0
+        isEmpty: list.length === 0,
+        selectedSeekIds: [],
+        selectedCount: 0
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
@@ -137,7 +141,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
+    this.getinfor();
   },
 
   /**
@@ -175,7 +179,71 @@ Page({
 
   },
 
-    //点击招聘列表页面跳转，页面传参
+  noop: function () {},
+
+  onSelectChange: function (e) {
+    var rawIds = (e.detail && e.detail.value) || [];
+    var ids = (Array.isArray(rawIds) ? rawIds : [rawIds]).map(function (id) {
+      return id === undefined || id === null ? '' : String(id).trim();
+    }).filter(function (id) {
+      return !!id;
+    });
+    this.setData({
+      selectedSeekIds: ids,
+      selectedCount: ids.length
+    });
+  },
+
+  deleteinfor: function () {
+    var that = this;
+    var ids = (that.data.selectedSeekIds || []).map(function (id) {
+      return id === undefined || id === null ? '' : String(id).trim();
+    }).filter(function (id) {
+      return !!id;
+    });
+    if (!ids.length) {
+      wx.showToast({
+        title: '请先勾选记录',
+        icon: 'none',
+        duration: 1200
+      });
+      return;
+    }
+    wx.showModal({
+      title: '提示',
+      content: '确认删除已勾选的求职记录吗？',
+      success: function (res) {
+        if (!res.confirm) {
+          return;
+        }
+        var tasks = ids.map(function (id) {
+          var query = Bmob.Query('JobSeeker');
+          return query.destroy(id);
+        });
+        Promise.allSettled(tasks).then(function (results) {
+          var successCount = results.filter(function (item) {
+            return item.status === 'fulfilled';
+          }).length;
+          if (!successCount) {
+            wx.showToast({
+              title: '删除失败',
+              icon: 'none',
+              duration: 1500
+            });
+            return;
+          }
+          wx.showToast({
+            title: '已删除' + successCount + '条',
+            icon: 'success',
+            duration: 1500
+          });
+          that.getinfor();
+        });
+      }
+    });
+  },
+
+  //点击招聘列表页面跳转，页面传参
   showDetail: function (e) {
     var that = this;
     // 获取wxml元素绑定的index值

@@ -1,13 +1,8 @@
 <!--pages/myjobseeks/myjobseeks.wxml-->
-<!--pages/myjoin/myjoin.wxml-->
-    <view  class='list-text-other' wx:if="{{num==0}}"> 
-                             <text>暂未被推荐人</text> </view> 
-  <view class='delete'   wx:else>
-<view class='username'>推荐人: {{username}} </view>
-</view> 
-<view class='content'>
-
-  <scroll-view bindscrolltolower="scrolltolower" scroll-y="true"    class="scoll-h" >
+<view class="username">推荐人: {{username}}</view>
+<view class="content">
+  <scroll-view bindscrolltolower="scrolltolower" scroll-y="true" class="scoll-h">
+    <checkbox-group bindchange="onSelectChange">
       <block wx:for="{{infor}}" wx:key="objectId">
         <view class="job-card" bindtap="showDetail" data-index="{{index}}">
           <view class="job-card__header">
@@ -34,11 +29,15 @@
             </view>
             <text class="job-card__location">{{item.cardLocation}}</text>
           </view>
+          <view class="job-card-check" catchtap="noop">
+            <checkbox value="{{item.objectId}}"></checkbox>
+          </view>
         </view>
       </block>
-      <view class="loading">{{loadingTip}}</view>
+    </checkbox-group>
+    <view wx:if="{{isEmpty}}" class="empty-state">暂未被推荐人</view>
+    <view wx:if="{{!isEmpty}}" class="loading">{{loadingTip}}</view>
   </scroll-view>
-
-               
 </view>
+<view wx:if="{{selectedCount > 0}}" class="delete-bar" bindtap="deleteinfor">删除</view>
 

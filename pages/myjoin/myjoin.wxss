@@ -17,7 +17,6 @@
 .job-card{
   position: relative;
   padding: 28rpx 26rpx 26rpx;
-  padding-right: 92rpx;
   border-radius: 14rpx;
   background: #fff;
   box-sizing: border-box;
@@ -30,6 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 3;
 }
 
 .job-card__header{
