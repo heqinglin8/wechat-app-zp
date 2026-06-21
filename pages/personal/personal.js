@@ -17,6 +17,7 @@ Page({
     //数据库个人信息
     username:'',
     hasUserInfo: false,
+    defaultAvatarUrl: defaultAvatarUrl,
     avatarUrl: defaultAvatarUrl,
     showRoleDialog: false,
     selectedRole: 2,
@@ -378,21 +379,29 @@ Page({
     });
   },
 
+  // 解密后返回数据格式如下
+ // { "phoneNumber":"137xxxx6579", "purePhoneNumber":"137xxxx6579", "countryCode":"86", "watermark":{ "timestamp":1516762168, "appid":"wx094edexxxxx" } }
+// getPhoneNumber: function (res) {
+//     console.log('getPhoneNumber res:',res)
+//     Bmob.User.decryption(res).then(res => {
+//       console.log(res)
+//     })
+// },
+
   bingLogin:function(){
       // 登录
     wx.login({
       success: res => {
        // 发送 res.code 到后台换取 openId, sessionKey, unionId
-        console.log('aaaaa:'+res.code);
+        console.log('login res:', res);
      var that = this;
           Bmob.User.auth().then(res => {
-            console.log(res)
-            console.log('一键登陆成功')
-
+            console.log('一键登陆成功 res:',res)
              // 登录成功
             var userInfo = res;
             userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath);
-            console.log("个人中心登录:查询到 " + userInfo.objectId+":" +userInfo.sessionToken);
+            console.log("个人中心登录:查询到 objectId:" + userInfo.objectId+" sessionToken:" +userInfo.sessionToken, ", avatarPath:",userInfo.avatarPath);
+
             that.setData({
               userInfo: userInfo,
               hasUserInfo: true,
