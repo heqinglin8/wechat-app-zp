@@ -37,7 +37,7 @@ TBD - created by archiving change redesign-seeker-detail-ui. Update Purpose afte
 
 #### Scenario: 临时工求职信息展示
 - **WHEN** `payType` 为 `1` 且薪资字段完整
-- **THEN** 页面 MUST 展示“临时工”并按小时薪资语义展示期望薪资
+- **THEN** 页面 MUST 展示“临时工”并按天薪资语义展示期望薪资
 
 ### Requirement: 页面不得展示 recoExtra 与公司域信息
 `seekerDetail` 页面 MUST NOT 渲染 `recoExtra` 区块，也 MUST NOT 渲染公司域展示区块（如公司卡片、公司名/行业/融资/规模）。

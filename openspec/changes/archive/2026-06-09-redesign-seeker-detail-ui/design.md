@@ -33,7 +33,7 @@
 - **Alternative considered**: 使用统一 `未填写`；被拒绝，因为用户不清楚缺失的是哪一项。
 
 ### Decision 3: 工种与薪资显示遵循 `payType` 优先
-- **Choice**: `payType=0` 显示“月结”并按月薪格式渲染；`payType=1` 显示“临时工”并按小时薪资渲染；未知值回退“工种未填写/期望薪资未填写”。
+- **Choice**: `payType=0` 显示“月结”并按月薪格式渲染；`payType=1` 显示“临时工”并按天薪资渲染；未知值回退“工种未填写/期望薪资未填写”。
 - **Why**: 与现有业务字段保持一致，兼容历史数据不完整场景。
 - **Alternative considered**: 仅按 `detPayMin/detPayMax` 显示，不区分工种；被拒绝，因为会丢失语义。
 

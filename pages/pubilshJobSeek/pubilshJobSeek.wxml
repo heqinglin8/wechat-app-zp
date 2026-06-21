@@ -17,7 +17,7 @@
 
       <view class="award-list-name">
         <view class="name-text">称呼</view>
-        <input class="name-input" type="text" placeholder="称呼" value="{{recoName}}" bindinput="onRecoNameInput" />
+        <input class="name-input" type="text" placeholder="怎么称呼求职者？" value="{{recoName}}" bindinput="onRecoNameInput" />
       </view>
 
       <view class="award-list-name award-picker-row">
