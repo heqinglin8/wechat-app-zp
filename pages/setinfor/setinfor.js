@@ -37,6 +37,17 @@ Page({
       username: e.detail.value
     })
   },
+  openUsernameDialog: function () {
+    this.setData({
+      showInputDialog: true,
+      dialogField: 'username',
+      dialogTitle: '请输入用户名',
+      dialogPlaceholder: '请输入用户名',
+      dialogInputType: 'text',
+      dialogMaxLength: 30,
+      dialogValue: this.data.username || ''
+    });
+  },
   openNicknameDialog: function () {
     this.setData({
       showInputDialog: true,
@@ -76,6 +87,16 @@ Page({
   confirmInputDialog: function () {
     var field = this.data.dialogField;
     var value = ((this.data.dialogValue || '') + '').trim();
+    if (field === 'username') {
+      if (!this.isusername(value)) {
+        return;
+      }
+      this.setData({
+        username: value,
+        showInputDialog: false
+      });
+      return;
+    }
     if (field === 'nickname') {
       if (!this.validatenickname(value)) {
         return;
@@ -483,6 +504,7 @@ isusername:function(user){
     })
     return false;
   }
+  return true;
 },
   //判断昵称是否为空
 validatenickname: function(nickname) {
