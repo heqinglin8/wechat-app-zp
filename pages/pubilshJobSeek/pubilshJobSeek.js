@@ -14,7 +14,6 @@ var ALLOWED_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
 
 Page({
   data: {
-    userName: '',
     title: '',
     recoName: '',
     recoContact: '',
@@ -37,7 +36,6 @@ Page({
     chooseImageBusy: false,
     currentCity: city.DEFAULT_CITY,
     currentCityText: city.fullDisplayText(city.DEFAULT_CITY),
-    currentUserRole: '',
   },
 
   onRecoNameInput: function (e) {
@@ -200,15 +198,15 @@ Page({
         return;
       }
       var phone = u.userphone != null ? String(u.userphone).trim() : '';
-      var uname = u.username || '';
+      var nickname = u.nickname || '';
       that.setData({
-        userName: uname,
-        recoName: uname,
+        recoName: nickname,
         recoContact: phone,
         userLoaded: true,
-        currentUserRole: role,
       });
       that._objectId = objectId;
+      that._username = u.username || '';
+      that._currentUserRole = role;
     }).catch(function () {
       wx.showToast({ title: '用户信息加载失败', icon: 'none', duration: 2000 });
     });
@@ -477,7 +475,7 @@ Page({
     return true;
   },
   resolvePublishActive: function () {
-    var roleText = String(this.data.currentUserRole || '').trim();
+    var roleText = String(this._currentUserRole || '').trim();
     return (roleText === '100' || roleText === '1000') ? 1 : 0;
   },
 
@@ -485,7 +483,7 @@ Page({
     console.log("applyJobSeekerFields row:",row);
     var d = this.data;
     var edu = this.educationLabel();
-    row.set('commitUsername', d.userName);
+    row.set('commitUsername', this._username);
     row.set('commitUid', this._objectId || '');
     row.set('title', String(d.title).trim());
     row.set('recoName', String(d.recoName).trim());
@@ -506,7 +504,7 @@ Page({
   put_infor: function () {
     var that = this;
     if (that.data.formSubmitting) return;
-    if (!that.data.userLoaded || !that.data.userName) {
+    if (!that.data.userLoaded || !that._objectId) {
       wx.showToast({ title: '请先登录后再推荐', image: '../../images/warning.png', duration: 2000 });
       return;
     }
@@ -521,7 +519,7 @@ Page({
     that.setData({ formSubmitting: true });
 
     var query = Bmob.Query('JobSeeker');
-    query.equalTo('commitUsername', '==', that.data.userName);
+    query.equalTo('commitUsername', '==', that._username);
     query.equalTo('recoName', '==', String(that.data.recoName).trim());
     query.equalTo('active', '==', 1);
 

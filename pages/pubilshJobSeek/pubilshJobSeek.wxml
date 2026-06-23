@@ -16,7 +16,7 @@
       </view>
 
       <view class="award-list-name">
-        <view class="name-text">称呼</view>
+        <view class="name-text">名字</view>
         <input class="name-input" type="text" placeholder="怎么称呼求职者？" value="{{recoName}}" bindinput="onRecoNameInput" />
       </view>
 
@@ -50,7 +50,7 @@
       </view>
 
       <view class="award-list-name award-salary-row">
-        <view class="name-text">薪资</view>
+        <view class="name-text">薪资要求</view>
         <view class="award-salary-inputs">
           <input class="name-input award-salary-input" type="text" placeholder="最低" value="{{detPayMin}}" bindinput="onDetPayMinInput" />
           <input class="name-input award-salary-input" type="text" placeholder="最高" value="{{detPayMax}}" bindinput="onDetPayMaxInput" />
