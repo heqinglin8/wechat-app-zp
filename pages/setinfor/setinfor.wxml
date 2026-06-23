@@ -6,6 +6,15 @@
   </button>
 
   <view class="info-list">
+
+    <view class="info-row" bindtap="openUsernameDialog">
+      <view class="info-row-label">用户名</view>
+      <view class="info-row-right">
+        <view class="info-row-value">{{username || '--'}}</view>
+        <view class="info-row-arrow"></view>
+      </view>
+    </view>
+
     <view class="info-row" bindtap="openNicknameDialog">
       <view class="info-row-label">昵称</view>
       <view class="info-row-right">
