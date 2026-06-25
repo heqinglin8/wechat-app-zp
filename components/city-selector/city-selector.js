@@ -34,10 +34,11 @@ Component({
       var code = (e.detail && e.detail.code) || [];
       var nextCity = city.normalizeRegion(value, code);
       if (!city.isOpenCity(nextCity)) {
-        wx.showToast({
-          title: '仅有广州、深圳、佛山、韶关、东莞、珠海开放业务，申请开放请微信咨询',
-          icon: 'none',
-          duration: 5000,
+        wx.showModal({
+          title: '提示',
+          content: '仅有广州、深圳、佛山、韶关、东莞、珠海开放业务，申请开放请微信咨询',
+          showCancel: false,
+          confirmText: '我知道了',
         });
         this.refreshCity();
         return;
