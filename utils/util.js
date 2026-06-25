@@ -40,7 +40,7 @@ const extractRelativePathFromUrl = url => {
 const toDisplayUrl = value => {
   if (!value) return ''
   if (/^https?:\/\//i.test(value)) return value
-  return 'http://files.yueqiu.me/' + String(value).replace(/^\/+/, '')
+  return 'https://files.yueqiu.me/' + String(value).replace(/^\/+/, '')
 }
 
 const uploadAndSaveUserAvatar = ({ Bmob, objectId, avatarUrl }) => {
