@@ -35,9 +35,9 @@ Component({
       var nextCity = city.normalizeRegion(value, code);
       if (!city.isOpenCity(nextCity)) {
         wx.showToast({
-          title: '暂时还没有开放当前城市业务',
+          title: '仅有广州、深圳、佛山、韶关、东莞、珠海开放业务，申请开放请微信咨询',
           icon: 'none',
-          duration: 2000,
+          duration: 5000,
         });
         this.refreshCity();
         return;

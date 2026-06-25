@@ -5,7 +5,7 @@
     <view class="weui-search-bar__form">
       <view class="weui-search-bar__box">
         <icon class="weui-icon-search_in-box" type="search" size="14"></icon>
-        <input type="text" class="weui-search-bar__input"  disabled='true' placeholder="搜索工作：如上海、深圳、昆山" bindtap="wxSearchTab"/>
+        <input type="text" class="weui-search-bar__input"  disabled='true' placeholder="搜索工作：如广州、深圳、珠海" bindtap="wxSearchTab"/>
       </view>
     </view>
   </view>
