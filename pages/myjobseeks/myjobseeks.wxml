@@ -1,5 +1,5 @@
 <!--pages/myjobseeks/myjobseeks.wxml-->
-<view class="username">推荐人: {{username}}</view>
+<view class="username">我的求职：{{username}}</view>
 <view class="content">
   <scroll-view bindscrolltolower="scrolltolower" scroll-y="true" class="scoll-h">
     <checkbox-group bindchange="onSelectChange">
@@ -40,4 +40,3 @@
   </scroll-view>
 </view>
 <view wx:if="{{selectedCount > 0}}" class="delete-bar" bindtap="deleteinfor">删除</view>
-

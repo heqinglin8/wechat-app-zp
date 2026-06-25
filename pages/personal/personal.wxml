@@ -2,7 +2,7 @@
 <view class="personal">
   <view class="personal-top">
   
-<button wx:if="{{!hasUserInfo}}" open-type="getUserInfo" bindgetuserinfo="bingLogin">登录</button>
+<button wx:if="{{!hasUserInfo}}" bindtap="bingLogin">微信一键登录</button>
     <block wx:else>
       <button wx:if="{{!avatarUrl || avatarUrl === defaultAvatarUrl}}" class="personal-user-card personal-user-card-button" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
         <view class="personal-user-card-left">

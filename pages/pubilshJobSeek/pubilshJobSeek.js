@@ -6,6 +6,7 @@
 var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
+var imageUpload = require('../../utils/imageUpload.js');
 
 var MAX_RECOMMEND_PHOTOS = 6;
 var MAX_PHOTO_BYTES = 3145728;
@@ -197,7 +198,10 @@ Page({
         that.handleJobSeekerRoleDenied();
         return;
       }
-      var phone = u.userphone != null ? String(u.userphone).trim() : '';
+      var phone = u.mobilePhoneNumber != null ? String(u.mobilePhoneNumber).trim() : '';
+      if (!phone && u.userphone != null) {
+        phone = String(u.userphone).trim();
+      }
       var nickname = u.nickname || '';
       that.setData({
         recoName: nickname,
@@ -212,72 +216,33 @@ Page({
     });
   },
 
-  /** @returns {Promise<number>} file size in bytes */
-  getFileSize: function (filePath) {
-    return new Promise(function (resolve, reject) {
-      wx.getFileSystemManager().getFileInfo({
-        filePath: filePath,
-        success: function (res) {
-          resolve(res.size);
-        },
-        fail: reject,
-      });
-    });
-  },
-
   validatePhotoPath: function (filePath) {
-    var that = this;
-    return this.getFileSize(filePath).then(function (size) {
-      if (size > MAX_PHOTO_BYTES) {
-        wx.showToast({ title: '单张图片不能超过 3MB', icon: 'none', duration: 2000 });
-        return Promise.reject(new Error('size'));
-      }
-      var ext = util.extFromPath(filePath);
-      if (!ext || ALLOWED_IMAGE_EXT.indexOf(ext) === -1) {
-        wx.showToast({ title: '仅支持常见图片格式', icon: 'none', duration: 2000 });
-        return Promise.reject(new Error('type'));
-      }
-      return Promise.resolve();
+    return imageUpload.prepareImage(filePath, {
+      maxBytes: MAX_PHOTO_BYTES,
+      allowedExt: ALLOWED_IMAGE_EXT
+    }).catch(function (error) {
+      imageUpload.showImageError(error);
+      return Promise.reject(error);
     });
   },
 
   /** Upload single temp file; returns promise with remote url */
-  uploadOnePhotoFile: function (filePath, slotIndex) {
+  uploadOnePhotoFile: function (imageInfo, slotIndex) {
     var that = this;
-    var ext = util.extFromPath(filePath) || 'jpg';
-    var fileName = 'rec-' + Date.now() + '-' + slotIndex + '-' + Math.floor(Math.random() * 10000) + '.' + ext;
-    var file = new Bmob.File(fileName, filePath);
-    console.log("uploadOnePhotoFile slotIndex:",slotIndex," filePath",filePath," file",file);
-    return file.save().then(function (saved) {
-      // var url = typeof saved.url === 'function' ? saved.url() : '';
-      var saveUrl = saved[0].url;
-      if (!saveUrl && saved._url) saveUrl = saved._url;
-      if (!saveUrl) return Promise.reject(new Error('no url'));
-      
-      var relativePath = util.extractRelativePathFromUrl(saveUrl);
-      var replace_url = util.toDisplayUrl(relativePath);
-      var type = ext || util.extFromPath(relativePath) || 'unknown';
-
-      // 保存文件元信息到 file 表，不阻断主上传流程
-      var fileQuery = Bmob.Query('file');
-      fileQuery.set('name', fileName);
-      fileQuery.set('path', relativePath);
-      fileQuery.set('type', type);
-
+    return imageUpload.uploadPreparedImage({
+      Bmob: Bmob,
+      imageInfo: imageInfo,
+      prefix: 'rec',
+      slotIndex: slotIndex
+    }).then(function (photo) {
       var list = that.data.recommendPhotos.slice();
       var cur = list[slotIndex];
       if (!cur) return Promise.reject(new Error('slot'));
-      list[slotIndex] = { url: replace_url, path: relativePath, tempPath: '', uploading: false };
+      list[slotIndex] = { url: photo.url, path: photo.path, tempPath: '', uploading: false };
       that.setData({ 
         recommendPhotos: list,
        });
-      return fileQuery.save().then(function (res) {
-        console.log('save file meta success', res);
-        return replace_url;
-      }).catch(function (err) {
-        console.log('save file meta fail', err);
-        return replace_url;
-      });
+      return photo.url;
     });
   },
 
@@ -285,8 +250,8 @@ Page({
   startUploadForSlot: function (slotIndex, filePath, rollbackUrl) {
     var that = this;
     return this.validatePhotoPath(filePath)
-      .then(function () {
-        return that.uploadOnePhotoFile(filePath, slotIndex);
+      .then(function (imageInfo) {
+        return that.uploadOnePhotoFile(imageInfo, slotIndex);
       })
       .catch(function () {
         var list = that.data.recommendPhotos.slice();
@@ -332,13 +297,13 @@ Page({
     }
     take.forEach(function (p) {
       seq = seq.then(function () {
-        return that.validatePhotoPath(p).then(function () {
+        return that.validatePhotoPath(p).then(function (imageInfo) {
           var next = that.data.recommendPhotos.concat([
             { url: '', tempPath: p, uploading: true },
           ]);
           var idx = next.length - 1;
           that.setData({ recommendPhotos: next });
-          return that.uploadOnePhotoFile(p, idx).catch(function (error) {
+          return that.uploadOnePhotoFile(imageInfo, idx).catch(function (error) {
             console.error('uploadOnePhotoFile fail!error:',error);
             var ls = that.data.recommendPhotos.slice();
             ls.splice(idx, 1);
@@ -519,7 +484,7 @@ Page({
     that.setData({ formSubmitting: true });
 
     var query = Bmob.Query('JobSeeker');
-    query.equalTo('commitUsername', '==', that._username);
+    query.equalTo('commitUid', '==', that._objectId);
     query.equalTo('recoName', '==', String(that.data.recoName).trim());
     query.equalTo('active', '==', 1);
 
@@ -563,6 +528,14 @@ Page({
       }).then(function () {
         var updatedQuery = Bmob.Query('JobSeeker');
         return updatedQuery.get(row.objectId).then(function (existing) {
+          if (String(existing.commitUid || '').trim() !== that._objectId) {
+            wx.showToast({
+              title: '无权编辑该求职',
+              icon: 'none',
+              duration: 1500
+            });
+            throw new Error('permission_denied');
+          }
           that.applyJobSeekerFields(existing);
           return existing.save();
         });
@@ -578,7 +551,7 @@ Page({
         }, 320);
       });
     }).catch(function (e) {
-      if (e && e.message === 'cancel_update') {
+      if (e && (e.message === 'cancel_update' || e.message === 'permission_denied')) {
         return;
       }
       console.error("提交失败,e:",e)

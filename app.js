@@ -28,16 +28,5 @@ App({
       //   console.log('aaaaa:'+code);
       }
     })
-
-    // 获取用户信息
-    wx.getSetting({
-      success: res => {
-        if (res.authSetting['scope.userInfo']) {
-          // wx  已经不推荐getUserInfo了。
-
-        }
-      }
-    }
-    )
   }
 })

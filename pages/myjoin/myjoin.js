@@ -1,54 +1,17 @@
 // pages/myjoin/myjoin.js
 var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
+var cardFormatter = require('../../utils/cardFormatter');
 
 function pickText(value, fallback) {
   var text = value === undefined || value === null ? '' : String(value).trim();
   return text || fallback;
 }
 
-function salaryText(item) {
-  var payType = item && item.payType !== undefined && item.payType !== null ? String(item.payType).trim() : '';
-  var unit = payType === '1' ? '元/天' : '元/月';
-  var min = Number(item.detPayMin);
-  var max = Number(item.detPayMax);
-  var hasMin = !isNaN(min) && min > 0;
-  var hasMax = !isNaN(max) && max > 0;
-  var toK = function (value) {
-    if (value >= 1000) {
-      var k = value / 1000;
-      return (k % 1 === 0 ? String(k) : String(Number(k.toFixed(1)))) + 'k';
-    }
-    return String(value);
-  };
-  if (hasMin && hasMax) {
-    return toK(min) + '-' + toK(max) + unit;
-  }
-  if (hasMax) {
-    return toK(max) + unit;
-  }
-  if (hasMin) {
-    return toK(min) + unit;
-  }
-  return '薪资未填写';
-}
-
-function splitTags(value) {
-  var text = value === undefined || value === null ? '' : String(value).trim();
-  if (!text) {
-    return [];
-  }
-  return text.split('|').map(function (tag) {
-    return String(tag).trim();
-  }).filter(function (tag) {
-    return !!tag;
-  });
-}
-
 function decorateJoinCard(jobInfo, joinInfo) {
   var job = jobInfo || {};
   var join = joinInfo || {};
-  var directions = splitTags(job.jobDirection);
+  var directions = cardFormatter.splitTags(job.jobDirection);
   var companyName = pickText(job.companyName, pickText(join.joinCompanyName, '公司名称未填写'));
   var experience = pickText(job.experience, '经验未填写');
   var education = pickText(job.education, '学历未填写');
@@ -58,7 +21,7 @@ function decorateJoinCard(jobInfo, joinInfo) {
     joinRecordId: pickText(join.objectId, ''),
     objectId: pickText(job.objectId, join.jobId || ''),
     cardTitle: pickText(job.title, '标题未填写'),
-    cardSalary: salaryText(job),
+    cardSalary: cardFormatter.salaryText(job),
     cardCompany: companyName,
     cardCompanySize: pickText(job.companyPeople, '规模未填写'),
     cardFinancing: pickText(job.financeStage, '融资阶段未填写'),

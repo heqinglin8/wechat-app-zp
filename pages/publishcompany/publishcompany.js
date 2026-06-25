@@ -1,6 +1,7 @@
 var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
+var imageUpload = require('../../utils/imageUpload.js');
 
 var MAX_COMPANY_PHOTOS = 6;
 var MAX_PHOTO_BYTES = 3145728;
@@ -56,6 +57,16 @@ Page({
 
   onRegionChange: function (e) {
     var nextCity = city.normalizeRegion(e.detail.value, e.detail.code);
+    if (!city.isOpenCity(nextCity)) {
+      wx.showModal({
+        title: '提示',
+        content: '仅有广州、深圳、佛山、韶关、东莞、珠海开放业务，申请开放请微信咨询',
+        showCancel: false,
+        confirmText: '我知道了',
+      });
+      this.refreshCompanyCity();
+      return;
+    }
     this.setData({
       currentCity: nextCity,
       regionValue: city.regionValue(nextCity),
@@ -100,52 +111,22 @@ Page({
     this.setData({ financeStage: (e.detail && e.detail.value) || '' });
   },
 
-  getFileSize: function (filePath) {
-    return new Promise(function (resolve, reject) {
-      wx.getFileSystemManager().getFileInfo({
-        filePath: filePath,
-        success: function (res) {
-          resolve(res.size);
-        },
-        fail: reject,
-      });
-    });
-  },
-
   validatePhotoPath: function (filePath) {
-    return this.getFileSize(filePath).then(function (size) {
-      if (size > MAX_PHOTO_BYTES) {
-        wx.showToast({ title: '单张图片不能超过 3MB', icon: 'none', duration: 2000 });
-        return Promise.reject(new Error('size'));
-      }
-      var ext = util.extFromPath(filePath);
-      if (!ext || ALLOWED_IMAGE_EXT.indexOf(ext) === -1) {
-        wx.showToast({ title: '仅支持常见图片格式', icon: 'none', duration: 2000 });
-        return Promise.reject(new Error('type'));
-      }
-      return Promise.resolve();
+    return imageUpload.prepareImage(filePath, {
+      maxBytes: MAX_PHOTO_BYTES,
+      allowedExt: ALLOWED_IMAGE_EXT
+    }).catch(function (error) {
+      imageUpload.showImageError(error);
+      return Promise.reject(error);
     });
   },
 
-  uploadOnePhotoFile: function (filePath, prefix, slotIndex) {
-    var ext = util.extFromPath(filePath) || 'jpg';
-    var fileName = prefix + '-' + Date.now() + '-' + slotIndex + '-' + Math.floor(Math.random() * 10000) + '.' + ext;
-    var file = new Bmob.File(fileName, filePath);
-    return file.save().then(function (saved) {
-      var url = saved && saved[0] && saved[0].url;
-      if (!url && saved && saved._url) url = saved._url;
-      if (!url) return Promise.reject(new Error('no url'));
-      var relativePath = util.extractRelativePathFromUrl(url);
-      var displayUrl = util.toDisplayUrl(relativePath);
-      var fileQuery = Bmob.Query('file');
-      fileQuery.set('name', fileName);
-      fileQuery.set('path', relativePath);
-      fileQuery.set('type', ext || util.extFromPath(relativePath) || 'unknown');
-      return fileQuery.save().then(function () {
-        return { url: displayUrl, path: relativePath };
-      }).catch(function () {
-        return { url: displayUrl, path: relativePath };
-      });
+  uploadOnePhotoFile: function (imageInfo, prefix, slotIndex) {
+    return imageUpload.uploadPreparedImage({
+      Bmob: Bmob,
+      imageInfo: imageInfo,
+      prefix: prefix,
+      slotIndex: slotIndex
     });
   },
 
@@ -180,8 +161,8 @@ Page({
       var prevLogo = that.data.logoPhoto;
       that.setData({ logoPhoto: { url: prevLogo.url, path: prevLogo.path, tempPath: filePath, uploading: true } });
       that.validatePhotoPath(filePath)
-        .then(function () {
-          return that.uploadOnePhotoFile(filePath, 'company-logo', 0);
+        .then(function (imageInfo) {
+          return that.uploadOnePhotoFile(imageInfo, 'company-logo', 0);
         })
         .then(function (photo) {
           that.setData({ logoPhoto: { url: photo.url, path: photo.path, tempPath: '', uploading: false } });
@@ -238,11 +219,11 @@ Page({
     var remain = MAX_COMPANY_PHOTOS - this.data.companyPhotos.length;
     paths.slice(0, Math.max(0, remain)).forEach(function (filePath) {
       seq = seq.then(function () {
-        return that.validatePhotoPath(filePath).then(function () {
+        return that.validatePhotoPath(filePath).then(function (imageInfo) {
           var next = that.data.companyPhotos.concat([{ url: '', path: '', tempPath: filePath, uploading: true }]);
           var idx = next.length - 1;
           that.setData({ companyPhotos: next });
-          return that.uploadCompanyPhotoAt(idx, filePath, emptyPhoto());
+          return that.uploadCompanyPhotoAt(idx, imageInfo, emptyPhoto());
         });
       });
     });
@@ -253,9 +234,10 @@ Page({
 
   uploadCompanyPhotoAt: function (idx, filePath, rollbackPhoto) {
     var that = this;
-    return this.validatePhotoPath(filePath)
-      .then(function () {
-        return that.uploadOnePhotoFile(filePath, 'company-photo', idx);
+    var imageInfoPromise = typeof filePath === 'string' ? this.validatePhotoPath(filePath) : Promise.resolve(filePath);
+    return imageInfoPromise
+      .then(function (imageInfo) {
+        return that.uploadOnePhotoFile(imageInfo, 'company-photo', idx);
       })
       .then(function (photo) {
         var list = that.data.companyPhotos.slice();

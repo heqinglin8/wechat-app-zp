@@ -14,7 +14,7 @@ Page({
     //昵称
     nickname: '',
     //手机号
-    userphone:'',
+    mobilePhoneNumber:'',
     // 出生日期
     birthday: '',
     gender: '',
@@ -62,17 +62,17 @@ Page({
   openPhoneDialog: function () {
     this.setData({
       showInputDialog: true,
-      dialogField: 'userphone',
+      dialogField: 'mobilePhoneNumber',
       dialogTitle: '请输入手机号',
       dialogPlaceholder: '请输入手机号',
       dialogInputType: 'number',
       dialogMaxLength: 11,
-      dialogValue: this.data.userphone || ''
+      dialogValue: this.data.mobilePhoneNumber || ''
     });
   },
   onDialogInput: function (e) {
     var value = (e.detail && e.detail.value) || '';
-    if (this.data.dialogField === 'userphone') {
+    if (this.data.dialogField === 'mobilePhoneNumber') {
       value = value.replace(/[^\d]/g, '');
     }
     this.setData({
@@ -107,13 +107,13 @@ Page({
       });
       return;
     }
-    if (field === 'userphone') {
+    if (field === 'mobilePhoneNumber') {
       value = value.replace(/[^\d]/g, '');
       if (!this.validatemobile(value)) {
         return;
       }
       this.setData({
-        userphone: value,
+        mobilePhoneNumber: value,
         showInputDialog: false
       });
     }
@@ -232,7 +232,17 @@ Page({
       that._initbirthday = '';
       that._initgender = '';
       let currentUser = Bmob.User.current()
-      var sessionToken = currentUser.sessionToken;
+      if (!currentUser || !currentUser.objectId) {
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none',
+          duration: 1500
+        });
+        wx.switchTab({
+          url: '../personal/personal'
+        });
+        return;
+      }
       var objectId = currentUser.objectId;
       console.log("onLoad objectId:"+objectId)
           //获取用户当前信息
@@ -254,12 +264,13 @@ Page({
       var gender = that.normalizeGender(userInfo.gender || userInfo.sex || '');
       var genderIndex = gender === '女' ? 1 : 0;
       var registerDate = that.formatDateText(userInfo.createdAt);
+      var phone = userInfo.mobilePhoneNumber || userInfo.userphone || '';
       console.log('avatarUrl:',avatarUrl)
         //用户已注册
         that.setData({
           username: userInfo.username,
           nickname: userInfo.nickname,
-          userphone: userInfo.mobilePhoneNumber || '',
+          mobilePhoneNumber: phone,
           birthday: userInfo.birthday || '',
           gender: gender,
           genderIndex: gender ? genderIndex : 0,
@@ -267,7 +278,7 @@ Page({
           objectId: userInfo.objectId,
           avatarUrl:avatarUrl,
         });
-        that._initphone = userInfo.mobilePhoneNumber || '';
+        that._initphone = phone;
         that._initusername = userInfo.username || '';
         that._initnickname = userInfo.nickname || '';
         that._initbirthday = userInfo.birthday || '';
@@ -281,18 +292,18 @@ Page({
     var that=this;
     var username = ((that.data.username || '') + '').trim();
     var nickname = ((that.data.nickname || '') + '').trim();
-    var userphone = ((that.data.userphone || '') + '').trim();
+    var mobilePhoneNumber = ((that.data.mobilePhoneNumber || '') + '').trim();
     var birthday = ((that.data.birthday || '') + '').trim();
     var gender = ((that.data.gender || '') + '').trim();
 
-    if (that.isusername(username) == false || that.validatenickname(nickname) == false || that.validatemobile(userphone) == false) {
+    if (that.isusername(username) == false || that.validatenickname(nickname) == false || that.validatemobile(mobilePhoneNumber) == false) {
       return;
     }
 
     that.setData({
       username: username,
       nickname: nickname,
-      userphone: userphone,
+      mobilePhoneNumber: mobilePhoneNumber,
       birthday: birthday,
       gender: gender
     });
@@ -300,9 +311,9 @@ Page({
     var changedLabels = [];
     var updatePayload = {};
 
-    if (userphone !== (that._initphone || '')) {
+    if (mobilePhoneNumber !== (that._initphone || '')) {
       changedLabels.push('电话');
-      updatePayload.mobilePhoneNumber = userphone;
+      updatePayload.mobilePhoneNumber = mobilePhoneNumber;
     }
     if (username !== (that._initusername || '')) {
       changedLabels.push('用户名');
@@ -348,7 +359,7 @@ Page({
           }).then(function() {
             that._initusername = username;
             that._initnickname = nickname;
-            that._initphone = userphone;
+            that._initphone = mobilePhoneNumber;
             that._initbirthday = birthday;
             that._initgender = gender;
             wx.showToast({
@@ -369,6 +380,12 @@ Page({
           });
         };
 
+        var hasOtherPhone = function (results) {
+          return results && results.some(function (item) {
+            return item.objectId !== that.data.objectId;
+          });
+        };
+
         var usernameQuery = Bmob.Query("_User");
         usernameQuery.equalTo("username", "==", username);
         usernameQuery.find().then(function(results) {
@@ -385,26 +402,38 @@ Page({
           }
 
           var phoneQuery = Bmob.Query("_User");
-          phoneQuery.equalTo("userphone", "==", userphone);
+          phoneQuery.equalTo("mobilePhoneNumber", "==", mobilePhoneNumber);
           return phoneQuery.find();
         }).then(function(results) {
           if (!results) {
             return;
           }
-          var hasOtherPhone = results.some(function (item) {
-            return item.objectId !== that.data.objectId;
-          });
-          if (hasOtherPhone) {
+          if (hasOtherPhone(results)) {
             wx.showToast({
               title: "该手机号已注册",
               image: "../../images/warning.png",
               duration: 2000
             });
+            return Promise.reject('phone_exists');
+          }
+          var legacyPhoneQuery = Bmob.Query("_User");
+          legacyPhoneQuery.equalTo("userphone", "==", mobilePhoneNumber);
+          return legacyPhoneQuery.find();
+        }).then(function(results) {
+          if (!results) {
             return;
+          }
+          if (hasOtherPhone(results)) {
+            wx.showToast({
+              title: "该手机号已注册",
+              image: "../../images/warning.png",
+              duration: 2000
+            });
+            return Promise.reject('phone_exists');
           }
           doSave();
         }).catch(function(error) {
-          if (error === 'username_exists') {
+          if (error === 'username_exists' || error === 'phone_exists') {
             return;
           }
           console.log('更新前校验失败: ' + error.code + ' ' + error.message);
@@ -483,7 +512,7 @@ Page({
       })
       return false;
     }
-    var myreg = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1})|(17[0-9]{1}))+\d{8})$/;
+    var myreg = /^1[3-9]\d{9}$/;
     if (!myreg.test(mobile)) {
       wx.showToast({
         title: '手机号有误！',

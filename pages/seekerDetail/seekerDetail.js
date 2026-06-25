@@ -121,6 +121,27 @@ Page({
       return rows && rows.length ? rows[0] : null;
     });
   },
+  refreshSeekerDetail: function () {
+    var that = this;
+    return that.fetchActiveJobSeekerById(that.data.jobSeekId).then(function (result) {
+      if (result) {
+        that.applySeekerResult(result);
+      }
+      return result;
+    });
+  },
+  adjustCollectNum: function (delta) {
+    var that = this;
+    return that.fetchActiveJobSeekerById(that.data.jobSeekId).then(function (result) {
+      if (!result) return null;
+      var current = Number(result.collectNum);
+      var next = Math.max(0, (isNaN(current) ? 0 : current) + delta);
+      result.set('collectNum', next);
+      return result.save().then(function () {
+        return that.refreshSeekerDetail();
+      });
+    });
+  },
 
   /**
    * 生命周期函数--监听页面加载
@@ -172,24 +193,18 @@ Page({
           diary.set("type", "1");
           diary.set("jobSeekId", that.data.jobSeekId);
           diary.save().then(function () {
-            var nextCollectNum = (Number(that.data.num) || 0) + 1;
-            var latest = Object.assign({}, that.data.content || {});
-            latest.collectNum = nextCollectNum;
             that.setData({
               isfist: false,
               hasCollected: true,
             });
-            that.applySeekerResult(latest);
             wx.showToast({
               title: '收藏成功',
               icon: 'success',
               duration: 2000
             });
-            that.fetchActiveJobSeekerById(that.data.jobSeekId).then(function (result) {
-              if (!result) return;
-              result.set('collectNum', nextCollectNum);
-              result.save();
-            }).catch(function () {});
+            that.adjustCollectNum(1).catch(function (error) {
+              console.error('收藏数更新失败:', error);
+            });
           }).catch(function () {});
         } else {
           wx.showToast({
@@ -278,10 +293,12 @@ Page({
               icon: 'success',
               duration: 2000
             });
-            var latest = Object.assign({}, that.data.content || {});
-            latest.collectNum = Math.max(0, (Number(that.data.num) || 0) - 1);
-            that.applySeekerResult(latest);
-            that.checkCollectStatus();
+            that.adjustCollectNum(-1).then(function () {
+              that.checkCollectStatus();
+            }).catch(function (error) {
+              console.error('收藏数更新失败:', error);
+              that.checkCollectStatus();
+            });
           }).catch(function () {
             wx.showToast({
               title: '删除失败',

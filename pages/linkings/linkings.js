@@ -53,7 +53,7 @@ Page({
       linkType: linkType,
       linkTypeText: linkType === 'wechat' ? '微信' : '电话',
       icon: linkType === 'wechat' ? '../../images/wechat.png' : '../../images/tel.png',
-      phone: this.firstNonEmpty(info.userphone, info.phone, info.mobile, info.tel),
+      phone: this.firstNonEmpty(info.mobilePhoneNumber, info.userphone, info.phone, info.mobile, info.tel),
       wechat: this.firstNonEmpty(info.wxid, info.wechat, info.weixin, info.wechatNo)
     };
   },

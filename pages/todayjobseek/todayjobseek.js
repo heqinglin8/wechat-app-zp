@@ -1,88 +1,8 @@
 //引入SDK
 var Bmob = wx.Bmob;
-var util = require('../../utils/util');
 var city = require('../../utils/city');
+var jobSeekerService = require('../../services/jobSeekerService');
 var app = getApp();
-
-function firstText() {
-  for (var i = 0; i < arguments.length; i++) {
-    var value = arguments[i];
-    if (value !== undefined && value !== null && String(value).trim() !== '') {
-      return String(value).trim();
-    }
-  }
-  return '';
-}
-
-function salaryText(item) {
-  var unit = firstText(item.payType) === '1' ? '元/天' : '元/月';
-  var min = Number(firstText(item.detPayMin));
-  var max = Number(firstText(item.detPayMax));
-  var hasMin = !isNaN(min) && min > 0;
-  var hasMax = !isNaN(max) && max > 0;
-  var formatMonthly = function (value) {
-    if (value >= 1000) {
-      var k = value / 1000;
-      return (k % 1 === 0 ? String(k) : String(Number(k.toFixed(1)))) + 'k';
-    }
-    return String(value);
-  };
-  if (hasMin && hasMax) {
-    if (max >= 10000 && min < 1000) return formatMonthly(max) + unit;
-    return formatMonthly(min) + '-' + formatMonthly(max) + unit;
-  }
-  if (hasMax) return formatMonthly(max) + unit;
-  if (hasMin) return formatMonthly(min) + unit;
-  return '待补充薪资';
-}
-
-function compactTags(tags) {
-  return tags.filter(function (tag) {
-    return tag && String(tag).trim();
-  });
-}
-
-function splitTags(value) {
-  var text = firstText(value);
-  if (!text) return [];
-  return text.split('|').map(function (tag) {
-    return String(tag).trim();
-  }).filter(function (tag) {
-    return !!tag;
-  });
-}
-
-function splitPhotoUrls(value) {
-  var text = firstText(value);
-  if (!text) return [];
-  return text.split('|').map(function (photo) {
-    return util.toDisplayUrl(String(photo).trim());
-  }).filter(function (photo) {
-    return !!photo;
-  }).slice(0, 3);
-}
-
-function decorateJobSeekerCards(list) {
-  return (list || []).map(function (item) {
-    item.cardTitle = firstText(item.title, item.recoJobIntent, '未写标题');
-    item.cardSalary = salaryText(item);
-    item.cardSummary = firstText(item.summary, '未写摘要');
-    item.cardFinancing = firstText(item.recoEducation, '未写学历');
-    console.log('item.recoJobIntent:',item.recoJobIntent)
-    item.cardTags = compactTags([
-      firstText(item.recoEducation, ''),
-      // firstText(item.recoJobIntent, '')
-    ].concat(splitTags(item.recoJobIntent)));
-    var recoName = firstText(item.recoName, '未写发布人');
-    var recruiterRole = firstText(item.commitJobRole, '');
-    item.cardSeeker = recruiterRole ? recoName + ' · ' + recruiterRole : recoName;
-    item.cardLocation = firstText(item.cityDisplayName, item.cityName, '未写地点');
-    item.cardBadge = item.payType == 1 ? '临' : '';
-    item.cardPhotos = splitPhotoUrls(item.photoImgs);
-    item.avatar = util.toDisplayUrl(item.seekerAvatar)? util.toDisplayUrl(item.seekerAvatar):item.firstPhoto
-    return item;
-  });
-}
 
 Page({
   /**
@@ -114,7 +34,7 @@ Page({
     //   });
      
     // }
-    this.qbzwLoad();
+    this.switchTabLoad('0');
     }  
  
   },
@@ -210,52 +130,23 @@ Page({
 
   //分页加载
   loadArticle: function () {
-    ////console.log('分页传值:' + this.data.currentTab);
     var that = this;
     var page_size = 10;
-    var query = Bmob.Query("JobSeeker");
-    query.equalTo("active", "==", 1);
-    ////console.log('分页传值:' + currentTaB);
-    //列表判断
-    switch (that.data.currentTab) {
-      case 0:
-        //console.log('推荐');
-        query.order('-collectNum');
-        
-        break;
-      case 1:
-        //console.log('全部职位');
-        query.order('-updatedAt');
-        break;
-      case 2:
-        //console.log('高薪资');
-        query.equalTo("payType", "==", 0);
-        query.order('-detPayMax');
-        break;
-      case 3:
-        //console.log('临时工');
-        query.equalTo("payType", "==", 1);
-        query.order('-detPayMax');
-        break;
-    }
-    city.applyJobSeekerFilter(query);
-    // 分页
-    query.limit(page_size);
-    query.skip(that.data.page_index * page_size);
-    var aaa = that.data.page_index * page_size
-    //console.log('跳过:' + aaa)
-    // 查询所有数据
-    query.find().then(function(results) {
-      // 请求成功将数据存入article_list
+    jobSeekerService.loadJobSeekers({
+      Bmob: Bmob,
+      preset: 'today',
+      tab: that.data.currentTab,
+      pageIndex: that.data.page_index,
+      pageSize: page_size
+    }).then(function(result) {
       var currentList = Array.isArray(that.data.jobseekInfo) ? that.data.jobseekInfo : [];
-      var nextList = currentList.concat(decorateJobSeekerCards(util.formatList(results)));
+      var nextList = currentList.concat(result.list);
       that.setData({
         jobseekInfo: nextList,
         isEmpty: nextList.length === 0
       });
-      //console.log('查询数量:' + results.length + '加载数量' + page_size)
 
-      if (results.length < page_size) {
+      if (!result.hasMore) {
         that.setData({
           loadingTip: '没有更多内容'
         });
@@ -320,52 +211,25 @@ Page({
   },
   //tab分类加载
   switchTabLoad: function (e) {
-    //console.log('aaaa' + e);
     var that = this;
-    //清空列表数据
     this.cleardata();
-    var query = Bmob.Query("JobSeeker");
-    query.equalTo("active", "==", 1);
-    var e=e+''
-
-    switch (e) {
-      case '0':
-         //console.log('推荐');
-         query.order('-entNum');
-        break;
-      case '1':
-        //console.log('高薪资');
-        query.equalTo("payType", "==", 0);
-        query.order('-detPayMax');
-        break;
-      case '2':
-        //console.log('最新求职');
-        query.order('-updatedAt');
-        break;
-      case '3':
-        //console.log('临时工');
-        query.equalTo("payType", "==", 1);
-        query.order('-detPayMax');
-
-        break;
-    }
-    city.applyJobSeekerFilter(query);
-    query.limit(10);
     wx.showToast({
       title: "正在加载",
       icon: 'loading',
       duration: 1000
     });
-    // 查询数据
-    query.find().then(function(results) {
-      //console.log("分类第一次加载 " + results.length + "条记录");
-      //请求将数据存入jobseekInfo
-      var jobseekInfo = decorateJobSeekerCards(util.formatList(results));
+    jobSeekerService.loadJobSeekers({
+      Bmob: Bmob,
+      preset: 'today',
+      tab: e,
+      pageIndex: 0,
+      pageSize: 10
+    }).then(function(result) {
       that.setData({
-        jobseekInfo: jobseekInfo,
+        jobseekInfo: result.list,
         page_index: 0,
-        loadingTip: results.length < 10 ? "没有更多内容" : "上拉加载更多",
-        isEmpty: jobseekInfo.length === 0
+        loadingTip: result.hasMore ? "上拉加载更多" : "没有更多内容",
+        isEmpty: result.list.length === 0
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);
@@ -376,27 +240,23 @@ Page({
   //全部职位加载
   qbzwLoad: function () {
     var that = this;
-    // 动态添加列表详情
-    var query = Bmob.Query("JobSeeker");
-    query.equalTo("active", "==", 1);
-    city.applyJobSeekerFilter(query);
-    query.order('-updatedAt');
-    query.limit(10);
     wx.showToast({
       title: "正在加载",
       icon: 'loading',
       duration: 1000
     });
-    // 查询所有数据
-    query.find().then(function(results) {
-      //console.log("全部职位第一次加载 " + results.length + "条记录");
-      //请求将数据存入jobseekInfo
-      var jobseekInfo = decorateJobSeekerCards(util.formatList(results));
+    jobSeekerService.loadJobSeekers({
+      Bmob: Bmob,
+      preset: 'today',
+      tab: 0,
+      pageIndex: 0,
+      pageSize: 10
+    }).then(function(result) {
       that.setData({
-        jobseekInfo: jobseekInfo,
+        jobseekInfo: result.list,
         page_index: 0,
-        loadingTip: results.length < 10 ? "没有更多内容" : "上拉加载更多",
-        isEmpty: jobseekInfo.length === 0
+        loadingTip: result.hasMore ? "上拉加载更多" : "没有更多内容",
+        isEmpty: result.list.length === 0
       });
     }).catch(function(error) {
       //console.log("查询失败: " + error.code + " " + error.message);

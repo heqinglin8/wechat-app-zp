@@ -142,11 +142,33 @@ Page({
       return rows && rows.length ? rows[0] : null;
     });
   },
+  refreshJobDetail: function () {
+    var that = this;
+    return that.fetchActiveJobInfoById(that.data.jobId).then(function (result) {
+      if (result) {
+        that.applyJobResult(result);
+      }
+      return result;
+    });
+  },
+  adjustJobEntNum: function (delta) {
+    var that = this;
+    return that.fetchActiveJobInfoById(that.data.jobId).then(function (result) {
+      if (!result) return null;
+      var current = Number(result.entNum);
+      var next = Math.max(0, (isNaN(current) ? 0 : current) + delta);
+      result.set('entNum', next);
+      return result.save().then(function () {
+        return that.refreshJobDetail();
+      });
+    });
+  },
   /**
    * 求职热线跳转
    */
   bindViewServicePhone: function () {
-    var phone = this.firstText(this.data.content && this.data.content.contact).replace(/\s+/g, '');
+    var content = this.data.content || {};
+    var phone = this.firstText(content.recoContact, content.contact).replace(/\s+/g, '');
     if (!phone) {
       wx.showToast({
         title: '未填联系电话',
@@ -234,22 +256,19 @@ Page({
           diary.set("joinCompanyName", that.data.companyName);
           diary.save().then(function(result) {
             // 报名表添加成功
+            that.setData({
+              hasJoined: true,
+              isfist: false,
+            });
             wx.showToast({
               title: '报名成功',
               icon: 'success',
               duration: 2000
             });
-            //更新招聘信息表
-            that.fetchActiveJobInfoById(that.data.jobId).then(function(result) {
-              if (!result) return;
-              result.set('entNum', (that.data.num + 1));
-              result.save();
-              that.setData({
-                isFist: false,
-              });
-              that.onShow();
+            that.adjustJobEntNum(1).then(function () {
+              that.checkCollectStatus();
             }).catch(function(error) {
-              // 更新失败
+              console.error('报名人数更新失败:', error);
             });
           }).catch(function(error) {
             // 添加失败
@@ -311,15 +330,18 @@ Page({
             });
 
           Promise.all(destroyTasks).then(function () {
+            that.setData({
+              hasJoined: false,
+              isfist: false
+            });
             wx.showToast({
               title: '取消报名成功',
               icon: 'success',
               duration: 2000
             });
-            that.setData({
-              hasJoined: false
+            that.adjustJobEntNum(-1).catch(function (error) {
+              console.error('报名人数更新失败:', error);
             });
-            that.onShow();
           }).catch(function (e) {
             console.error('取消报名失败:', e)
             wx.showToast({
@@ -466,13 +488,9 @@ Page({
     });
     that.checkCollectStatus();
     
-    if(that.data.isFist==false)
+    if(that.data.isfist==false)
     {
-    // 向Bmob请求详情页数据
-    that.fetchActiveJobInfoById(that.data.jobId).then(function(results) {
-      if (!results) return;
-      that.applyJobResult(results);
-    }).catch(function(error) {
+    that.refreshJobDetail().catch(function(error) {
       // 查询失败
     });
     
