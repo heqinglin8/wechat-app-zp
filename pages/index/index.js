@@ -66,13 +66,13 @@ Page({
       url: '../jobDetail/jobDetail?jobId=' + objectId
     });
   },
-  //点击门店导航页面跳转
-  bindViewLoaction:function(){
-    wx.navigateTo({
-      url: '../publishjob/publishjob'
-    })
-    
-  },
+  // //点击门店导航页面跳转
+  // bindViewLoaction:function(){
+  //   wx.navigateTo({
+  //     url: '../publishjob/publishjob'
+  //   })
+  //   
+  // },
     //点击微信咨询
   bindViewXWZX: function () {
     wx.showToast({
@@ -195,74 +195,74 @@ Page({
       url: '../jobDetail/jobDetail'
     })
   },
-  /**
-   * 推荐奖励跳转
-   */
-  bindViewAward: function () { 
-    wx.navigateTo({
-      url: '../pubilshJobSeek/pubilshJobSeek'
-    })
-  },
+  // /**
+  //  * 推荐奖励跳转
+  //  */
+  // bindViewAward: function () { 
+  //   wx.navigateTo({
+  //     url: '../pubilshJobSeek/pubilshJobSeek'
+  //   })
+  // },
   
-  /**
-   * 求职热线跳转
-   */
-  bindViewServicePhone: function () {
-    wx.navigateTo({
-      url: '../servicephone/servicephone'
-    })
-  },
-  /**
-   * 今日招聘（全部职位）跳转
-   */
-  bindViewToday: function () {
-    app.globalData.tabid = 1;
-    wx.switchTab({
-      url: '../today/today',
-    })
-  },  
-  /**
- * 最新求职-跳转
- */
-  bindViewTodayGxz: function () {
-    app.globalData.tabid=1;
-    wx.switchTab({
-      url: '../todayjobseek/todayjobseek',
-      success: function (e) {
-        var page = getCurrentPages().pop();
-        if (page == undefined || page == null) return;
-        page.onLoad();
-      } 
-    })
-  },  
-  /**
- * 今日招聘（临时工）跳转
- */
-  bindViewTodayLsg: function () {
-    app.globalData.tabid = 0;
-    wx.switchTab({
-      url: '../todayjobseek/todayjobseek',
-      success: function (e) {
-        var page = getCurrentPages().pop();
-        if (page == undefined || page == null) return;
-        page.onLoad();
-      } 
-    })
-  },  
-  /**
- * 今日招聘（推荐）跳转
- */
-  bindViewTodayTj: function () {
-    app.globalData.tabid = 0;
-    wx.switchTab({
-      url: '../today/today',
-      success: function (e) { 
-      var page = getCurrentPages().pop(); 
-      if (page == undefined || page == null) return; 
-      page.onLoad(); 
-      } 
-    })
-  },  
+  // /**
+  //  * 求职热线跳转
+  //  */
+  // bindViewServicePhone: function () {
+  //   wx.navigateTo({
+  //     url: '../servicephone/servicephone'
+  //   })
+  // },
+  // /**
+  //  * 今日招聘（全部职位）跳转
+  //  */
+  // bindViewToday: function () {
+  //   app.globalData.tabid = 1;
+  //   wx.switchTab({
+  //     url: '../today/today',
+  //   })
+  // },  
+  // /**
+  // * 最新求职-跳转
+  // */
+  // bindViewTodayGxz: function () {
+  //   app.globalData.tabid=1;
+  //   wx.switchTab({
+  //     url: '../todayjobseek/todayjobseek',
+  //     success: function (e) {
+  //       var page = getCurrentPages().pop();
+  //       if (page == undefined || page == null) return;
+  //       page.onLoad();
+  //     } 
+  //   })
+  // },  
+  // /**
+  // * 今日招聘（临时工）跳转
+  // */
+  // bindViewTodayLsg: function () {
+  //   app.globalData.tabid = 0;
+  //   wx.switchTab({
+  //     url: '../todayjobseek/todayjobseek',
+  //     success: function (e) {
+  //       var page = getCurrentPages().pop();
+  //       if (page == undefined || page == null) return;
+  //       page.onLoad();
+  //     } 
+  //   })
+  // },  
+  // /**
+  // * 今日招聘（推荐）跳转
+  // */
+  // bindViewTodayTj: function () {
+  //   app.globalData.tabid = 0;
+  //   wx.switchTab({
+  //     url: '../today/today',
+  //     success: function (e) { 
+  //     var page = getCurrentPages().pop(); 
+  //     if (page == undefined || page == null) return; 
+  //     page.onLoad(); 
+  //     } 
+  //   })
+  // },  
   /**
    * 生命周期函数--监听页面初次渲染完成
    */

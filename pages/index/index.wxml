@@ -26,6 +26,7 @@
   </swiper>
 </view>
 <!--导航-->
+<!--
    <view class="nav">
     <view class="nav-up">
       <view class="nav-four-up nav-all" bindtap='bindViewTodayTj'>
@@ -101,6 +102,7 @@
       </view>
     </view>
   </view>
+-->
 <!--滚动tab-->
 <view >
     <scroll-view scroll-y="true" scroll-x="true" class="tab-h" scroll-left="{{scrollLeft}}">
