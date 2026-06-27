@@ -2,6 +2,7 @@
 //引入SDK
 const Bmob = require('/utils/Bmob-2.5.30.min.js');
 const city = require('/utils/city.js');
+const userRole = require('/utils/userRole.js');
 //初始化Bmobkey
 Bmob.initialize("ba87e714fe642a8a", "489509");
 wx.Bmob = Bmob;
@@ -9,7 +10,23 @@ App({
   globalData:{
     tabid:0,
     userInfo: null,
-    currentCity: city.DEFAULT_CITY
+    currentCity: city.DEFAULT_CITY,
+    currentUserRole: ''
+  },
+  getCurrentUserRole: function () {
+    var that = this;
+    return userRole.getCurrentUserRole(Bmob).then(function (role) {
+      that.globalData.currentUserRole = role;
+      return role;
+    });
+  },
+  getCurrentUserRoleInfo: function () {
+    return this.getCurrentUserRole().then(function (role) {
+      return userRole.getRoleInfo(role);
+    });
+  },
+  getRoleInfo: function (role) {
+    return userRole.getRoleInfo(role);
   },
   onLaunch: function () {
     city.initCurrentCity()

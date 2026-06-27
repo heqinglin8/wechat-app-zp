@@ -15,27 +15,19 @@ Page({
     isEmpty: false,
     currentCityCode: city.DEFAULT_CITY.cityCode,
 
-    //tab 
-    winHeight: "",//窗口高度
-    currentTab: 0, //预设当前项的值
-    scrollLeft: 0, //tab标题的滚动条位置
+    //tab
+    winHeight: "",
+    currentTab: 0,
+    scrollLeft: 0,
   },
   /**
  * 生命周期函数--监听页面加载
  */
-  onLoad: function (options) {
+  onLoad: function () {
     this.refreshCityState();
-    if (typeof (app.globalData.tabid) == "undefined") { 
-    // //console.log('onload');
-    // if (options && options.searchValue) {
-    //   this.setData({
-    //     searchValue: "搜索：" + options.searchValue,
-    //   });
-     
-    // }
-    this.switchTabLoad('0');
-    }  
- 
+    if (typeof (app.globalData.tabid) == "undefined") {
+      this.switchTabLoad('0');
+    }
   },
   refreshCityState: function () {
     var currentCity = city.initCurrentCity();
@@ -53,7 +45,7 @@ Page({
   wxSearchTab: function () {
     wx.redirectTo({
       url: '../search/search'
-    })
+    });
   },
   /**
  * 列表详情跳转
@@ -61,13 +53,8 @@ Page({
   //点击招聘列表页面跳转，页面传参
   showDetail: function (e) {
     var that = this;
-    // 获取wxml元素绑定的index值
     var index = e.currentTarget.dataset.index;
-    //console.log("1111111" + index);
-    // 取出objectId
     var objectId = that.data.jobInfo[index].objectId;
-    ////console.log("1111111" + objectId);
-    // 跳转到详情页
     wx.navigateTo({
       url: '../jobDetail/jobDetail?jobId=' + objectId
     });
@@ -75,57 +62,45 @@ Page({
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
-  onReady: function () {
-
-  },
+  onReady: function () {},
 
   /**
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-      var cityChanged = this.refreshCityState();
+    var cityChanged = this.refreshCityState();
 
-      if (typeof (app.globalData.tabid) == "undefined") { }
-      else{
-        this.setData({
-          currentTab: app.globalData.tabid
-        });
-        //console.log('onShow' + app.globalData.tabid);
-        this.switchTabLoad(app.globalData.tabid);
-      }
-      if (typeof (app.globalData.tabid) == "undefined" && cityChanged) {
-        this.reloadCurrentTab();
-      }
-   
+    if (typeof (app.globalData.tabid) == "undefined") { }
+    else {
+      this.setData({
+        currentTab: app.globalData.tabid
+      });
+      this.switchTabLoad(app.globalData.tabid);
+    }
+    if (typeof (app.globalData.tabid) == "undefined" && cityChanged) {
+      this.reloadCurrentTab();
+    }
   },
 
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide: function () {
-    
-  },
+  onHide: function () {},
 
   /**
    * 生命周期函数--监听页面卸载
    */
-  onUnload: function () {
-    
-  },
+  onUnload: function () {},
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
-  onPullDownRefresh: function () {
-    
-  },
+  onPullDownRefresh: function () {},
 
   /**
    * 页面上拉触底事件的处理函数
    */
-  onReachBottom: function () {
-    
-  },
+  onReachBottom: function () {},
 
   //分页加载
   loadArticle: function () {
@@ -137,7 +112,7 @@ Page({
       tab: that.data.currentTab,
       pageIndex: that.data.page_index,
       pageSize: page_size
-    }).then(function(result) {
+    }).then(function (result) {
       var currentList = Array.isArray(that.data.jobInfo) ? that.data.jobInfo : [];
       var nextList = currentList.concat(result.list);
       that.setData({
@@ -156,7 +131,6 @@ Page({
  * 页面上拉触底事件的处理函数
  */
   scrolltolower: function () {
-    //console.log('--下拉刷新-')
     if (this.data.loadingTip == "没有更多内容" || this.data.isEmpty) {
       return;
     }
@@ -179,33 +153,27 @@ Page({
       currentTab: e.detail.current
     });
     this.checkCor();
-    ////console.log('滑动' + cur);
     this.switchTabLoad(cur + '');
   },
   // 点击标题切换当前页时改变样式
   swichNav: function (e) {
-
     var cur = e.target.dataset.current;
     if (this.data.currentTaB == cur) { return false; }
-    else {
-      this.setData({
-        currentTab: cur
-      })
-      this.switchTabLoad(cur);
-    }
-    
-    
+    this.setData({
+      currentTab: cur
+    });
+    this.switchTabLoad(cur);
   },
   //判断当前滚动超过一屏时，设置tab标题滚动条。
   checkCor: function () {
     if (this.data.currentTab > 4) {
       this.setData({
         scrollLeft: 300
-      })
+      });
     } else {
       this.setData({
         scrollLeft: 0
-      })
+      });
     }
   },
   //tab分类加载
@@ -223,17 +191,16 @@ Page({
       tab: e,
       pageIndex: 0,
       pageSize: 10
-    }).then(function(result) {
+    }).then(function (result) {
       that.setData({
         jobInfo: result.list,
         page_index: 0,
         loadingTip: result.hasMore ? "上拉加载更多" : "没有更多内容",
         isEmpty: result.list.length === 0
       });
-    }).catch(function(error) {
-      //console.log("查询失败: " + error.code + " " + error.message);
+    }).catch(function () {
+      //console.log("查询失败");
     });
-
   },
 
   //全部职位加载
@@ -250,15 +217,15 @@ Page({
       tab: 0,
       pageIndex: 0,
       pageSize: 10
-    }).then(function(result) {
+    }).then(function (result) {
       that.setData({
         jobInfo: result.list,
         page_index: 0,
         loadingTip: result.hasMore ? "上拉加载更多" : "没有更多内容",
         isEmpty: result.list.length === 0
       });
-    }).catch(function(error) {
-      //console.log("查询失败: " + error.code + " " + error.message);
+    }).catch(function () {
+      //console.log("查询失败");
     });
   },
   //清空招聘列表
@@ -268,6 +235,4 @@ Page({
       isEmpty: false
     });
   }
-
-  
-})
+});

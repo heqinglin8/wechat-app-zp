@@ -1,4 +1,10 @@
 <view class="fab-container">
-  <view class="fab-btn" bindtap="onFabTap1">求职</view>
-  <view class="fab-btn fab-btn-second" bindtap="onFabTap2">招聘</view>
+  <view wx:if="{{showJobSeekerEntry}}" class="fab-btn {{!showRecruitEntry ? 'fab-btn-last' : ''}}" bindtap="onFabTap1">
+    <text>发布</text>
+    <text>求职</text>
+  </view>
+  <view wx:if="{{showRecruitEntry}}" class="fab-btn fab-btn-second" bindtap="onFabTap2">
+    <text>发布</text>
+    <text>招聘</text>
+  </view>
 </view>

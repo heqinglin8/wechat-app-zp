@@ -7,6 +7,7 @@ var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
 var imageUpload = require('../../utils/imageUpload.js');
+var userRole = require('../../utils/userRole.js');
 
 var MAX_RECOMMEND_PHOTOS = 6;
 var MAX_PHOTO_BYTES = 3145728;
@@ -112,8 +113,7 @@ Page({
   onShareAppMessage: function () {},
 
   isAllowedJobSeekerRole: function (role) {
-    var roleText = role == null ? '' : String(role).trim();
-    return roleText === '2' || roleText === '100' || roleText === '1000';
+    return userRole.canPublishJobSeeker(role);
   },
 
   handleUnloginRedirect: function () {
@@ -440,8 +440,7 @@ Page({
     return true;
   },
   resolvePublishActive: function () {
-    var roleText = String(this._currentUserRole || '').trim();
-    return (roleText === '100' || roleText === '1000') ? 1 : 0;
+    return userRole.resolvePublishActive(this._currentUserRole);
   },
 
   applyJobSeekerFields: function (row) {

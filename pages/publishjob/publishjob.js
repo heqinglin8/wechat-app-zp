@@ -7,6 +7,7 @@ var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
 var imageUpload = require('../../utils/imageUpload.js');
+var userRole = require('../../utils/userRole.js');
 
 var MAX_RECOMMEND_PHOTOS = 3;
 var MAX_PHOTO_BYTES = 3145728;
@@ -343,12 +344,10 @@ Page({
   noop: function () {},
 
   isAllowedPublisherRole: function (role) {
-    var roleText = role == null ? '' : String(role).trim();
-    return roleText === '1' || roleText === '100' || roleText === '1000';
+    return userRole.canPublishRecruit(role);
   },
   resolvePublishActive: function () {
-    var roleText = String(this.data.currentUserRole || '').trim();
-    return (roleText === '100' || roleText === '1000') ? 1 : 0;
+    return userRole.resolvePublishActive(this.data.currentUserRole);
   },
 
   handlePublisherRoleDenied: function () {

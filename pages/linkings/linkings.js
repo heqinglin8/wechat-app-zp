@@ -3,6 +3,7 @@
 //引入SDK
 var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
+var userRole = require('../../utils/userRole.js');
 
 var DEFAULT_AVATAR = '../../images/default_user_avatar.jpeg';
 
@@ -27,14 +28,7 @@ Page({
   buildMetaText: function (userInfo) {
     var roleJob = this.firstNonEmpty(userInfo.jobRole, userInfo.roleJobRole, userInfo.position, userInfo.roleName, '未填职位');
     var roleTypeRaw = this.firstNonEmpty(userInfo.role, userInfo.identity, userInfo.roleType, userInfo.userType);
-    var roleType = '未知身份';
-    if (roleTypeRaw === '1' || roleTypeRaw === 1 || String(roleTypeRaw).indexOf('招') >= 0) {
-      roleType = '招聘者';
-    } else if (roleTypeRaw === '2' || roleTypeRaw === 2 || String(roleTypeRaw).indexOf('求职') >= 0) {
-      roleType = '求职者';
-    } else if (roleTypeRaw) {
-      roleType = String(roleTypeRaw);
-    }
+    var roleType = userRole.getRoleDisplayName(roleTypeRaw);
     var education = this.firstNonEmpty(userInfo.education, userInfo.educationText, '未填学历');
     return roleJob + ' | ' + roleType + ' | ' + education;
   },

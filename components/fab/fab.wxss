@@ -14,17 +14,25 @@
   color: #fff;
   border-radius: 50%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 36rpx;
+  font-size: 30rpx;
+  line-height: 1.2;
   font-weight: 900;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.18);
   margin-bottom: 20rpx;
   cursor: pointer;
 }
+.fab-btn text {
+  display: block;
+}
 .fab-btn-second {
   margin-bottom: 0;
-  background: #ffe066;
+  background: #fc3;
   color: #fff;
+}
+.fab-btn-last {
+  margin-bottom: 0;
 }

@@ -1,6 +1,7 @@
 // pages/personal/personal.js
 var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
+var userRole = require('../../utils/userRole.js');
 
 var app=getApp()
 
@@ -247,14 +248,11 @@ Page({
       nickname: '',
       hasUserInfo: false
     });
+    this.refreshFabVisibility();
   },
 
   isEmptyRole: function (role) {
-    if (role === undefined || role === null) {
-      return true;
-    }
-    var roleText = String(role).trim();
-    return roleText === '' || roleText === '0';
+    return userRole.isEmptyRole(role);
   },
 
   promptUserRole: function () {
@@ -351,6 +349,14 @@ Page({
       hasUserInfo: true,
       avatarUrl: userInfo.avatarUrl || defaultAvatarUrl
     });
+    this.refreshFabVisibility();
+  },
+
+  refreshFabVisibility: function () {
+    var fab = this.selectComponent ? this.selectComponent('#pageFab') : null;
+    if (fab && fab.refreshEntryVisibility) {
+      fab.refreshEntryVisibility();
+    }
   },
 
   // 解密后返回数据格式如下
@@ -404,6 +410,7 @@ Page({
             avatarUrl: userInfo.avatarUrl,
             mobilePhoneNumber: userInfo.mobilePhoneNumber || userInfo.userphone || ''
           });
+          that.refreshFabVisibility();
           wx.showToast({
             title: '登录成功',
             icon: 'success',
