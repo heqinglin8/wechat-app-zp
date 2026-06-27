@@ -38,7 +38,7 @@
         <view class="per-mid-list1-left-text per-mid-list-left-text">报名岗位</view>
       </view>
       <view class="per-mid-list1-right per-mid-list-right">
-        <image src="../../images/jiantou.png"/>
+        <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
     <view wx:if="{{hasUserInfo}}" class="per-mid-list2"bindtap='bindViewMyaward'>
@@ -47,7 +47,7 @@
         <view class="per-mid-list2-left-text per-mid-list-left-text">我的求职</view>
       </view>
       <view class="per-mid-list2-right per-mid-list-right">
-        <image src="../../images/jiantou.png"/>
+        <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
     <view wx:if="{{hasUserInfo}}" class="per-mid-list3" bindtap='bindViewTodayGxz'>
@@ -56,7 +56,7 @@
         <view class="per-mid-list3-left-text per-mid-list-left-text">修改信息</view>
       </view>
       <view class="per-mid-list3-right per-mid-list-right">
-        <image src="../../images/jiantou.png"/>
+        <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
     <view class="per-mid-list4" bindtap='bindViewServicePhone'>
@@ -65,7 +65,7 @@
         <view class="per-mid-list4-left-text per-mid-list-left-text">求职热线</view>
       </view>
       <view class="per-mid-list4-right per-mid-list-right">
-        <image src="../../images/jiantou.png"/>
+        <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
     <view wx:if="{{hasUserInfo}}" class="per-mid-list5" bindtap='bindExchangeLink'>
@@ -74,7 +74,7 @@
         <view class="per-mid-list5-left-text per-mid-list-left-text">信息交换</view>
       </view>
       <view class="per-mid-list5-right per-mid-list-right">
-        <image src="../../images/jiantou.png"/>
+        <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
     <!-- <view class="per-mid-list5" bindtap='bindViewMap'>
@@ -83,7 +83,7 @@
         <view class="per-mid-list5-left-text per-mid-list-left-text">门店地址</view>
       </view>
       <view class="per-mid-list5-right per-mid-list-right">
-        <image src="../../images/jiantou.png"/>
+        <image src="../../images/jiantou_small.png"/>
       </view>
     </view> -->
   </view>

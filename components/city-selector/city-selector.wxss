@@ -2,7 +2,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* min-width: 148rpx; */
   height: 72rpx;
   padding: 0 10rpx 0 20rpx;
   box-sizing: border-box;
