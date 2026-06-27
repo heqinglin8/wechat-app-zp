@@ -2,11 +2,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 156rpx;
+  /* min-width: 148rpx; */
   height: 72rpx;
-  padding: 0 18rpx;
+  padding: 0 10rpx 0 20rpx;
   box-sizing: border-box;
-  color: #222;
+  color: #fff;
   font-size: 28rpx;
   white-space: nowrap;
 }
@@ -21,7 +21,9 @@
 }
 
 .city-selector-arrow {
-  margin-left: 4rpx;
-  font-size: 20rpx;
-  color: #555;
+  margin-left: 6rpx;
+  font-size: 32rpx;
+  line-height: 1;
+  font-weight: 700;
+  color: #fff;
 }
