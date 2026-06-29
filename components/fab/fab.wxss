@@ -1,7 +1,8 @@
 .fab-container {
   position: fixed;
   right: 30rpx;
-  bottom: 60rpx;
+  bottom: 136rpx;
+  bottom: calc(136rpx + env(safe-area-inset-bottom));
   z-index: 9999;
   display: flex;
   flex-direction: column;

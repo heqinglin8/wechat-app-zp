@@ -1,0 +1,21 @@
+<view class="custom-tab-bar">
+  <view class="tab-bar-border"></view>
+  <view class="tab-bar-content">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="pagePath"
+      class="tab-item {{selectedPath === item.pagePath ? 'tab-item-active' : ''}}"
+      hover-class="tab-item-hover"
+      hover-stay-time="80"
+      data-path="{{item.pagePath}}"
+      bindtap="onTabTap"
+    >
+      <image
+        class="tab-icon"
+        src="{{selectedPath === item.pagePath ? item.selectedIconPath : item.iconPath}}"
+        mode="aspectFit"
+      />
+      <text class="tab-text">{{item.text}}</text>
+    </view>
+  </view>
+</view>

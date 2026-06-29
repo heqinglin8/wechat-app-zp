@@ -26,6 +26,7 @@
     "onReachBottom": true
   },
   "tabBar": {
+    "custom": true,
     "color": "#959595",
     "selectedColor": "#000",
     "borderStyle": "white",
