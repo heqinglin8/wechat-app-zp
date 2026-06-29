@@ -25,9 +25,6 @@ App({
       return userRole.getRoleInfo(role);
     });
   },
-  getRoleInfo: function (role) {
-    return userRole.getRoleInfo(role);
-  },
   onLaunch: function () {
     city.initCurrentCity()
     const info = wx.getAppBaseInfo()
