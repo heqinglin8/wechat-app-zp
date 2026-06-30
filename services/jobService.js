@@ -17,15 +17,24 @@ var TAB_PRESETS = {
   ],
 };
 
+/**
+ * 获取 Bmob 实例，优先使用调用方传入的实例，便于页面和测试复用。
+ */
 function getBmob(options) {
   return (options && options.Bmob) || (typeof wx !== 'undefined' && wx.Bmob);
 }
 
+/**
+ * 将 tab 值标准化为数字，下标非法时回退到第一个 tab。
+ */
 function normalizeTab(tab) {
   var n = Number(tab);
   return isNaN(n) ? 0 : n;
 }
 
+/**
+ * 根据页面场景和 tab 下标给查询追加筛选条件与排序规则。
+ */
 function applyPreset(query, presetName, tab) {
   var preset = (TAB_PRESETS[presetName] || TAB_PRESETS.home)[normalizeTab(tab)] || TAB_PRESETS.home[0];
   if (preset.payType !== undefined) {
@@ -35,6 +44,9 @@ function applyPreset(query, presetName, tab) {
   return query;
 }
 
+/**
+ * 构建只查询有效招聘信息的基础查询，并叠加 tab 规则与城市过滤。
+ */
 function buildActiveJobQuery(options) {
   var Bmob = getBmob(options);
   var query = Bmob.Query('JobInfo');
@@ -44,6 +56,9 @@ function buildActiveJobQuery(options) {
   return query;
 }
 
+/**
+ * 分页加载公开招聘列表，并格式化成列表卡片可直接使用的数据结构。
+ */
 function loadJobs(options) {
   var opts = options || {};
   var pageSize = opts.pageSize || 10;

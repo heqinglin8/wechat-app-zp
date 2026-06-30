@@ -13,6 +13,9 @@ App({
     currentCity: city.DEFAULT_CITY,
     currentUserRole: ''
   },
+  /**
+   * 根据角色动态更新原生 tabbar 中“今日”入口的文案和图标。
+   */
   syncTodayTabBarByRole: function (role) {
     var isJobSeeker = userRole.isJobSeekerRole(role);
     if (!wx.setTabBarItem) {
@@ -29,6 +32,9 @@ App({
       }
     });
   },
+  /**
+   * 获取当前登录用户角色，并同步全局角色状态与底部 tabbar。
+   */
   getCurrentUserRole: function () {
     var that = this;
     return userRole.getCurrentUserRole(Bmob).then(function (role) {
@@ -37,11 +43,17 @@ App({
       return role;
     });
   },
+  /**
+   * 获取标准化后的角色能力信息，供页面判断数据源和入口权限。
+   */
   getCurrentUserRoleInfo: function () {
     return this.getCurrentUserRole().then(function (role) {
       return userRole.getRoleInfo(role);
     });
   },
+  /**
+   * 小程序启动时初始化城市、本地日志和微信登录态。
+   */
   onLaunch: function () {
     city.initCurrentCity()
     const info = wx.getAppBaseInfo()

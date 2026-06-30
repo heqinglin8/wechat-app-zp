@@ -17,15 +17,24 @@ var TAB_PRESETS = {
   ],
 };
 
+/**
+ * 获取 Bmob 实例，优先使用调用方传入的实例，便于页面和测试复用。
+ */
 function getBmob(options) {
   return (options && options.Bmob) || (typeof wx !== 'undefined' && wx.Bmob);
 }
 
+/**
+ * 将 tab 值标准化为数字，下标非法时回退到第一个 tab。
+ */
 function normalizeTab(tab) {
   var n = Number(tab);
   return isNaN(n) ? 0 : n;
 }
 
+/**
+ * 根据页面场景和 tab 下标给查询追加筛选条件与排序规则。
+ */
 function applyPreset(query, presetName, tab) {
   var presetList = TAB_PRESETS[presetName] || TAB_PRESETS.today;
   var preset = presetList[normalizeTab(tab)] || presetList[0];
@@ -36,6 +45,9 @@ function applyPreset(query, presetName, tab) {
   return query;
 }
 
+/**
+ * 构建只查询有效求职信息的基础查询，并叠加 tab 规则与城市过滤。
+ */
 function buildActiveJobSeekerQuery(options) {
   var Bmob = getBmob(options);
   var query = Bmob.Query('JobSeeker');
@@ -45,6 +57,9 @@ function buildActiveJobSeekerQuery(options) {
   return query;
 }
 
+/**
+ * 分页加载公开求职列表，并格式化成列表卡片可直接使用的数据结构。
+ */
 function loadJobSeekers(options) {
   var opts = options || {};
   var pageSize = opts.pageSize || 10;
@@ -62,6 +77,9 @@ function loadJobSeekers(options) {
   });
 }
 
+/**
+ * 加载指定用户自己发布的有效求职信息，用于“我的求职”等个人列表。
+ */
 function loadOwnedJobSeekers(options) {
   var opts = options || {};
   var Bmob = getBmob(opts);

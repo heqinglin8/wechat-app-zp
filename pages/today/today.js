@@ -6,6 +6,9 @@ var jobService = require('../../services/jobService');
 var jobSeekerService = require('../../services/jobSeekerService');
 var app = getApp();
 
+/**
+ * 将 tab 参数标准化为数字，非法值统一回退到第一个 tab。
+ */
 function normalizeTab(tab) {
   var n = Number(tab);
   return isNaN(n) ? 0 : n;
@@ -30,11 +33,14 @@ Page({
     scrollLeft: 0,
   },
   /**
- * 生命周期函数--监听页面加载
- */
+   * 生命周期函数--监听页面加载：初始化城市，列表等待 onShow 获取角色后加载。
+   */
   onLoad: function () {
     this.refreshCityState();
   },
+  /**
+   * 刷新当前城市状态，并返回城市是否发生变化。
+   */
   refreshCityState: function () {
     var currentCity = city.initCurrentCity();
     var changed = this.data.currentCityCode &&
@@ -42,6 +48,9 @@ Page({
     this.setData({ currentCityCode: currentCity.cityCode });
     return changed;
   },
+  /**
+   * 读取外部指定的 tab，下次进入时避免反复消费同一个全局 tabid。
+   */
   resolveCurrentTab: function () {
     if (app.globalData && app.globalData.tabid !== undefined && app.globalData.tabid !== null) {
       var tab = normalizeTab(app.globalData.tabid);
@@ -50,6 +59,9 @@ Page({
     }
     return normalizeTab(this.data.currentTab);
   },
+  /**
+   * 获取当前用户角色，并在角色、城市或 tab 变化时重新加载列表。
+   */
   refreshModeAndMaybeLoad: function (options) {
     var that = this;
     var opts = options || {};
@@ -61,6 +73,9 @@ Page({
       that.applyRoleMode(userRole.getRoleInfo(''), targetTab, opts);
     });
   },
+  /**
+   * 应用角色信息：role=2 使用求职模式，其它角色使用招聘模式。
+   */
   applyRoleMode: function (roleInfo, targetTab, options) {
     var opts = options || {};
     var nextRole = roleInfo && roleInfo.role ? roleInfo.role : '';
@@ -81,27 +96,45 @@ Page({
       this.switchTabLoad(String(nextTab));
     }
   },
+  /**
+   * 根据当前模式设置页面导航标题。
+   */
   updateNavigationTitle: function (isJobSeekerMode) {
     wx.setNavigationBarTitle({
       title: isJobSeekerMode ? '今日求职' : '今日招聘'
     });
   },
+  /**
+   * 重新加载当前 tab 的列表。
+   */
   reloadCurrentTab: function () {
     this.switchTabLoad(String(this.data.currentTab || 0));
   },
+  /**
+   * 空态页点击“重新刷新”时重试当前列表。
+   */
   onRetryLoad: function () {
     this.reloadCurrentTab();
   },
+  /**
+   * 点击搜索框时跳转到搜索页。
+   */
   wxSearchTab: function () {
     wx.redirectTo({
       url: '../search/search'
     });
   },
+  /**
+   * 根据当前角色选择今日页列表的数据服务。
+   */
   getListLoader: function () {
     return this.data.isJobSeekerMode
       ? jobSeekerService.loadJobSeekers
       : jobService.loadJobs;
   },
+  /**
+   * 加载当前模式下指定分页和 tab 的今日页列表。
+   */
   loadCurrentList: function (pageIndex, tab) {
     var loader = this.getListLoader();
     return loader({
@@ -113,8 +146,8 @@ Page({
     });
   },
   /**
- * 列表详情跳转
- */
+   * 点击列表卡片时按当前角色跳转到招聘详情或求职详情。
+   */
   showDetail: function (e) {
     var index = e.currentTarget.dataset.index;
     var item = this.data.jobInfo[index];
@@ -134,7 +167,7 @@ Page({
   onReady: function () {},
 
   /**
-   * 生命周期函数--监听页面显示
+   * 生命周期函数--监听页面显示：刷新城市和角色模式，必要时重新加载列表。
    */
   onShow: function () {
     var cityChanged = this.refreshCityState();
@@ -161,7 +194,9 @@ Page({
    */
   onReachBottom: function () {},
 
-  //分页加载
+  /**
+   * 加载下一页列表，并追加到当前列表后面。
+   */
   loadArticle: function () {
     var that = this;
     var requestId = this._listRequestId;
@@ -186,8 +221,8 @@ Page({
     });
   },
   /**
- * 页面上拉触底事件的处理函数
- */
+   * 列表滚动到底部时触发分页加载。
+   */
   scrolltolower: function () {
     if (this.data.loadingTip == "没有更多内容" || this.data.isEmpty) {
       return;
@@ -204,7 +239,9 @@ Page({
     }
     this.loadArticle();
   },
-  // 滚动切换标签样式
+  /**
+   * swiper 滑动切换 tab 时同步当前 tab 并重新加载列表。
+   */
   switchTab: function (e) {
     var cur = normalizeTab(e.detail.current);
     if (cur === normalizeTab(this.data.currentTab)) {
@@ -216,7 +253,9 @@ Page({
     this.checkCor();
     this.switchTabLoad(String(cur));
   },
-  // 点击标题切换当前页时改变样式
+  /**
+   * 点击 tab 标题时切换当前 tab 并重新加载列表。
+   */
   swichNav: function (e) {
     var cur = normalizeTab(e.currentTarget.dataset.current);
     if (normalizeTab(this.data.currentTab) === cur) {
@@ -227,7 +266,9 @@ Page({
     });
     this.switchTabLoad(String(cur));
   },
-  //判断当前滚动超过一屏时，设置tab标题滚动条。
+  /**
+   * 根据当前 tab 调整 tab 标题横向滚动位置。
+   */
   checkCor: function () {
     if (this.data.currentTab > 4) {
       this.setData({
@@ -239,7 +280,9 @@ Page({
       });
     }
   },
-  //tab分类加载
+  /**
+   * 清空当前列表并加载指定 tab 的第一页数据。
+   */
   switchTabLoad: function (e) {
     var that = this;
     var requestId = (this._listRequestId || 0) + 1;
@@ -272,11 +315,15 @@ Page({
     });
   },
 
-  //全部职位加载
+  /**
+   * 兼容旧调用：加载第一个 tab 的今日页列表。
+   */
   qbzwLoad: function () {
     this.switchTabLoad('0');
   },
-  //清空招聘列表
+  /**
+   * 清空当前列表数据，切换 tab 或模式前使用。
+   */
   cleardata: function () {
     this.setData({
       jobInfo: [],
