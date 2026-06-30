@@ -23,6 +23,9 @@ Page({
     showRoleDialog: false,
     selectedRole: 2,
     roleJobRole: '',
+    showMyJoinEntry: false,
+    showMyJobSeekEntry: false,
+    showMyRecruitEntry: false,
   },
 
   /**
@@ -129,6 +132,13 @@ Page({
     var userId=this.data.userInfo.objectId
     wx.navigateTo({
       url: '../myjoin/myjoin?userId=' + userId
+    })
+  },
+  //点击个人中心里我的招聘页面跳转
+  bindViewMyRecruit: function () {
+    var userId = this.data.userInfo.objectId
+    wx.navigateTo({
+      url: '../myrecruit/myrecruit?userId=' + userId
     })
   },
   //点击个人中心里求职热线页面跳转
@@ -246,7 +256,10 @@ Page({
     this.setData({
       userInfo: {},
       nickname: '',
-      hasUserInfo: false
+      hasUserInfo: false,
+      showMyJoinEntry: false,
+      showMyJobSeekEntry: false,
+      showMyRecruitEntry: false
     });
     app.syncTodayTabBarByRole('');
     this.refreshFabVisibility();
@@ -341,8 +354,18 @@ Page({
     });
   },
 
+  resolvePersonalEntryVisibility: function (role) {
+    var isJobSeeker = userRole.isJobSeekerRole(role);
+    return {
+      showMyJoinEntry: isJobSeeker,
+      showMyJobSeekEntry: isJobSeeker,
+      showMyRecruitEntry: !isJobSeeker
+    };
+  },
+
   applyUserInfo: function (userInfo) {
-    userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath);
+    var entryVisibility = this.resolvePersonalEntryVisibility(userInfo.role);
+    userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath) || userInfo.avatarUrl || userInfo.wechatAvatarUrl || '';
     app.globalData.currentUserRole = userInfo.role || '';
     app.syncTodayTabBarByRole(userInfo.role);
     this.setData({
@@ -350,7 +373,10 @@ Page({
       nickname: userInfo.nickname || '',
       mobilePhoneNumber: userInfo.mobilePhoneNumber || userInfo.userphone || '',
       hasUserInfo: true,
-      avatarUrl: userInfo.avatarUrl || defaultAvatarUrl
+      avatarUrl: userInfo.avatarUrl || defaultAvatarUrl,
+      showMyJoinEntry: entryVisibility.showMyJoinEntry,
+      showMyJobSeekEntry: entryVisibility.showMyJobSeekEntry,
+      showMyRecruitEntry: entryVisibility.showMyRecruitEntry
     });
     this.refreshFabVisibility();
   },
@@ -406,12 +432,16 @@ Page({
           return that.syncWechatProfile(res, profile);
         }).then(function (userInfo) {
           userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath) || userInfo.wechatAvatarUrl || defaultAvatarUrl;
+          var entryVisibility = that.resolvePersonalEntryVisibility(userInfo.role);
           that.setData({
             userInfo: userInfo,
             hasUserInfo: true,
             nickname: userInfo.nickname,
             avatarUrl: userInfo.avatarUrl,
-            mobilePhoneNumber: userInfo.mobilePhoneNumber || userInfo.userphone || ''
+            mobilePhoneNumber: userInfo.mobilePhoneNumber || userInfo.userphone || '',
+            showMyJoinEntry: entryVisibility.showMyJoinEntry,
+            showMyJobSeekEntry: entryVisibility.showMyJobSeekEntry,
+            showMyRecruitEntry: entryVisibility.showMyRecruitEntry
           });
           app.globalData.currentUserRole = userInfo.role || '';
           app.syncTodayTabBarByRole(userInfo.role);

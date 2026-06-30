@@ -1,5 +1,4 @@
 <!--pages/myjobseeks/myjobseeks.wxml-->
-<view class="username">我的求职：{{username}}</view>
 <view class="content">
   <scroll-view bindscrolltolower="scrolltolower" scroll-y="true" class="scoll-h">
     <checkbox-group bindchange="onSelectChange">

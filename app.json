@@ -11,6 +11,7 @@
     "pages/map/map",
     "pages/setinfor/setinfor",
     "pages/myjoin/myjoin",
+    "pages/myrecruit/myrecruit",
     "pages/myjobseeks/myjobseeks",
     "pages/todayjobseek/todayjobseek",
     "pages/seekerDetail/seekerDetail",
