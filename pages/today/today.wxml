@@ -13,7 +13,7 @@
 <view class="page-body">
     <scroll-view scroll-y="true" scroll-x="true" class="tab-h" scroll-left="{{scrollLeft}}">
         <view class="tab-item {{currentTab==0?'active':''}}"  data-current="0" bindtap="swichNav">推荐</view>
-        <view class="tab-item {{currentTab==1?'active':''}}" data-current="1" bindtap="swichNav">最新职位</view>
+        <view class="tab-item {{currentTab==1?'active':''}}" data-current="1" bindtap="swichNav">{{isJobSeekerMode ? '最新求职' : '最新职位'}}</view>
         <view class="tab-item {{currentTab==2?'active':''}}" data-current="2" bindtap="swichNav">高薪资</view>
         <view class="tab-item {{currentTab==3?'active':''}}" data-current="3" bindtap="swichNav">临时工</view>
     </scroll-view>
@@ -21,7 +21,7 @@
         <swiper-item wx:for="{{[0,1,2,3]}}"wx:key="1*this" >
             <scroll-view bindscrolltolower="scrolltolower" scroll-y="true"    class="scoll-h" >
                 <block wx:for="{{jobInfo}}" wx:key="objectId">
-                  <view class="job-card" bindtap="showDetail" data-index="{{index}}">
+                  <view class="job-card {{isJobSeekerMode ? 'job-card--seeker' : ''}}" bindtap="showDetail" data-index="{{index}}">
                     <view class="job-card__header">
                       <view class="job-card__title-wrap">
                         <text class="job-card__title">{{item.cardTitle}}</text>
@@ -29,7 +29,10 @@
                       </view>
                       <text class="job-card__salary">{{item.cardSalary}}</text>
                     </view>
-                    <view class="job-card__company">
+                    <view wx:if="{{isJobSeekerMode}}" class="job-card__company">
+                      <text class="job-card__summary">{{item.cardSummary}}</text>
+                    </view>
+                    <view wx:else class="job-card__company">
                       <text>{{item.cardCompany}}</text>
                       <text>{{item.cardCompanySize}}</text>
                       <text>{{item.cardFinancing}}</text>
@@ -37,11 +40,14 @@
                     <view class="job-card__tags">
                       <text class="job-card__tag" wx:for="{{item.cardTags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
                     </view>
+                    <view wx:if="{{isJobSeekerMode && item.cardPhotos && item.cardPhotos.length > 0}}" class="job-card__photos">
+                      <image class="job-card__photo" wx:for="{{item.cardPhotos}}" wx:for-item="photo" wx:key="*this" src="{{photo}}" mode="aspectFill" />
+                    </view>
                     <view class="job-card__footer">
                       <view class="job-card__recruiter">
                         <image wx:if="{{item.avatar}}" class="job-card__avatar" src="{{item.avatar}}" mode="aspectFill" />
                         <view wx:else class="job-card__avatar job-card__avatar--empty"></view>
-                        <text class="job-card__recruiter-name">{{item.cardRecruiter}}</text>
+                        <text class="job-card__recruiter-name">{{isJobSeekerMode ? item.cardSeeker : item.cardRecruiter}}</text>
                       </view>
                       <text class="job-card__location">{{item.cardLocation}}</text>
                     </view>

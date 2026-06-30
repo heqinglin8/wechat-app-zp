@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "全部职位",
+  "navigationBarTitleText": "今日招聘",
   "usingComponents": {
     "fab": "/components/fab/fab"
   }

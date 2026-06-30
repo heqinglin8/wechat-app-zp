@@ -9,8 +9,3 @@
   padding: 200rpx 0;
   box-sizing: border-box;
 }
-
-/* 保证悬浮按钮在最上层 */
-.fab-container {
-  pointer-events: auto;
-}

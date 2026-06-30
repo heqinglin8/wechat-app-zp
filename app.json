@@ -26,7 +26,6 @@
     "onReachBottom": true
   },
   "tabBar": {
-    "custom": true,
     "color": "#959595",
     "selectedColor": "#000",
     "borderStyle": "white",
@@ -42,12 +41,6 @@
         "iconPath": "images/today.png",
         "pagePath": "pages/today/today",
         "text": "今日招聘"
-      },
-      {
-        "selectedIconPath": "images/money_p.png",
-        "iconPath": "images/money.png",
-        "pagePath": "pages/todayjobseek/todayjobseek",
-        "text": "今日求职"
       },
       {
         "selectedIconPath": "images/me_p.png",

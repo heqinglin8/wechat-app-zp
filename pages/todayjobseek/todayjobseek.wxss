@@ -146,8 +146,7 @@
 
 /*滚动tab*/
 .page-body{
-  height: calc(100vh - 196rpx);
-  height: calc(100vh - 96rpx - 100rpx - env(safe-area-inset-bottom));
+  height: calc(100vh - 96rpx);
   display: flex;
   flex-direction: column;
 }

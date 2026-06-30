@@ -1,8 +1,15 @@
 //引入SDK
 var Bmob = wx.Bmob;
 var city = require('../../utils/city');
+var userRole = require('../../utils/userRole');
 var jobService = require('../../services/jobService');
+var jobSeekerService = require('../../services/jobSeekerService');
 var app = getApp();
+
+function normalizeTab(tab) {
+  var n = Number(tab);
+  return isNaN(n) ? 0 : n;
+}
 
 Page({
   /**
@@ -14,6 +21,8 @@ Page({
     jobInfo: [],
     isEmpty: false,
     currentCityCode: city.DEFAULT_CITY.cityCode,
+    currentRole: '',
+    isJobSeekerMode: false,
 
     //tab
     winHeight: "",
@@ -25,9 +34,6 @@ Page({
  */
   onLoad: function () {
     this.refreshCityState();
-    if (typeof (app.globalData.tabid) == "undefined") {
-      this.switchTabLoad('0');
-    }
   },
   refreshCityState: function () {
     var currentCity = city.initCurrentCity();
@@ -35,6 +41,50 @@ Page({
       this.data.currentCityCode !== currentCity.cityCode;
     this.setData({ currentCityCode: currentCity.cityCode });
     return changed;
+  },
+  resolveCurrentTab: function () {
+    if (app.globalData && app.globalData.tabid !== undefined && app.globalData.tabid !== null) {
+      var tab = normalizeTab(app.globalData.tabid);
+      app.globalData.tabid = undefined;
+      return tab;
+    }
+    return normalizeTab(this.data.currentTab);
+  },
+  refreshModeAndMaybeLoad: function (options) {
+    var that = this;
+    var opts = options || {};
+    var targetTab = this.resolveCurrentTab();
+
+    app.getCurrentUserRoleInfo().then(function (roleInfo) {
+      that.applyRoleMode(roleInfo, targetTab, opts);
+    }).catch(function () {
+      that.applyRoleMode(userRole.getRoleInfo(''), targetTab, opts);
+    });
+  },
+  applyRoleMode: function (roleInfo, targetTab, options) {
+    var opts = options || {};
+    var nextRole = roleInfo && roleInfo.role ? roleInfo.role : '';
+    var nextIsJobSeekerMode = !!(roleInfo && roleInfo.isJobSeeker);
+    var nextTab = normalizeTab(targetTab);
+    var roleChanged = this.data.currentRole !== nextRole ||
+      this.data.isJobSeekerMode !== nextIsJobSeekerMode;
+    var tabChanged = normalizeTab(this.data.currentTab) !== nextTab;
+
+    this.setData({
+      currentRole: nextRole,
+      isJobSeekerMode: nextIsJobSeekerMode,
+      currentTab: nextTab
+    });
+    this.updateNavigationTitle(nextIsJobSeekerMode);
+
+    if (opts.force || opts.cityChanged || roleChanged || tabChanged || !this._todayLoaded) {
+      this.switchTabLoad(String(nextTab));
+    }
+  },
+  updateNavigationTitle: function (isJobSeekerMode) {
+    wx.setNavigationBarTitle({
+      title: isJobSeekerMode ? '今日求职' : '今日招聘'
+    });
   },
   reloadCurrentTab: function () {
     this.switchTabLoad(String(this.data.currentTab || 0));
@@ -47,16 +97,35 @@ Page({
       url: '../search/search'
     });
   },
+  getListLoader: function () {
+    return this.data.isJobSeekerMode
+      ? jobSeekerService.loadJobSeekers
+      : jobService.loadJobs;
+  },
+  loadCurrentList: function (pageIndex, tab) {
+    var loader = this.getListLoader();
+    return loader({
+      Bmob: Bmob,
+      preset: 'today',
+      tab: tab === undefined ? this.data.currentTab : tab,
+      pageIndex: pageIndex,
+      pageSize: 10
+    });
+  },
   /**
  * 列表详情跳转
  */
-  //点击招聘列表页面跳转，页面传参
   showDetail: function (e) {
-    var that = this;
     var index = e.currentTarget.dataset.index;
-    var objectId = that.data.jobInfo[index].objectId;
+    var item = this.data.jobInfo[index];
+    if (!item || !item.objectId) {
+      return;
+    }
+
     wx.navigateTo({
-      url: '../jobDetail/jobDetail?jobId=' + objectId
+      url: this.data.isJobSeekerMode
+        ? '../seekerDetail/seekerDetail?jobSeekId=' + item.objectId
+        : '../jobDetail/jobDetail?jobId=' + item.objectId
     });
   },
   /**
@@ -69,17 +138,7 @@ Page({
    */
   onShow: function () {
     var cityChanged = this.refreshCityState();
-
-    if (typeof (app.globalData.tabid) == "undefined") { }
-    else {
-      this.setData({
-        currentTab: app.globalData.tabid
-      });
-      this.switchTabLoad(app.globalData.tabid);
-    }
-    if (typeof (app.globalData.tabid) == "undefined" && cityChanged) {
-      this.reloadCurrentTab();
-    }
+    this.refreshModeAndMaybeLoad({ cityChanged: cityChanged });
   },
 
   /**
@@ -105,14 +164,13 @@ Page({
   //分页加载
   loadArticle: function () {
     var that = this;
-    var page_size = 10;
-    jobService.loadJobs({
-      Bmob: Bmob,
-      preset: 'today',
-      tab: that.data.currentTab,
-      pageIndex: that.data.page_index,
-      pageSize: page_size
-    }).then(function (result) {
+    var requestId = this._listRequestId;
+
+    this.loadCurrentList(this.data.page_index).then(function (result) {
+      if (requestId !== that._listRequestId) {
+        return;
+      }
+
       var currentList = Array.isArray(that.data.jobInfo) ? that.data.jobInfo : [];
       var nextList = currentList.concat(result.list);
       that.setData({
@@ -135,7 +193,7 @@ Page({
       return;
     }
     this.setData({
-      page_index: ++this.data.page_index
+      page_index: this.data.page_index + 1
     });
     if (this.data.loadingTip != "没有更多内容") {
       wx.showToast({
@@ -148,21 +206,26 @@ Page({
   },
   // 滚动切换标签样式
   switchTab: function (e) {
-    var cur = e.detail.current;
-    this.setData({
-      currentTab: e.detail.current
-    });
-    this.checkCor();
-    this.switchTabLoad(cur + '');
-  },
-  // 点击标题切换当前页时改变样式
-  swichNav: function (e) {
-    var cur = e.target.dataset.current;
-    if (this.data.currentTaB == cur) { return false; }
+    var cur = normalizeTab(e.detail.current);
+    if (cur === normalizeTab(this.data.currentTab)) {
+      return;
+    }
     this.setData({
       currentTab: cur
     });
-    this.switchTabLoad(cur);
+    this.checkCor();
+    this.switchTabLoad(String(cur));
+  },
+  // 点击标题切换当前页时改变样式
+  swichNav: function (e) {
+    var cur = normalizeTab(e.currentTarget.dataset.current);
+    if (normalizeTab(this.data.currentTab) === cur) {
+      return false;
+    }
+    this.setData({
+      currentTab: cur
+    });
+    this.switchTabLoad(String(cur));
   },
   //判断当前滚动超过一屏时，设置tab标题滚动条。
   checkCor: function () {
@@ -179,19 +242,25 @@ Page({
   //tab分类加载
   switchTabLoad: function (e) {
     var that = this;
+    var requestId = (this._listRequestId || 0) + 1;
+    var nextTab = normalizeTab(e);
+    this._listRequestId = requestId;
     this.cleardata();
+    this.setData({
+      currentTab: nextTab
+    });
     wx.showToast({
       title: "正在加载",
       icon: 'loading',
       duration: 1000
     });
-    jobService.loadJobs({
-      Bmob: Bmob,
-      preset: 'today',
-      tab: e,
-      pageIndex: 0,
-      pageSize: 10
-    }).then(function (result) {
+
+    this.loadCurrentList(0, nextTab).then(function (result) {
+      if (requestId !== that._listRequestId) {
+        return;
+      }
+
+      that._todayLoaded = true;
       that.setData({
         jobInfo: result.list,
         page_index: 0,
@@ -205,28 +274,7 @@ Page({
 
   //全部职位加载
   qbzwLoad: function () {
-    var that = this;
-    wx.showToast({
-      title: "正在加载",
-      icon: 'loading',
-      duration: 1000
-    });
-    jobService.loadJobs({
-      Bmob: Bmob,
-      preset: 'today',
-      tab: 0,
-      pageIndex: 0,
-      pageSize: 10
-    }).then(function (result) {
-      that.setData({
-        jobInfo: result.list,
-        page_index: 0,
-        loadingTip: result.hasMore ? "上拉加载更多" : "没有更多内容",
-        isEmpty: result.list.length === 0
-      });
-    }).catch(function () {
-      //console.log("查询失败");
-    });
+    this.switchTabLoad('0');
   },
   //清空招聘列表
   cleardata: function () {

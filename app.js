@@ -13,10 +13,27 @@ App({
     currentCity: city.DEFAULT_CITY,
     currentUserRole: ''
   },
+  syncTodayTabBarByRole: function (role) {
+    var isJobSeeker = userRole.isJobSeekerRole(role);
+    if (!wx.setTabBarItem) {
+      return;
+    }
+
+    wx.setTabBarItem({
+      index: 1,
+      text: isJobSeeker ? '今日求职' : '今日招聘',
+      iconPath: isJobSeeker ? 'images/money.png' : 'images/today.png',
+      selectedIconPath: 'images/today_p.png',
+      fail: function (err) {
+        console.log('动态设置今日 tabbar 失败:', err);
+      }
+    });
+  },
   getCurrentUserRole: function () {
     var that = this;
     return userRole.getCurrentUserRole(Bmob).then(function (role) {
       that.globalData.currentUserRole = role;
+      that.syncTodayTabBarByRole(role);
       return role;
     });
   },

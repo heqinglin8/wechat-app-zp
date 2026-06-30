@@ -248,6 +248,7 @@ Page({
       nickname: '',
       hasUserInfo: false
     });
+    app.syncTodayTabBarByRole('');
     this.refreshFabVisibility();
   },
 
@@ -342,6 +343,8 @@ Page({
 
   applyUserInfo: function (userInfo) {
     userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath);
+    app.globalData.currentUserRole = userInfo.role || '';
+    app.syncTodayTabBarByRole(userInfo.role);
     this.setData({
       userInfo: userInfo,
       nickname: userInfo.nickname || '',
@@ -410,6 +413,8 @@ Page({
             avatarUrl: userInfo.avatarUrl,
             mobilePhoneNumber: userInfo.mobilePhoneNumber || userInfo.userphone || ''
           });
+          app.globalData.currentUserRole = userInfo.role || '';
+          app.syncTodayTabBarByRole(userInfo.role);
           that.refreshFabVisibility();
           wx.showToast({
             title: '登录成功',
