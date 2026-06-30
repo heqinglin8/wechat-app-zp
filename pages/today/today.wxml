@@ -10,14 +10,14 @@
 <view>{{ searchValue}}</view>
 <!--滚动tab-->
 <!--滚动tab-->
-<view >
+<view class="page-body">
     <scroll-view scroll-y="true" scroll-x="true" class="tab-h" scroll-left="{{scrollLeft}}">
         <view class="tab-item {{currentTab==0?'active':''}}"  data-current="0" bindtap="swichNav">推荐</view>
         <view class="tab-item {{currentTab==1?'active':''}}" data-current="1" bindtap="swichNav">最新职位</view>
         <view class="tab-item {{currentTab==2?'active':''}}" data-current="2" bindtap="swichNav">高薪资</view>
         <view class="tab-item {{currentTab==3?'active':''}}" data-current="3" bindtap="swichNav">临时工</view>
     </scroll-view>
-    <swiper class="tab-content" current="{{currentTab}}" duration="300" bindchange="switchTab" style="height:{{winHeight}}rpx">
+    <swiper class="tab-content" current="{{currentTab}}" duration="300" bindchange="switchTab">
         <swiper-item wx:for="{{[0,1,2,3]}}"wx:key="1*this" >
             <scroll-view bindscrolltolower="scrolltolower" scroll-y="true"    class="scoll-h" >
                 <block wx:for="{{jobInfo}}" wx:key="objectId">
