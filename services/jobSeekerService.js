@@ -3,6 +3,12 @@ var util = require('../utils/util');
 var cardFormatter = require('../utils/cardFormatter');
 
 var TAB_PRESETS = {
+  home: [
+    { order: '-updatedAt' },
+    { payType: 0, order: '-detPayMax' },
+    { payType: 1, order: '-detPayMax' },
+    { order: '-collectNum' },
+  ],
   today: [
     { order: '-collectNum' },
     { order: '-updatedAt' },
@@ -21,7 +27,8 @@ function normalizeTab(tab) {
 }
 
 function applyPreset(query, presetName, tab) {
-  var preset = (TAB_PRESETS[presetName] || TAB_PRESETS.today)[normalizeTab(tab)] || TAB_PRESETS.today[0];
+  var presetList = TAB_PRESETS[presetName] || TAB_PRESETS.today;
+  var preset = presetList[normalizeTab(tab)] || presetList[0];
   if (preset.payType !== undefined) {
     query.equalTo('payType', '==', preset.payType);
   }
