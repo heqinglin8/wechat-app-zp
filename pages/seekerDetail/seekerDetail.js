@@ -68,11 +68,11 @@ Page({
         return !!path;
       });
   },
-  buildViewData: function (item) {
+  buildViewData: function (item, collectNum) {
     return {
       titleText: this.withFallback(this.firstText(item.title, item.recoName), '求职标题'),
       salaryText: this.formatSalaryText(item),
-      collectNumText: this.firstText(item.collectNum, '0'),
+      collectNumText: this.firstText(collectNum, '0'),
       publisherText: this.withFallback(item.commitUsername, '发布人'),
       locationText: this.formatLocationText(item),
       educationText: this.withFallback(item.recoEducation, '学历'),
@@ -85,23 +85,66 @@ Page({
       introText: this.withFallback(item.recoIntro, '自我介绍'),
     };
   },
-  applySeekerResult: function (result) {
-    var collectNum = Number(result && result.collectNum);
+  applySeekerResult: function (result, collectCount) {
+    var item = result || {};
+    var collectNum = Number(collectCount);
     var normalizedCollectNum = isNaN(collectNum) ? 0 : collectNum;
     this.setData({
-      content: result || {},
+      content: item,
       num: normalizedCollectNum,
-      photoList: this.buildPhotoList(result),
-      detailMessageEnabled: result.detailMessageEnabled !== false && result.messageBoardEnabled !== false && result.allowMessage !== false,
-      viewData: this.buildViewData(result || {}),
+      photoList: this.buildPhotoList(item),
+      detailMessageEnabled: item.detailMessageEnabled !== false && item.messageBoardEnabled !== false && item.allowMessage !== false,
+      viewData: this.buildViewData(item, normalizedCollectNum),
     });
   },
   /**
    * 求职热线跳转
    */
   bindViewServicePhone: function () {
-    wx.navigateTo({
-      url: '../servicephone/servicephone'
+    var that = this;
+    var currentUser = Bmob.User.current();
+    if (!currentUser) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再电话咨询',
+        cancelText: '取消',
+        confirmText: '去登录',
+        success: function (res) {
+          if (res.confirm) {
+            wx.switchTab({
+              url: '/pages/personal/personal'
+            });
+          }
+        }
+      });
+      return;
+    }
+    if (!that.firstText(that.data.userId) && currentUser.objectId) {
+      that.setData({
+        userId: currentUser.objectId
+      });
+    }
+
+    var content = that.data.content || {};
+    var phone = that.firstText(content.recoContact, content.contact).replace(/\s+/g, '');
+    if (!phone) {
+      wx.showToast({
+        title: '未填联系电话',
+        image: "../../images/warning.png",
+        duration: 2000
+      });
+      return;
+    }
+
+    wx.makePhoneCall({
+      phoneNumber: phone,
+      fail: function () {
+        wx.showToast({
+          title: '拨号失败',
+          image: "../../images/warning.png",
+          duration: 2000
+        });
+      }
     });
   },
   /**
@@ -121,25 +164,28 @@ Page({
       return rows && rows.length ? rows[0] : null;
     });
   },
-  refreshSeekerDetail: function () {
-    var that = this;
-    return that.fetchActiveJobSeekerById(that.data.jobSeekId).then(function (result) {
-      if (result) {
-        that.applySeekerResult(result);
-      }
-      return result;
+  fetchSeekerCollectCount: function (jobSeekId) {
+    if (!jobSeekId) return Promise.resolve(0);
+    var query = Bmob.Query("MyCollectInfo");
+    query.equalTo("jobSeekId", "==", jobSeekId);
+    query.equalTo("type", "==", "2");
+    return query.count().then(function (count) {
+      var total = Number(count);
+      return isNaN(total) ? 0 : total;
     });
   },
-  adjustCollectNum: function (delta) {
+  refreshSeekerDetail: function () {
     var that = this;
-    return that.fetchActiveJobSeekerById(that.data.jobSeekId).then(function (result) {
-      if (!result) return null;
-      var current = Number(result.collectNum);
-      var next = Math.max(0, (isNaN(current) ? 0 : current) + delta);
-      result.set('collectNum', next);
-      return result.save().then(function () {
-        return that.refreshSeekerDetail();
-      });
+    return Promise.all([
+      that.fetchActiveJobSeekerById(that.data.jobSeekId),
+      that.fetchSeekerCollectCount(that.data.jobSeekId)
+    ]).then(function (values) {
+      var result = values[0];
+      var collectCount = values[1];
+      if (result) {
+        that.applySeekerResult(result, collectCount);
+      }
+      return result;
     });
   },
 
@@ -157,7 +203,7 @@ Page({
     }
 
     that.checkCollectStatus();
-    that.fetchActiveJobSeekerById(that.data.jobSeekId).then(function (results) {
+    that.refreshSeekerDetail().then(function (results) {
       if (!results) {
         wx.showToast({
           title: '信息不存在或已下架',
@@ -166,7 +212,6 @@ Page({
         });
         return;
       }
-      that.applySeekerResult(results);
     }).catch(function (error) {
       console.log("查询失败: " + error.code + " " + error.message);
     });
@@ -184,13 +229,13 @@ Page({
       var query = Bmob.Query("MyCollectInfo");
       query.equalTo("userId", "==", that.data.userId);
       query.equalTo("jobSeekId", "==", that.data.jobSeekId);
-      query.equalTo("type", "==", "1");
+      query.equalTo("type", "==", "2");
       query.find().then(function (results) {
         if (results.length == 0) {
           var diary = Bmob.Query("MyCollectInfo");
           diary.set("userId", that.data.userId);
-          //类型："0"=收藏用户求职信息；“1”=收藏用户求职信息；“2”=收藏岗位
-          diary.set("type", "1");
+          //类型："1"=收藏岗位；"2"=收藏求职信息
+          diary.set("type", "2");
           diary.set("jobSeekId", that.data.jobSeekId);
           diary.save().then(function () {
             that.setData({
@@ -202,15 +247,23 @@ Page({
               icon: 'success',
               duration: 2000
             });
-            that.adjustCollectNum(1).catch(function (error) {
-              console.error('收藏数更新失败:', error);
+            that.refreshSeekerDetail().then(function () {
+              that.checkCollectStatus();
+            }).catch(function (error) {
+              console.error('求职详情刷新失败:', error);
             });
           }).catch(function () {});
         } else {
+          that.setData({
+            hasCollected: true,
+          });
           wx.showToast({
             title: '已收藏过了',
             image: "../../images/warning.png",
             duration: 2000
+          });
+          that.refreshSeekerDetail().catch(function (error) {
+            console.error('求职详情刷新失败:', error);
           });
         }
       }).catch(function () {});
@@ -230,7 +283,7 @@ Page({
     var query = Bmob.Query("MyCollectInfo");
     query.equalTo("userId", "==", that.data.userId);
     query.equalTo("jobSeekId", "==", that.data.jobSeekId);
-    query.equalTo("type", "==", "1");
+    query.equalTo("type", "==", "2");
     query.find().then(function (results) {
       that.setData({
         hasCollected: results.length > 0,
@@ -258,7 +311,7 @@ Page({
         var query = Bmob.Query("MyCollectInfo");
         query.equalTo("userId", "==", that.data.userId);
         query.equalTo("jobSeekId", "==", that.data.jobSeekId);
-        query.equalTo("type", "==", "1");
+        query.equalTo("type", "==", "2");
         query.find().then(function (results) {
           if (!results || results.length === 0) {
             that.setData({
@@ -268,6 +321,9 @@ Page({
               title: '取消收藏成功',
               icon: 'success',
               duration: 2000
+            });
+            that.refreshSeekerDetail().catch(function (error) {
+              console.error('求职详情刷新失败:', error);
             });
             return;
           }
@@ -293,10 +349,10 @@ Page({
               icon: 'success',
               duration: 2000
             });
-            that.adjustCollectNum(-1).then(function () {
+            that.refreshSeekerDetail().then(function () {
               that.checkCollectStatus();
             }).catch(function (error) {
-              console.error('收藏数更新失败:', error);
+              console.error('求职详情刷新失败:', error);
               that.checkCollectStatus();
             });
           }).catch(function () {
@@ -326,6 +382,7 @@ Page({
    */
   onShow: function () {
     var that = this;
+    that.isuser();
     that.checkCollectStatus();
   },
 
@@ -355,11 +412,58 @@ Page({
   onShareAppMessage: function () {},
   //点击微信咨询
   bindViewXWZX: function () {
-    wx.showToast({
-      title: '此功能暂未启用',
-      image: "../../images/warning.png",
-      duration: 2000,
-      mask: true
+    var that = this;
+    var currentUser = Bmob.User.current();
+    if (!currentUser) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再微信咨询',
+        cancelText: '取消',
+        confirmText: '去登录',
+        success: function (res) {
+          if (res.confirm) {
+            wx.switchTab({
+              url: '/pages/personal/personal'
+            });
+          }
+        }
+      });
+      return;
+    }
+    if (!that.firstText(that.data.userId) && currentUser.objectId) {
+      that.setData({
+        userId: currentUser.objectId
+      });
+    }
+
+    var wxid = that.firstText(that.data.content && that.data.content.wxid);
+    if (!wxid) {
+      wx.showModal({
+        title: '提示',
+        content: '对方没有留下微信',
+        showCancel: false,
+        confirmText: '知道了'
+      });
+      return;
+    }
+
+    wx.setClipboardData({
+      data: wxid,
+      success: function () {
+        wx.showModal({
+          title: '提示',
+          content: '已经复制微信号，请直接去微信加好友',
+          showCancel: false,
+          confirmText: '知道了'
+        });
+      },
+      fail: function () {
+        wx.showToast({
+          title: '复制失败',
+          image: "../../images/warning.png",
+          duration: 2000
+        });
+      }
     });
   },
   /**
@@ -377,8 +481,8 @@ Page({
     var that = this;
     var currentUser = Bmob.User.current();
     if (!currentUser) {
-      wx.redirectTo({
-        url: '../personal/personal',
+      that.setData({
+        userId: '',
       });
     } else {
       var userId = currentUser.objectId;

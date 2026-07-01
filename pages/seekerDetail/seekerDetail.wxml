@@ -65,7 +65,7 @@
 
   <view class="det-nav">
     <view class="det-nav-btn det-nav-btn-contact">
-      <button class="det-nav-contact-btn" open-type="contact">微信咨询</button>
+      <button class="det-nav-contact-btn" bindtap="bindViewXWZX">微信咨询</button>
     </view>
     <view class="det-nav-btn det-nav-btn-phone" bindtap="bindViewServicePhone">电话咨询</view>
     <view class="det-nav-btn det-nav-btn-home" bindtap="bindViewIndex">返回首页</view>
