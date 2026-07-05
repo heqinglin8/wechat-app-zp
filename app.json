@@ -4,6 +4,8 @@
     "pages/search/search",
     "pages/jobDetail/jobDetail",
     "pages/today/today",
+    "pages/zhiyan/zhiyan",
+    "pages/zhiyanDetail/zhiyanDetail",
     "pages/pubilshJobSeek/pubilshJobSeek",
     "pages/servicephone/servicephone",
     "pages/personal/personal",
@@ -42,6 +44,12 @@
         "iconPath": "images/today.png",
         "pagePath": "pages/today/today",
         "text": "今日招聘"
+      },
+      {
+        "selectedIconPath": "images/post_p.png",
+        "iconPath": "images/post.png",
+        "pagePath": "pages/zhiyan/zhiyan",
+        "text": "职言"
       },
       {
         "selectedIconPath": "images/me_p.png",

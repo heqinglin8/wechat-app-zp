@@ -69,7 +69,7 @@
       <view class="nav-one-down nav-all">
         <button class="nav-one-down nav-all" style="font-weight:600;" class="conbtn" open-type="contact">
           <view class="nav-one-down-img nav-all-img">
-            <image style="margin-right:auto;margin-left:auto;" src="../../images/wx.png"/>
+            <image style="margin-right:auto;margin-left:auto;" src="../../images/wechat_green.png"/>
           </view>
           <view style="line-height:17px;font-weight:600;" class="nav-text">
             微信咨询

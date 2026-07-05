@@ -1,0 +1,60 @@
+<view class="zhiyan-detail">
+  <view wx:if="{{loading}}" class="detail-loading">加载中</view>
+
+  <view wx:elif="{{notFound}}" class="detail-empty">
+    <view>帖子不存在或已下架</view>
+    <button bindtap="loadDetail">重新加载</button>
+  </view>
+
+  <block wx:else>
+    <view class="detail-card">
+      <view class="detail-author">
+        <image class="detail-avatar" src="{{post.author.avatar}}" mode="aspectFill"></image>
+        <view class="detail-author-main">
+          <view class="detail-name-row">
+            <text class="detail-name">{{post.author.name}}</text>
+            <text class="detail-badge">职言</text>
+          </view>
+          <view class="detail-meta">{{post.timeText}} · {{post.author.metaText}}</view>
+        </view>
+      </view>
+
+      <view class="detail-title">{{post.titleText}}</view>
+      <view class="detail-content">{{post.contentText}}</view>
+
+      <view wx:if="{{post.detailPhotos.length}}" class="detail-photos">
+        <image
+          wx:for="{{post.detailPhotos}}"
+          wx:key="*this"
+          class="detail-photo"
+          src="{{item}}"
+          mode="aspectFill"
+          data-index="{{index}}"
+          bindtap="onPreviewImage"
+        ></image>
+      </view>
+
+      <view class="detail-publish-place">发布于 职言</view>
+
+      <view class="detail-actions">
+        <button class="detail-action detail-share" open-type="share" hover-class="none">
+          <text class="detail-action-icon">↗</text>
+          <text>分享</text>
+        </button>
+        <view class="detail-action" bindtap="onCommentTap">
+          <text class="detail-action-icon">▣</text>
+          <text wx:if="{{post.commentCount > 0}}">评论：{{post.commentCount}}</text>
+          <text wx:else>评论</text>
+        </view>
+        <view class="detail-action {{post.liked ? 'liked' : ''}}" bindtap="onLikeTap">
+          <text class="detail-action-icon detail-like-icon">{{post.liked ? '♥' : '♡'}}</text>
+          <text>{{post.likeCount || 0}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view id="zhiyan-comments" class="detail-comments">
+      <message-board target-type="post" target-id="{{post.objectId}}" detail-message-enabled="{{detailMessageEnabled}}"></message-board>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,300 @@
+page{
+  background: #f4f4f8;
+}
+
+.zhiyan-page{
+  min-height: 100vh;
+  background: #f4f4f8;
+}
+
+.zhiyan-search-row{
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 20rpx 24rpx 12rpx;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.zhiyan-search-box{
+  flex: 1;
+  height: 68rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 22rpx;
+  border-radius: 34rpx;
+  background: #f2f3f7;
+  box-sizing: border-box;
+}
+
+.zhiyan-search-icon{
+  flex: none;
+}
+
+.zhiyan-search-input{
+  flex: 1;
+  height: 68rpx;
+  margin-left: 12rpx;
+  color: #222;
+  font-size: 28rpx;
+}
+
+.zhiyan-search-clear{
+  flex: none;
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 40rpx;
+  border-radius: 50%;
+  color: #8c929d;
+  text-align: center;
+  font-size: 38rpx;
+}
+
+.zhiyan-publish{
+  flex: none;
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 50%;
+  background: #fc3;
+  color: #222;
+  line-height: 64rpx;
+  text-align: center;
+  font-size: 46rpx;
+  font-weight: 500;
+}
+
+.zhiyan-tabbar{
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 24rpx;
+  background: #fff;
+  border-bottom: 1rpx solid #ededf2;
+  box-sizing: border-box;
+}
+
+.zhiyan-tab{
+  position: relative;
+  height: 72rpx;
+  line-height: 72rpx;
+  color: #333;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.zhiyan-tab.active::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 8rpx;
+  width: 36rpx;
+  height: 6rpx;
+  margin-left: -18rpx;
+  border-radius: 3rpx;
+  background: #fc3;
+}
+
+.post-list{
+  padding: 16rpx 14rpx 32rpx;
+}
+
+.post-card{
+  position: relative;
+  margin-bottom: 16rpx;
+  padding: 22rpx 22rpx 0;
+  border-radius: 14rpx;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.post-author{
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.post-avatar{
+  flex: none;
+  width: 66rpx;
+  height: 66rpx;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.post-author-main{
+  flex: 1;
+  min-width: 0;
+  margin-left: 14rpx;
+}
+
+.post-author-name{
+  color: #252a33;
+  font-size: 28rpx;
+  line-height: 36rpx;
+  font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.post-author-meta{
+  margin-top: 2rpx;
+  color: #9a9da5;
+  font-size: 22rpx;
+  line-height: 30rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.post-title-area{
+  position: relative;
+  margin-top: 18rpx;
+}
+
+.post-title-clamp{
+  color: #1f2430;
+  font-size: 32rpx;
+  line-height: 44rpx;
+  font-weight: 700;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+.post-full-link{
+  display: inline-block;
+  margin-top: 4rpx;
+  color: #2f5d9f;
+  font-size: 28rpx;
+  line-height: 38rpx;
+}
+
+.post-title-measure{
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: -1;
+  visibility: hidden;
+  color: #1f2430;
+  font-size: 32rpx;
+  line-height: 44rpx;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.post-content{
+  margin-top: 12rpx;
+  color: #3e4654;
+  font-size: 29rpx;
+  line-height: 44rpx;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+.post-photos{
+  display: flex;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+.post-photo{
+  height: 176rpx;
+  border-radius: 8rpx;
+  background: #eee;
+}
+
+.post-photos-1 .post-photo{
+  width: 176rpx;
+}
+
+.post-photos-2 .post-photo,
+.post-photos-3 .post-photo{
+  flex: 1;
+}
+
+.post-actions{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10rpx;
+  border-top: 1rpx solid #f1f1f3;
+}
+
+.post-action{
+  flex: 1;
+  height: 76rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #b4b6bd;
+  font-size: 25rpx;
+  line-height: 76rpx;
+}
+
+.post-action::after{
+  border: none;
+}
+
+.post-action.liked{
+  color: #fc3;
+}
+
+.post-action-icon{
+  font-size: 28rpx;
+  line-height: 1;
+  color: inherit;
+}
+
+.post-like-icon{
+  color: #b4b6bd;
+}
+
+.post-action.liked .post-like-icon{
+  color: #fc3;
+}
+
+.zhiyan-empty{
+  min-height: 420rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 30rpx;
+}
+
+.zhiyan-empty button{
+  width: 180rpx;
+  height: 64rpx;
+  margin-top: 24rpx;
+  padding: 0;
+  line-height: 64rpx;
+  border-radius: 8rpx;
+  background: #fc3;
+  color: #222;
+  font-size: 28rpx;
+}
+
+.zhiyan-empty button::after{
+  border: none;
+}
+
+.zhiyan-loading{
+  height: 72rpx;
+  line-height: 72rpx;
+  color: #9a9da5;
+  text-align: center;
+  font-size: 26rpx;
+}

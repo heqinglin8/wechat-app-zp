@@ -34,10 +34,10 @@
 - **THEN** 系统必须尝试进入帖子发布入口；若发布页面尚未实现，系统必须展示明确提示且不得出现路由错误或白屏
 
 ### Requirement: 帖子列表数据绑定
-系统 SHALL 从 Bmob 数据表 `post` 加载帖子列表，帖子基础展示数据 MUST 包含 `title`、`content` 和 `commitUid`，并使用 `commitUid` 查询 `_User` 表获取发布者信息。
+系统 SHALL 从 Bmob 数据表 `Post` 加载帖子列表，帖子基础展示数据 MUST 包含 `title`、`content` 和 `commitUid`，并使用 `commitUid` 查询 `_User` 表获取发布者信息。
 
 #### Scenario: 加载帖子和发布者信息
-- **WHEN** `post` 表返回包含 `title`、`content`、`commitUid` 和 `objectId` 的帖子记录
+- **WHEN** `Post` 表返回包含 `title`、`content`、`commitUid` 和 `objectId` 的帖子记录
 - **THEN** 系统必须根据 `commitUid` 查询 `_User.objectId` 对应的用户信息，并在帖子卡片顶部展示发布者信息
 
 #### Scenario: 发布者或帖子字段缺失
@@ -114,7 +114,7 @@
 
 #### Scenario: 打开职言详情
 - **WHEN** 用户从列表页进入某条帖子的职言详情页面
-- **THEN** 系统必须根据当前帖子的 `objectId` 加载 `post` 记录，并展示发布者信息、帖子标题和完整 `content`
+- **THEN** 系统必须根据当前帖子的 `objectId` 加载 `Post` 记录，并展示发布者信息、帖子标题和完整 `content`
 
 #### Scenario: 详情图片最多六张
 - **WHEN** 帖子包含超过六张图片

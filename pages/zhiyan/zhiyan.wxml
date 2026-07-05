@@ -1,0 +1,86 @@
+<view class="zhiyan-page">
+  <view class="zhiyan-search-row">
+    <view class="zhiyan-search-box">
+      <icon class="zhiyan-search-icon" type="search" size="14"></icon>
+      <input
+        class="zhiyan-search-input"
+        value="{{searchValue}}"
+        placeholder="搜索职场帖子"
+        confirm-type="search"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+      />
+      <text wx:if="{{searchValue}}" class="zhiyan-search-clear" bindtap="onClearSearch">×</text>
+    </view>
+    <view class="zhiyan-publish" bindtap="onPublishTap">+</view>
+  </view>
+
+  <view class="zhiyan-tabbar">
+    <view class="zhiyan-tab active">职言</view>
+  </view>
+
+  <view class="post-list">
+    <block wx:for="{{posts}}" wx:key="objectId">
+      <view class="post-card">
+        <view class="post-author">
+          <image class="post-avatar" src="{{item.author.avatar}}" mode="aspectFill"></image>
+          <view class="post-author-main">
+            <view class="post-author-name">{{item.author.name}}</view>
+            <view class="post-author-meta">{{item.timeText}} · {{item.author.metaText}}</view>
+          </view>
+        </view>
+
+        <view class="post-title-area" bindtap="onCardTap" data-index="{{index}}">
+          <view class="post-title-clamp">{{item.titleText}}</view>
+          <text
+            wx:if="{{item.showTitleFullAction}}"
+            class="post-full-link"
+            catchtap="onFullTextTap"
+            data-index="{{index}}"
+          >全文</text>
+          <view class="post-title-measure">{{item.titleText}}</view>
+        </view>
+
+        <view class="post-content" bindtap="onCardTap" data-index="{{index}}">{{item.contentText}}</view>
+
+        <view wx:if="{{item.listPhotos.length}}" class="post-photos post-photos-{{item.listPhotos.length}}">
+          <image
+            wx:for="{{item.listPhotos}}"
+            wx:for-item="photo"
+            wx:for-index="photoIndex"
+            wx:key="*this"
+            class="post-photo"
+            src="{{photo}}"
+            mode="aspectFill"
+            data-index="{{index}}"
+            data-photo-index="{{photoIndex}}"
+            catchtap="onPreviewImage"
+          ></image>
+        </view>
+
+        <view class="post-actions">
+          <button class="post-action post-share-btn" open-type="share" data-index="{{index}}" hover-class="none">
+            <text class="post-action-icon">↗</text>
+            <text>分享</text>
+          </button>
+          <view class="post-action" catchtap="onCommentTap" data-index="{{index}}">
+            <text class="post-action-icon">▣</text>
+            <text wx:if="{{item.commentCount > 0}}">评论：{{item.commentCount}}</text>
+            <text wx:else>评论</text>
+          </view>
+          <view class="post-action {{item.liked ? 'liked' : ''}}" catchtap="onLikeTap" data-index="{{index}}">
+            <text class="post-action-icon post-like-icon">{{item.liked ? '♥' : '♡'}}</text>
+            <text>{{item.likeCount || 0}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view wx:if="{{isEmpty}}" class="zhiyan-empty">
+      <view>暂无职言帖子</view>
+      <button bindtap="loadFirstPage">重新加载</button>
+    </view>
+
+    <view wx:if="{{!isEmpty}}" class="zhiyan-loading">{{loadingTip}}</view>
+  </view>
+</view>
