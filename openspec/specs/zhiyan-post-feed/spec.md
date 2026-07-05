@@ -33,11 +33,15 @@
 - **THEN** `pages/zhiyan/zhiyan` 必须注册在 `pages` 中，且“职言”tabBar 项的 `pagePath` 必须指向 `pages/zhiyan/zhiyan`
 
 ### Requirement: 发布入口
-系统 SHALL 在搜索框同一行右侧展示一个圆形发布图标，图标中间 SHALL 为加号，并作为发布帖子的入口。
+系统 SHALL 在搜索框同一行右侧展示一个圆形发布图标，图标中间 SHALL 为加号，并作为发布帖子的入口。点击该入口 MUST 打开真实的职言帖子发布页面。
 
 #### Scenario: 点击发布入口
 - **WHEN** 用户点击搜索框右侧的发布图标
-- **THEN** 系统必须尝试进入帖子发布入口；若发布页面尚未实现，系统必须展示明确提示且不得出现路由错误或白屏
+- **THEN** 系统必须打开 `pages/publishPost/publishPost` 职言帖子发布页面
+
+#### Scenario: 发布成功后刷新列表
+- **WHEN** 用户从职言帖子发布页面发布成功并返回职言列表页面
+- **THEN** 系统必须刷新职言帖子列表，使新发布的帖子可以出现在列表中
 
 ### Requirement: 帖子列表数据绑定
 系统 SHALL 从 Bmob 数据表 `Post` 加载帖子列表，帖子基础展示数据 MUST 包含 `title`、`content` 和 `commitUid`，并使用 `commitUid` 查询 `_User` 表获取发布者信息。
