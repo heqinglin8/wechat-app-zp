@@ -205,7 +205,7 @@ Page({
       url: '/pages/publishPost/publishPost',
       fail: function () {
         wx.showToast({
-          title: '发布功能开发中',
+          title: '发布页打开失败',
           icon: 'none',
           duration: 1800
         });

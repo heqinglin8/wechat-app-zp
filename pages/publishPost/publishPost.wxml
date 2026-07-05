@@ -1,0 +1,82 @@
+<view class="publish-page">
+  <view class="publish-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="publish-close" bindtap="onCloseTap">×</view>
+    <view class="publish-nav-title">发帖子</view>
+    <view class="publish-submit {{canSubmit ? 'enabled' : 'disabled'}}" bindtap="onSubmitTap">
+      {{submitting ? '发布中' : '发布'}}
+    </view>
+  </view>
+
+  <scroll-view
+    class="publish-scroll"
+    style="height: calc(100vh - {{statusBarHeight}}px - 112rpx);"
+    scroll-y
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+  >
+    <view class="publish-author">
+      <image class="publish-avatar" src="{{author.avatar}}" mode="aspectFill"></image>
+      <view class="publish-author-main">
+        <view class="publish-author-name">{{author.name}} · {{author.metaText}}</view>
+        <view class="publish-author-hint">使用 4G/5G 发言更安全</view>
+      </view>
+    </view>
+
+    <view class="publish-title-row">
+      <input
+        class="publish-title-input"
+        value="{{title}}"
+        maxlength="20"
+        placeholder="输入标题会更受欢迎（选填）"
+        placeholder-class="publish-placeholder"
+        bindinput="onTitleInput"
+      />
+      <text class="publish-title-count">{{titleCount}}/20</text>
+    </view>
+
+    <textarea
+      class="publish-content"
+      value="{{content}}"
+      placeholder="分享你此刻的想法..."
+      placeholder-class="publish-placeholder"
+      auto-height="{{false}}"
+      maxlength="-1"
+      bindinput="onContentInput"
+    ></textarea>
+
+    <view class="publish-photo-grid">
+      <block wx:for="{{postPhotos}}" wx:key="id">
+        <view class="publish-photo-cell">
+          <image
+            class="publish-photo"
+            src="{{item.url ? item.url : item.tempPath}}"
+            mode="aspectFill"
+            data-id="{{item.id}}"
+            bindtap="onPreviewPhoto"
+          ></image>
+          <view wx:if="{{item.uploading}}" class="publish-photo-mask">上传中</view>
+          <view class="publish-photo-remove" data-id="{{item.id}}" catchtap="onRemovePhoto">×</view>
+        </view>
+      </block>
+      <view wx:if="{{postPhotos.length < 6}}" class="publish-photo-add" bindtap="onAddPhotos">
+        <view class="publish-photo-add-icon">▧</view>
+        <view class="publish-photo-add-plus">＋</view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{emojiOpen}}" class="publish-emoji-panel">
+    <text
+      wx:for="{{emojis}}"
+      wx:key="index"
+      class="publish-emoji"
+      data-emoji="{{item}}"
+      bindtap="onEmojiTap"
+    >{{item}}</text>
+  </view>
+
+  <view class="publish-tools">
+    <view class="publish-tool" bindtap="onAddPhotos">▧</view>
+    <view class="publish-tool" bindtap="toggleEmoji">☺</view>
+  </view>
+</view>

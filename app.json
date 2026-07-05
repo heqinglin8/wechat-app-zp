@@ -6,6 +6,7 @@
     "pages/today/today",
     "pages/zhiyan/zhiyan",
     "pages/zhiyanDetail/zhiyanDetail",
+    "pages/publishPost/publishPost",
     "pages/pubilshJobSeek/pubilshJobSeek",
     "pages/servicephone/servicephone",
     "pages/personal/personal",

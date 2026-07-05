@@ -6,7 +6,7 @@ var MESSAGE_CLASS = 'MessageBoardMessage';
 var DEFAULT_AVATAR = '/images/default_user_avatar.jpeg';
 
 // Bmob schema used by 职言:
-// Post: title, content, commitUid, photoImgs, optional active.
+// Post: title, content, commitUid, commitUsername, photoImgs, optional active.
 // PostLike: postId, userId.
 
 function getBmob(options) {
@@ -142,6 +142,16 @@ function fetchAuthors(Bmob, posts) {
   });
   return Promise.all(tasks).then(function () {
     return map;
+  });
+}
+
+function loadCurrentAuthor(options) {
+  var opts = options || {};
+  var Bmob = getBmob(opts);
+  var uid = opts.userId || getCurrentUserId(Bmob);
+  if (!uid) return Promise.resolve(null);
+  return fetchAuthor(Bmob, uid).then(function (user) {
+    return normalizeAuthor(user, uid);
   });
 }
 
@@ -322,6 +332,29 @@ function loadPostDetail(options) {
   });
 }
 
+function createPost(options) {
+  var opts = options || {};
+  var Bmob = getBmob(opts);
+  var title = firstText(opts.title).slice(0, 20);
+  var content = firstText(opts.content);
+  var userId = opts.commitUid || opts.userId || getCurrentUserId(Bmob);
+  var photoImgs = Array.isArray(opts.photoImgs) ? opts.photoImgs.join('|') : firstText(opts.photoImgs);
+  var commitUsername = firstText(opts.commitUsername, opts.authorName);
+
+  if (!Bmob) return Promise.reject(new Error('no_bmob'));
+  if (!userId) return Promise.reject(new Error('not_logged_in'));
+  if (!content) return Promise.reject(new Error('missing_content'));
+
+  var query = Bmob.Query(POST_CLASS);
+  query.set('title', title);
+  query.set('content', content);
+  query.set('photoImgs', photoImgs);
+  query.set('commitUid', userId);
+  query.set('commitUsername', commitUsername);
+  query.set('active', opts.active === undefined ? 1 : opts.active);
+  return query.save();
+}
+
 function toggleLike(options) {
   var opts = options || {};
   var Bmob = getBmob(opts);
@@ -378,9 +411,11 @@ module.exports = {
   getCurrentUserId: getCurrentUserId,
   firstText: firstText,
   withFallback: withFallback,
+  loadCurrentAuthor: loadCurrentAuthor,
   loadPosts: loadPosts,
   searchPosts: searchPosts,
   loadPostDetail: loadPostDetail,
+  createPost: createPost,
   toggleLike: toggleLike,
   refreshPostInteraction: refreshPostInteraction,
 };
