@@ -397,76 +397,28 @@ Page({
 //     })
 // },
 
-  syncWechatProfile: function (userInfo, profile) {
-    if (!userInfo || !userInfo.objectId || !profile) {
-      return Promise.resolve(userInfo);
-    }
-    var query = Bmob.Query('_User');
-    return query.get(userInfo.objectId).then(function (userObj) {
-      if (profile.nickName && !userObj.nickname) {
-        userObj.set('nickname', profile.nickName);
-      }
-      if (profile.avatarUrl) {
-        userObj.set('wechatAvatarUrl', profile.avatarUrl);
-      }
-      return userObj.save();
-    }).then(function () {
-      userInfo.nickname = userInfo.nickname || profile.nickName || '';
-      userInfo.wechatAvatarUrl = profile.avatarUrl || '';
-      return userInfo;
-    }).catch(function () {
-      userInfo.nickname = userInfo.nickname || profile.nickName || '';
-      userInfo.wechatAvatarUrl = profile.avatarUrl || '';
-      return userInfo;
-    });
-  },
-
   bingLogin:function(){
     var that = this;
-    wx.getUserProfile({
-      desc: '用于完善会员资料',
-      success: function (profileRes) {
-        var profile = (profileRes && profileRes.userInfo) || {};
-        app.globalData.userInfo = profile;
-        Bmob.User.auth().then(function (res) {
-          return that.syncWechatProfile(res, profile);
-        }).then(function (userInfo) {
-          userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath) || userInfo.wechatAvatarUrl || defaultAvatarUrl;
-          var entryVisibility = that.resolvePersonalEntryVisibility(userInfo.role);
-          that.setData({
-            userInfo: userInfo,
-            hasUserInfo: true,
-            nickname: userInfo.nickname,
-            avatarUrl: userInfo.avatarUrl,
-            mobilePhoneNumber: userInfo.mobilePhoneNumber || userInfo.userphone || '',
-            showMyJoinEntry: entryVisibility.showMyJoinEntry,
-            showMyJobSeekEntry: entryVisibility.showMyJobSeekEntry,
-            showMyRecruitEntry: entryVisibility.showMyRecruitEntry
-          });
-          app.globalData.currentUserRole = userInfo.role || '';
-          app.syncTodayTabBarByRole(userInfo.role);
-          that.refreshFabVisibility();
-          wx.showToast({
-            title: '登录成功',
-            icon: 'success',
-            duration: 1500
-          });
-        }).catch(function (err) {
-          console.log(err);
-          wx.showToast({
-            title: '登录失败',
-            icon: 'none',
-            duration: 1500
-          });
-        });
-      },
-      fail: function () {
-        wx.showToast({
-          title: '已取消授权',
-          icon: 'none',
-          duration: 1500
-        });
-      }
+    Bmob.User.auth().then(function (userInfo) {
+      console.log('Bmob.User.auth res:', userInfo)
+      var rolePromise = that.isEmptyRole(userInfo.role) ? that.promptUserRole() : Promise.resolve(null);
+      return rolePromise.then(function (roleInfo) {
+        return that.updateRoleUserInfo(userInfo, roleInfo);
+      });
+    }).then(function (userInfo) {
+      that.applyUserInfo(userInfo);
+      wx.showToast({
+        title: '登录成功',
+        icon: 'success',
+        duration: 1500
+      });
+    }).catch(function (err) {
+      console.log(err);
+      wx.showToast({
+        title: '登录失败',
+        icon: 'none',
+        duration: 1500
+      });
     });
   },
 
