@@ -37,7 +37,7 @@ Page({
     interval: 3000,
     duration: 800,
     circular: true,
-    imgUrls: '',
+    imgUrls: [],
 
     //tab
     winHeight: "",
