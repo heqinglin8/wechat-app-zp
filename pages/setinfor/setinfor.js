@@ -15,6 +15,8 @@ Page({
     nickname: '',
     //手机号
     mobilePhoneNumber:'',
+    //微信号
+    wxid: '',
     // 出生日期
     birthday: '',
     gender: '',
@@ -70,6 +72,17 @@ Page({
       dialogValue: this.data.mobilePhoneNumber || ''
     });
   },
+  openWxidDialog: function () {
+    this.setData({
+      showInputDialog: true,
+      dialogField: 'wxid',
+      dialogTitle: '请输入微信号',
+      dialogPlaceholder: '请输入微信号',
+      dialogInputType: 'text',
+      dialogMaxLength: 40,
+      dialogValue: this.data.wxid || ''
+    });
+  },
   onDialogInput: function (e) {
     var value = (e.detail && e.detail.value) || '';
     if (this.data.dialogField === 'mobilePhoneNumber') {
@@ -114,6 +127,13 @@ Page({
       }
       this.setData({
         mobilePhoneNumber: value,
+        showInputDialog: false
+      });
+      return;
+    }
+    if (field === 'wxid') {
+      this.setData({
+        wxid: value,
         showInputDialog: false
       });
     }
@@ -231,6 +251,7 @@ Page({
       that._initnickname = '';
       that._initbirthday = '';
       that._initgender = '';
+      that._initwxid = '';
       let currentUser = Bmob.User.current()
       if (!currentUser || !currentUser.objectId) {
         wx.showToast({
@@ -265,12 +286,14 @@ Page({
       var genderIndex = gender === '女' ? 1 : 0;
       var registerDate = that.formatDateText(userInfo.createdAt);
       var phone = userInfo.mobilePhoneNumber || userInfo.userphone || '';
+      var wxid = userInfo.wxid || '';
       console.log('avatarUrl:',avatarUrl)
         //用户已注册
         that.setData({
           username: userInfo.username,
           nickname: userInfo.nickname,
           mobilePhoneNumber: phone,
+          wxid: wxid,
           birthday: userInfo.birthday || '',
           gender: gender,
           genderIndex: gender ? genderIndex : 0,
@@ -283,6 +306,7 @@ Page({
         that._initnickname = userInfo.nickname || '';
         that._initbirthday = userInfo.birthday || '';
         that._initgender = gender;
+        that._initwxid = wxid;
     }).catch(function(error) {
       console.log("查询失败: " + error.code + " " + error.message);
     });
@@ -293,6 +317,7 @@ Page({
     var username = ((that.data.username || '') + '').trim();
     var nickname = ((that.data.nickname || '') + '').trim();
     var mobilePhoneNumber = ((that.data.mobilePhoneNumber || '') + '').trim();
+    var wxid = ((that.data.wxid || '') + '').trim();
     var birthday = ((that.data.birthday || '') + '').trim();
     var gender = ((that.data.gender || '') + '').trim();
 
@@ -304,6 +329,7 @@ Page({
       username: username,
       nickname: nickname,
       mobilePhoneNumber: mobilePhoneNumber,
+      wxid: wxid,
       birthday: birthday,
       gender: gender
     });
@@ -314,6 +340,10 @@ Page({
     if (mobilePhoneNumber !== (that._initphone || '')) {
       changedLabels.push('电话');
       updatePayload.mobilePhoneNumber = mobilePhoneNumber;
+    }
+    if (wxid !== (that._initwxid || '')) {
+      changedLabels.push('微信号');
+      updatePayload.wxid = wxid;
     }
     if (username !== (that._initusername || '')) {
       changedLabels.push('用户名');
@@ -360,6 +390,7 @@ Page({
             that._initusername = username;
             that._initnickname = nickname;
             that._initphone = mobilePhoneNumber;
+            that._initwxid = wxid;
             that._initbirthday = birthday;
             that._initgender = gender;
             wx.showToast({

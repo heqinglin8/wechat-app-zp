@@ -3,6 +3,7 @@
 //引入SDK
 var Bmob = wx.Bmob;
 var util = require('../../utils/util');
+var findDisplayByDistrictCode = require('../../utils/region').findDisplayByDistrictCode;
 var app = getApp();
 Page({
 
@@ -11,6 +12,7 @@ Page({
    */
   data: {
     content: '',
+    company: {},
     companyName: '',
     //轮播图片数组
     photoList: [],
@@ -60,19 +62,6 @@ Page({
     var avatar = this.firstText(item.commitAvatar, item.firstPhoto);
     return avatar ? util.toDisplayUrl(avatar) : '';
   },
-  resolveCompanyLogo: function (item) {
-    var logo = this.firstText(item.companyLogo, item.logo);
-    return logo ? util.toDisplayUrl(logo) : '';
-  },
-  formatCompanyScale: function (item) {
-    var raw = this.firstText(item.companyPeople, item.companyScale, item.companyPeopleText);
-    if (!raw) return '';
-    var normalized = String(raw).replace(/\s+/g, '');
-    if (/^\d+$/.test(normalized)) {
-      return normalized + '人以上';
-    }
-    return normalized;
-  },
   buildViewData: function (item) {
     var topPayText = this.formatTopSalary(item);
     var payTypeValue = this.firstText(item.payType);
@@ -86,13 +75,9 @@ Page({
     var educationForDetail = this.firstText(item.education, '未填最低学历');
     var experienceForDetail = this.firstText(item.experience, '未填经验');
     var jobDescriptionText = this.firstText(item.jobDescription);
-    var boardDescriptionText = this.firstText(item.boardDescription);
-    var companyNameText = this.firstText(item.companyName, item.company, '未填公司名称');
-    var companyIndustryText = this.firstText(item.companyIndustry, '未填行业');
-    var companyFinanceText = this.firstText(item.financeStage, item.finance, '未填融资阶段');
-    var companyScaleText = this.formatCompanyScale(item) || '未填规模';
-    var cityName = this.firstText(item.cityName);
-    var districtName = this.firstText(item.districtName);
+    var regionInfo = findDisplayByDistrictCode(item.districtCode);
+    var cityName = this.firstText(regionInfo && regionInfo.cityName);
+    var districtName = this.firstText(regionInfo && regionInfo.districtName);
     var locationText = '未填市区';
     if (cityName && districtName) {
       locationText = cityName + '·' + districtName;
@@ -107,31 +92,34 @@ Page({
       payTypeText: payTypeText,
       jobDirectionText: jobDirectionText,
       educationExperienceText: educationForDetail + ' / ' + experienceForDetail,
-      entNumText: this.firstText(item.entNum, '0'),
+      entNumText: '0',
       locationText: locationText,
       experienceText: this.firstText(item.experience, '未填经验要求'),
       educationText: this.firstText(item.education, '未填学历要求'),
       jobDescriptionText: jobDescriptionText || '未填岗位说明',
-      boardDescriptionText: boardDescriptionText || '未填福利说明',
-      companyNameText: companyNameText,
-      companyIndustryText: companyIndustryText,
-      companyFinanceText: companyFinanceText,
-      companyScaleText: companyScaleText,
-      companyLogo: this.resolveCompanyLogo(item),
-      recruiterName: this.firstText(item.commitUsername, '未填招聘者姓名'),
+      recruiterName: this.firstText(item.commitNickname, '未填招聘者姓名'),
       recruiterRole: this.firstText(item.commitJobRole, '未填招聘者职位'),
       recruiterAvatar: this.resolveRecruiterAvatar(item)
     };
   },
+  applyCompanyViewData: function (company) {
+    company = company || {};
+    this.setData({
+      company: company,
+      companyName: company.name || ''
+    });
+  },
   applyJobResult: function (result) {
     this.setData({
       content: result,
-      companyName: result.companyName,
-      num: Number(result.entNum) || 0,
+      company: {},
+      companyName: '',
       photoList: result.photoImgs ? result.photoImgs.split('|') : [],
       detailMessageEnabled: result.detailMessageEnabled !== false && result.messageBoardEnabled !== false && result.allowMessage !== false,
       viewData: this.buildViewData(result)
     });
+    this.loadCompanyInfoForJob(result);
+    this.refreshJoinCount();
   },
   fetchActiveJobInfoById: function (jobId) {
     if (!jobId) return Promise.resolve(null);
@@ -140,6 +128,28 @@ Page({
     query.equalTo("active", "==", 1);
     return query.find().then(function (rows) {
       return rows && rows.length ? rows[0] : null;
+    });
+  },
+  fetchCompanyInfoById: function (companyId) {
+    if (!companyId) return Promise.resolve(null);
+    return Bmob.Query("CompanyInfo").get(companyId).then(function (row) {
+      return row || null;
+    });
+  },
+  loadCompanyInfoForJob: function (jobInfo) {
+    var that = this;
+    var companyId = that.firstText(jobInfo && jobInfo.companyId);
+    if (!companyId) {
+      that.applyCompanyViewData(null);
+      return Promise.resolve(null);
+    }
+    return that.fetchCompanyInfoById(companyId).then(function (companyInfo) {
+      that.applyCompanyViewData(companyInfo);
+      return companyInfo;
+    }).catch(function (error) {
+      console.error('查询公司信息失败:', error);
+      that.applyCompanyViewData(null);
+      return null;
     });
   },
   refreshJobDetail: function () {
@@ -151,41 +161,167 @@ Page({
       return result;
     });
   },
-  adjustJobEntNum: function (delta) {
+  fetchJoinCountByJobId: function (jobId) {
+    if (!jobId) return Promise.resolve(0);
+    var query = Bmob.Query("MyJoinInfo");
+    query.equalTo("jobId", "==", jobId);
+    return query.count().then(function (count) {
+      var total = Number(count);
+      return isNaN(total) ? 0 : total;
+    });
+  },
+  refreshJoinCount: function () {
     var that = this;
-    return that.fetchActiveJobInfoById(that.data.jobId).then(function (result) {
-      if (!result) return null;
-      var current = Number(result.entNum);
-      var next = Math.max(0, (isNaN(current) ? 0 : current) + delta);
-      result.set('entNum', next);
-      return result.save().then(function () {
-        return that.refreshJobDetail();
+    return that.fetchJoinCountByJobId(that.data.jobId).then(function (count) {
+      that.setData({
+        num: count,
+        'viewData.entNumText': String(count)
       });
+      return count;
+    }).catch(function (error) {
+      console.error('查询报名人数失败:', error);
+      that.setData({
+        num: 0,
+        'viewData.entNumText': '0'
+      });
+      return 0;
+    });
+  },
+  showLoginPrompt: function (actionText) {
+    wx.showModal({
+      title: '提示',
+      content: '请先登录后' + actionText,
+      cancelText: '取消',
+      confirmText: '去登录',
+      success: function (res) {
+        if (res.confirm) {
+          wx.switchTab({
+            url: '/pages/personal/personal'
+          });
+        }
+      }
+    });
+  },
+  showSetInfoPrompt: function (content) {
+    wx.showModal({
+      title: '提示',
+      content: content,
+      cancelText: '取消',
+      confirmText: '去完善',
+      success: function (res) {
+        if (res.confirm) {
+          wx.navigateTo({
+            url: '/pages/setinfor/setinfor'
+          });
+        }
+      }
+    });
+  },
+  fetchCurrentUserInfo: function (userId) {
+    if (!userId) return Promise.resolve(null);
+    var query = Bmob.Query("_User");
+    query.equalTo("objectId", "==", userId);
+    return query.find().then(function (results) {
+      return results && results.length ? results[0] : null;
+    });
+  },
+  ensureContactReady: function (actionText, callback) {
+    var that = this;
+    var currentUser = Bmob.User.current();
+    if (!currentUser || !currentUser.objectId) {
+      that.showLoginPrompt(actionText);
+      return;
+    }
+
+    that.fetchCurrentUserInfo(currentUser.objectId).then(function (userInfo) {
+      if (!userInfo) {
+        that.showLoginPrompt(actionText);
+        return;
+      }
+
+      var mobilePhoneNumber = that.firstText(userInfo.mobilePhoneNumber, userInfo.userphone);
+      var wxid = that.firstText(userInfo.wxid);
+      that.setData({
+        userId: userInfo.objectId,
+      });
+
+      if (!mobilePhoneNumber) {
+        that.showSetInfoPrompt('提醒完善联系方式，' + actionText);
+        return;
+      }
+      if (!wxid) {
+        that.showSetInfoPrompt('完善微信号，' + actionText);
+        return;
+      }
+
+      if (typeof callback === 'function') {
+        callback(userInfo);
+      }
+    }).catch(function (error) {
+      console.error('获取登录账号信息失败:', error);
+      wx.showToast({
+        title: '获取用户信息失败',
+        icon: 'none',
+        duration: 1500
+      });
+    });
+  },
+  copyWechatAndShowTip: function (wechatNo) {
+    var wechat = this.firstText(wechatNo);
+    if (!wechat) {
+      wx.showModal({
+        title: '提示',
+        content: '对方没有留下微信号',
+        showCancel: false,
+        confirmText: '确定'
+      });
+      return;
+    }
+    wx.setClipboardData({
+      data: wechat,
+      success: function () {
+        wx.showModal({
+          title: '提示',
+          content: '对方微信号已经复制到剪贴板，打开微信联系',
+          showCancel: false,
+          confirmText: '确定'
+        });
+      },
+      fail: function () {
+        wx.showToast({
+          title: '复制失败',
+          image: "../../images/warning.png",
+          duration: 2000
+        });
+      }
     });
   },
   /**
    * 求职热线跳转
    */
   bindViewServicePhone: function () {
-    var content = this.data.content || {};
-    var phone = this.firstText(content.recoContact, content.contact).replace(/\s+/g, '');
-    if (!phone) {
-      wx.showToast({
-        title: '未填联系电话',
-        image: "../../images/warning.png",
-        duration: 2000
-      });
-      return;
-    }
-    wx.makePhoneCall({
-      phoneNumber: phone,
-      fail: function () {
+    var that = this;
+    that.ensureContactReady('再电话咨询', function () {
+      var content = that.data.content || {};
+      var phone = that.firstText(content.recoContact, content.contact).replace(/\s+/g, '');
+      if (!phone) {
         wx.showToast({
-          title: '拨号失败',
+          title: '未填联系电话',
           image: "../../images/warning.png",
           duration: 2000
         });
+        return;
       }
+      wx.makePhoneCall({
+        phoneNumber: phone,
+        fail: function () {
+          wx.showToast({
+            title: '拨号失败',
+            image: "../../images/warning.png",
+            duration: 2000
+          });
+        }
+      });
     });
   },  
   /**
@@ -193,7 +329,6 @@ Page({
      */
   bindViewIndex: function () {
     wx.switchTab({
-      //url: '../servicephone/servicephone'
       url: '../index/index'
     })
   },  
@@ -231,67 +366,66 @@ Page({
   
   },
   //提交信息
-  bindViewPutinfor: function (){
+  bindViewPutinfor: function () {
+    console.log('bindViewPutinfor，点击报名')
     var that = this;
-    //判断用户是否注册
-    if (that.data.userId.length == 0){
-      wx.showToast({
-        title: '请先登录',
-        image: "../../images/warning.png",
-        duration: 1500
-      })  
-    }
-    else {
-      var query = Bmob.Query("MyJoinInfo"); 
-      query.equalTo("userId", "==", that.data.userId);
-      query.equalTo("jobId", "==", that.data.jobId);
-      // 查询用户是否已经报名过这个岗位
-      query.find().then(function(results) {
-        console.log("查询报名状态:共查询到 " + results.length + " 条记录");
-        if (results.length == 0) {
-          // 未报名，执行报名逻辑
-          var diary = Bmob.Query("MyJoinInfo");
-          diary.set("userId", that.data.userId);
-          diary.set("jobId", that.data.jobId);
-          diary.set("joinCompanyName", that.data.companyName);
-          diary.save().then(function(result) {
-            // 报名表添加成功
-            that.setData({
-              hasJoined: true,
-              isfist: false,
-            });
-            wx.showToast({
-              title: '报名成功',
-              icon: 'success',
-              duration: 2000
-            });
-            that.adjustJobEntNum(1).then(function () {
-              that.checkCollectStatus();
-            }).catch(function(error) {
-              console.error('报名人数更新失败:', error);
-            });
+    that.ensureContactReady('再报名', function () {
+      that.submitJoinInfo();
+    });
+  },
+  submitJoinInfo: function () {
+    var that = this;
+    var query = Bmob.Query("MyJoinInfo"); 
+    query.equalTo("userId", "==", that.data.userId);
+    query.equalTo("jobId", "==", that.data.jobId);
+    // 查询用户是否已经报名过这个岗位
+    query.find().then(function(results) {
+      console.log("查询报名状态:共查询到 " + results.length + " 条记录");
+      if (results.length == 0) {
+        // 未报名，执行报名逻辑
+        var diary = Bmob.Query("MyJoinInfo");
+        diary.set("userId", that.data.userId);
+        diary.set("jobId", that.data.jobId);
+        diary.set("joinCompanyName", that.data.companyName);
+        diary.save().then(function(result) {
+          // 报名表添加成功
+          that.setData({
+            hasJoined: true,
+            isfist: false,
+          });
+          wx.showToast({
+            title: '报名成功',
+            icon: 'success',
+            duration: 2000
+          });
+          that.refreshJoinCount().then(function () {
+            that.checkCollectStatus();
           }).catch(function(error) {
-            // 添加失败
+            console.error('报名人数刷新失败:', error);
           });
-        } else {
-          // 已报名，弹出确认对话框
-          wx.showModal({
-            title: '取消报名',
-            content: '您已报名过此岗位，是否要取消报名？',
-            cancelText: '保持报名',
-            confirmText: '取消报名',
-            success: function(res) {
-              if (res.confirm) {
-                // 用户点击确认，执行取消报名逻辑
-                that.cancelJoin();
-              }
+        }).catch(function(error) {
+          // 添加失败
+          console.error('bindViewPutinfor，报名失败 error：', error)
+        });
+      } else {
+        // 已报名，弹出确认对话框
+        wx.showModal({
+          title: '取消报名',
+          content: '您已报名过此岗位，是否要取消报名？',
+          cancelText: '保持报名',
+          confirmText: '取消报名',
+          success: function(res) {
+            if (res.confirm) {
+              // 用户点击确认，执行取消报名逻辑
+              that.cancelJoin();
             }
-          });
-        }
-      }).catch(function(error) {
-        // 查询失败
-      });
-    }
+          }
+        });
+      }
+    }).catch(function(error) {
+      // 查询失败
+      console.error('bindViewPutinfor，查询报名失败 error：', error)
+    });
   },
 
   // 取消报名：删除 uid 和 jobId 同时匹配的报名记录
@@ -339,8 +473,8 @@ Page({
               icon: 'success',
               duration: 2000
             });
-            that.adjustJobEntNum(-1).catch(function (error) {
-              console.error('报名人数更新失败:', error);
+            that.refreshJoinCount().catch(function (error) {
+              console.error('报名人数刷新失败:', error);
             });
           }).catch(function (e) {
             console.error('取消报名失败:', e)
@@ -471,7 +605,7 @@ Page({
    */
   onShow: function () {
     var that = this;
-    console.log('userId'+that.data.userId+' jobId:'+that.data.jobId)
+    console.log('userId:'+that.data.userId+' jobId:'+that.data.jobId)
     // 查询是否已报名
     var query = Bmob.Query("MyJoinInfo");
     query.equalTo("userId", "==", that.data.userId);
@@ -486,6 +620,7 @@ Page({
         hasJoined: false
       });
     });
+    that.refreshJoinCount();
     that.checkCollectStatus();
     
     if(that.data.isfist==false)
@@ -541,74 +676,8 @@ Page({
   //点击微信咨询
   bindViewXWZX: function () {
     var that = this;
-    var isLoggedIn = !!that.firstText(that.data.userId);
-    if (!isLoggedIn) {
-      wx.showToast({
-        title: '未登录',
-        image: "../../images/warning.png",
-        duration: 1500
-      });
-      wx.showModal({
-        title: '提示',
-        content: '是否跳转个人中心？',
-        confirmText: '是',
-        cancelText: '取消',
-        success: function (res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: '../personal/personal',
-            });
-          }
-        }
-      });
-      return;
-    }
-    var wechatNo = that.firstText(that.data.content && that.data.content.wxid);
-    if (!wechatNo) {
-      wx.showToast({
-        title: '未填微信号',
-        image: "../../images/warning.png",
-        duration: 2000
-      });
-      return;
-    }
-    wx.showModal({
-      title: '提示',
-      content: '你正在申请对方的微信交换，同时你的微信将自动发给对方。',
-      cancelText: '取消',
-      confirmText: '确认',
-      success: function (modalRes) {
-        if (!modalRes.confirm) return;
-          var verifyUserid = that.firstText(that.data.content && that.data.content.commitUid);
-          console.log('111 jobinfo:',that.data.content)
-          if (!verifyUserid) {
-            wx.showToast({
-              title: '未获取到审核人信息',
-              image: "../../images/warning.png",
-              duration: 2000
-            });
-            return;
-          }
-          var linkingRow = Bmob.Query('linking');
-          linkingRow.set('applyUserid', that.data.userId);
-          linkingRow.set('verifyUserid', verifyUserid);
-          linkingRow.set('type', '2');
-          linkingRow.save().then(function () {
-           wx.showModal({
-            title: '对方微信号',
-            content: wechatNo,
-            showCancel: false,
-            confirmText: '知道了'
-          });
-          }).catch(function (e) {
-            console.error('申请交换失败,e', e)
-            wx.showToast({
-              title: '申请交换失败',
-              image: "../../images/warning.png",
-              duration: 2000
-            });
-          });
-      }
+    that.ensureContactReady('再微信咨询', function () {
+      that.copyWechatAndShowTip(that.data.content && that.data.content.wxid);
     });
   },
   /**
@@ -617,40 +686,36 @@ Page({
   isuser:function(){
     var that = this
     var currentUser = Bmob.User.current();
-    if (currentUser) {
-      //console.log('用户存在');
-    var query = Bmob.Query("_User");
-    var uid = currentUser.objectId
-    that.setData({
-      uid: uid,
-    })
-    query.equalTo("objectId", "==", uid);
-        // 查询用户是否存在
-    query.find().then(function(results) {
-      //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
-      if (results.length == 0) {
-        that.setData({
-          userId: ''
-        });
-        that.checkCollectStatus();
-      } else {
-        //用户存在
-        that.setData({
-          userId: results[0].objectId
-        });
-        that.checkCollectStatus();
-        //console.log('用户存在');
-      }
-    }).catch(function(error) {
-      //console.log("查询失败: " + error.code + " " + error.message);
-    });
-    } else {
+    if (!currentUser) {
       //console.log('用户不存在');
       that.setData({
-        userId: ''
+        userId: '',
       });
       that.checkCollectStatus();
     }
+      //console.log('用户存在');
+      var query = Bmob.Query("_User");
+      query.equalTo("objectId", "==", currentUser.objectId);
+          // 查询用户是否存在
+      query.find().then(function(results) {
+        //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
+        if (results.length == 0) {
+          that.setData({
+            userId: '',
+          });
+          that.checkCollectStatus();
+          return
+        }
+
+        //用户存在
+        var userInfo = results[0];
+        that.setData({
+          userId: userInfo.objectId,
+        });
+        that.checkCollectStatus();
+      }).catch(function(error) {
+        //console.error("查询失败: " + error.code + " " + error.message);
+      });
   },
 
   /**

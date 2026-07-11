@@ -31,6 +31,14 @@
       </view>
     </view>
 
+    <view class="info-row" bindtap="openWxidDialog">
+      <view class="info-row-label">微信号</view>
+      <view class="info-row-right">
+        <view class="info-row-value">{{wxid || '--'}}</view>
+        <view class="info-row-arrow"></view>
+      </view>
+    </view>
+
     <picker mode="selector" range="{{genderOptions}}" value="{{genderIndex}}" bindchange="onGenderChange">
       <view class="info-row">
         <view class="info-row-label">性别</view>
