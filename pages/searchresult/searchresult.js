@@ -118,7 +118,7 @@ Page({
         return city.rowMatchesKeyword(row, keyword, ['title', 'jobDescription', 'companyName']);
       });
       var filteredSeekers = seekers.filter(function (row) {
-        return city.rowMatchesKeyword(row, keyword, ['title', 'recoJobIntent']);
+        return city.rowMatchesKeyword(row, keyword, ['title', 'jobIntent', 'recoJobIntent']);
       });
       var mixedResults = that.sortSearchResults(
         that.markResultType(filteredJobs, 'jobInfo')

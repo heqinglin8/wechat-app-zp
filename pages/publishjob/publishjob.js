@@ -1,6 +1,6 @@
 // pages/award/award.js
-// JobInfo（Bmob）：控制台 Class 须含 recoEducation contact recoJobIntent
-// photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
+// JobInfo（Bmob）：控制台 Class 须含 contact recoJobIntent
+// photoImgs（多张图 URL 半角 | 拼接）、commitNickname（提交人姓名）、commitUid（提交人 objectId）。
 // 配图：最多 3 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
 var Bmob = wx.Bmob;
@@ -29,10 +29,7 @@ function parsePositiveNumber(value) {
 
 Page({
   data: {
-    userId:'',
-    userName: '',
     title: '',
-    recoName: '',
     contact: '',
     wxid: '',
     payType: '0',
@@ -65,7 +62,7 @@ Page({
     currentUserRole: '',
   },
 
-  onRecoNameInput: function (e) {
+  onTitleInput: function (e) {
     this.setData({ title: (e.detail && e.detail.value) || '' });
   },
   onContactInput: function (e) {
@@ -321,15 +318,16 @@ Page({
       if (!phone && u.userphone != null) {
         phone = String(u.userphone).trim();
       }
-      var uname = u.username || '';
-      console.log('setData uname:',uname,' userId:',userId,' role:',role)
+      console.log('setData userId:',userId,' role:',role)
       that.setData({
-        userName: uname,
         contact: phone,
         userLoaded: true,
-        userId: userId,
         currentUserRole: role,
       });
+      that._userId = userId;
+      that._nickname = u.nickname || '';
+      that._avatarPath = u.avatarPath || '';
+      that._jobRole = u.jobRole || '';
     }).catch(function (error) {
       console.error('onReady 用户信息加载失败 objectId:',objectId,'error:',error)
       wx.showToast({ title: '用户信息加载失败', icon: 'none', duration: 2000 });
@@ -647,12 +645,13 @@ Page({
     if (!summaryText && jobDescriptionText) {
       summaryText = jobDescriptionText.slice(0, 40);
     }
-    row.set('commitUsername', d.userName);
-    row.set('commitUid', d.userId || '');
+    console.log('_nickname',this._nickname)
+    row.set('commitNickname', this._nickname);
+    row.set('commitUid', this._userId || '');
+    row.set('commitAvatar', this._avatarPath || '');
+    row.set('commitJobRole', this._jobRole || '');
     row.set('title', String(d.title).trim());
-    row.set('recoName', String(d.title).trim());
     row.set('education', edu);
-    row.set('recoEducation', edu);
     row.set('contact', String(d.contact).trim());
     row.set('wxid', String(d.wxid).trim());
     row.set('experience', String(d.experience || '').trim());
@@ -673,8 +672,8 @@ Page({
   put_infor: function () {
     var that = this;
     if (that.data.formSubmitting) return;
-    console.log('userLoaded:',that.data.userLoaded,' userId:',that.data.userId)
-    if (!that.data.userLoaded || !that.data.userId) {
+    console.log('userLoaded:',that.data.userLoaded,' userId:',that._userId)
+    if (!that.data.userLoaded || !that._userId) {
       wx.showToast({ title: '请先登录后再推荐', image: '../../images/warning.png', duration: 2000 });
       return;
     }
@@ -689,7 +688,7 @@ Page({
     that.setData({ formSubmitting: true });
 
     var query = Bmob.Query('JobInfo');
-    query.equalTo('commitUid', '==', that.data.userId);
+    query.equalTo('commitUid', '==', that._userId);
     query.equalTo('title', '==', String(that.data.title).trim());
     query.equalTo('active', '==', 1);
 
@@ -730,7 +729,7 @@ Page({
       }).then(function () {
         var updatedQuery = Bmob.Query('JobInfo');
         return updatedQuery.get(row.objectId).then(function (existing) {
-          if (String(existing.commitUid || '').trim() !== that.data.userId) {
+          if (String(existing.commitUid || '').trim() !== that._userId) {
             wx.showToast({
               title: '无权编辑该招聘',
               icon: 'none',

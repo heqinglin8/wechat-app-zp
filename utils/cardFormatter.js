@@ -106,13 +106,13 @@ function decorateJobSeekerCard(item) {
   var cityInfo = findDisplayByDistrictCode(item.districtCode);
   var commitNickname = firstText(item.commitNickname, '未写发布人');
   var recruiterRole = firstText(item.commitJobRole, '');
-  item.cardTitle = firstText(item.title, item.recoJobIntent, '未写标题');
+  item.cardTitle = firstText(item.title, item.jobIntent, item.recoJobIntent, '未写标题');
   item.cardSalary = salaryText(item);
   item.cardSummary = firstText(item.summary, '未写摘要');
-  item.cardFinancing = firstText(item.recoEducation, '未写学历');
+  item.cardFinancing = firstText(item.education, item.recoEducation, '未写学历');
   item.cardTags = compactTags([
-    firstText(item.recoEducation, '')
-  ].concat(splitTags(item.recoJobIntent)));
+    firstText(item.education, item.recoEducation, '')
+  ].concat(splitTags(firstText(item.jobIntent, item.recoJobIntent))));
   item.cardSeeker = recruiterRole ? commitNickname + ' · ' + recruiterRole : commitNickname;
   item.cardLocation = cityInfo ? cityInfo.cityName : '';
   item.cardBadge = item.payType == 1 ? '临' : '';

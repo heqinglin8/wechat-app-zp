@@ -1,6 +1,6 @@
 // pages/award/award.js
-// JobSeeker（Bmob）：控制台 Class 须含 title recoEducation recoContact recoJobIntent recoIntro summary
-// photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
+// JobSeeker（Bmob）：控制台 Class 须含 title education contact jobIntent recoIntro summary
+// photoImgs（多张图 URL 半角 | 拼接）、commitUid（提交人 objectId）。
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
 var Bmob = wx.Bmob;
@@ -16,9 +16,9 @@ var ALLOWED_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
 Page({
   data: {
     title: '',
-    recoContact: '',
+    contact: '',
     wxid: '',
-    recoJobIntent: '',
+    jobIntent: '',
     detPayMin: '',
     detPayMax: '',
     recoIntro: '',
@@ -41,14 +41,14 @@ Page({
   onTitleInput: function (e) {
     this.setData({ title: (e.detail && e.detail.value) || '' });
   },
-  onRecoContactInput: function (e) {
-    this.setData({ recoContact: (e.detail && e.detail.value) || '' });
+  onContactInput: function (e) {
+    this.setData({ contact: (e.detail && e.detail.value) || '' });
   },
   onWxidInput: function (e) {
     this.setData({ wxid: (e.detail && e.detail.value) || '' });
   },
-  onRecoJobIntentInput: function (e) {
-    this.setData({ recoJobIntent: (e.detail && e.detail.value) || '' });
+  onJobIntentInput: function (e) {
+    this.setData({ jobIntent: (e.detail && e.detail.value) || '' });
   },
 
   onDetPayMinInput: function (e) {
@@ -198,12 +198,12 @@ Page({
         phone = String(u.userphone).trim();
       }
       that.setData({
-        recoContact: phone,
+        contact: phone,
         userLoaded: true,
       });
       that._objectId = objectId;
-      that._username = u.username || '';
       that._nickname = u.nickname || '';
+      that._avatarPath = u.avatarPath || '';
       that._currentUserRole = role;
     }).catch(function () {
       wx.showToast({ title: '用户信息加载失败', icon: 'none', duration: 2000 });
@@ -373,11 +373,11 @@ Page({
       wx.showToast({ title: '请填写标题', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.recoContact && String(d.recoContact).trim())) {
+    if (!(d.contact && String(d.contact).trim())) {
       wx.showToast({ title: '请填写电话', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    var phone = String(d.recoContact || '').trim();
+    var phone = String(d.contact || '').trim();
     var mobileReg = /^1[3-9]\d{9}$/;
     var landlineReg = /^0\d{2,3}-?\d{7,8}(?:-\d{1,6})?$/;
     if (!mobileReg.test(phone) && !landlineReg.test(phone)) {
@@ -388,7 +388,7 @@ Page({
       wx.showToast({ title: '请填写微信号', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.recoJobIntent && String(d.recoJobIntent).trim())) {
+    if (!(d.jobIntent && String(d.jobIntent).trim())) {
       wx.showToast({ title: '请填写求职意向', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
@@ -437,14 +437,14 @@ Page({
     console.log("applyJobSeekerFields row:",row);
     var d = this.data;
     var edu = this.educationLabel();
-    row.set('commitUsername', this._username);
     row.set('commitUid', this._objectId || '');
     row.set('commitNickname', String(this._nickname).trim());
+    row.set('commitAvatar', this._avatarPath || '');
     row.set('title', String(d.title).trim());
-    row.set('recoEducation', edu);
-    row.set('recoContact', String(d.recoContact).trim());
+    row.set('education', edu);
+    row.set('contact', String(d.contact).trim());
     row.set('wxid', String(d.wxid).trim());
-    row.set('recoJobIntent', String(d.recoJobIntent).trim());
+    row.set('jobIntent', String(d.jobIntent).trim());
     row.set('payType', Number(d.payType || 0));
     row.set('detPayMin', Number(d.detPayMin || ''));
     row.set('detPayMax', Number(d.detPayMax || ''));
@@ -452,7 +452,9 @@ Page({
     row.set('summary', (d.summary && String(d.summary).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
     row.set('active', this.resolvePublishActive());
-    city.applyCityFields(row, this.refreshCurrentCity());
+    var currentCity = city.normalizeCity(this.refreshCurrentCity());
+    row.set('districtName', currentCity.districtName);
+    row.set('districtCode', currentCity.districtCode);
   },
 
   put_infor: function () {

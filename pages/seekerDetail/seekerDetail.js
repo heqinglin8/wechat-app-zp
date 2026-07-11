@@ -73,13 +73,13 @@ Page({
       titleText: this.withFallback(this.firstText(item.title, item.recoName), '求职标题'),
       salaryText: this.formatSalaryText(item),
       collectNumText: this.firstText(collectNum, '0'),
-      publisherText: this.withFallback(item.commitUsername, '发布人'),
+      publisherText: this.withFallback(this.firstText(item.commitNickname, item.commitUsername), '发布人'),
       locationText: this.formatLocationText(item),
-      educationText: this.withFallback(item.recoEducation, '学历'),
-      intentText: this.withFallback(item.recoJobIntent, '求职方向'),
+      educationText: this.withFallback(this.firstText(item.education, item.recoEducation), '学历'),
+      intentText: this.withFallback(this.firstText(item.jobIntent, item.recoJobIntent), '求职方向'),
       payTypeText: this.formatPayTypeText(item),
       expectedSalaryText: this.formatSalaryText(item),
-      phoneText: this.withFallback(item.recoContact, '电话'),
+      phoneText: this.withFallback(this.firstText(item.contact, item.recoContact), '电话'),
       wxidText: this.withFallback(item.wxid, '微信'),
       summaryText: this.withFallback(item.summary, '摘要'),
       introText: this.withFallback(item.recoIntro, '自我介绍'),
@@ -126,7 +126,7 @@ Page({
     }
 
     var content = that.data.content || {};
-    var phone = that.firstText(content.recoContact, content.contact).replace(/\s+/g, '');
+    var phone = that.firstText(content.contact, content.recoContact).replace(/\s+/g, '');
     if (!phone) {
       wx.showToast({
         title: '未填联系电话',
