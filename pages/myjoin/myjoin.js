@@ -2,6 +2,7 @@
 var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
 var cardFormatter = require('../../utils/cardFormatter');
+var findDisplayByDistrictCode = require('../../utils/region').findDisplayByDistrictCode;
 
 function pickText(value, fallback) {
   var text = value === undefined || value === null ? '' : String(value).trim();
@@ -11,6 +12,7 @@ function pickText(value, fallback) {
 function decorateJoinCard(jobInfo, joinInfo) {
   var job = jobInfo || {};
   var join = joinInfo || {};
+  var cityInfo = findDisplayByDistrictCode(job.districtCode);
   var directions = cardFormatter.splitTags(job.jobDirection);
   var companyName = pickText(job.companyName, pickText(join.joinCompanyName, '公司名称未填写'));
   var experience = pickText(job.experience, '经验未填写');
@@ -27,7 +29,7 @@ function decorateJoinCard(jobInfo, joinInfo) {
     cardFinancing: pickText(job.financeStage, '融资阶段未填写'),
     cardTags: tagList,
     cardRecruiter: pickText(job.commitUsername, '招聘者未填写') + ' · ' + pickText(job.commitJobRole, '职位未填写'),
-    cardLocation: pickText(job.cityDisplayName || job.cityName, '地点未填写'),
+    cardLocation: cityInfo ? cityInfo.cityName : '',
     cardBadge: job.payType == 1 ? '临' : '',
     avatar: util.toDisplayUrl(job.commitAvatar) || job.firstPhoto || ''
   };

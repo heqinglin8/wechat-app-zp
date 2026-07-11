@@ -1,4 +1,5 @@
 var util = require('./util');
+var findDisplayByDistrictCode = require('./region').findDisplayByDistrictCode;
 
 function firstText() {
   for (var i = 0; i < arguments.length; i++) {
@@ -60,6 +61,7 @@ function splitPhotoUrls(value, maxCount) {
 
 function decorateJobCard(item) {
   item = item || {};
+  var cityInfo = findDisplayByDistrictCode(item.districtCode);
   var recruiter = firstText(item.commitUsername, '未写招聘者姓名');
   var recruiterRole = firstText(item.commitJobRole, '未写招聘者职位');
   var jobDirections = splitTags(item.jobDirection);
@@ -78,7 +80,7 @@ function decorateJobCard(item) {
   item.cardRecruiter = recruiter
     ? recruiter + ' · ' + recruiterRole
     : '未写招聘者 · ' + recruiterRole;
-  item.cardLocation = firstText(item.cityDisplayName, item.cityName, '未写地点');
+  item.cardLocation = cityInfo ? cityInfo.cityName : '';
   item.cardBadge = item.payType == 1 ? '临' : '';
   item.avatar = util.toDisplayUrl(item.commitAvatar) ? util.toDisplayUrl(item.commitAvatar) : item.firstPhoto;
   return item;
@@ -90,6 +92,7 @@ function decorateJobCards(list) {
 
 function decorateJobSeekerCard(item) {
   item = item || {};
+  var cityInfo = findDisplayByDistrictCode(item.districtCode);
   var recoName = firstText(item.recoName, '未写发布人');
   var recruiterRole = firstText(item.commitJobRole, '');
   item.cardTitle = firstText(item.title, item.recoJobIntent, '未写标题');
@@ -100,7 +103,7 @@ function decorateJobSeekerCard(item) {
     firstText(item.recoEducation, '')
   ].concat(splitTags(item.recoJobIntent)));
   item.cardSeeker = recruiterRole ? recoName + ' · ' + recruiterRole : recoName;
-  item.cardLocation = firstText(item.cityDisplayName, item.cityName, '未写地点');
+  item.cardLocation = cityInfo ? cityInfo.cityName : '';
   item.cardBadge = item.payType == 1 ? '临' : '';
   item.cardPhotos = splitPhotoUrls(item.photoImgs, 3);
   item.avatar = util.toDisplayUrl(item.seekerAvatar) ? util.toDisplayUrl(item.seekerAvatar) : item.firstPhoto;
