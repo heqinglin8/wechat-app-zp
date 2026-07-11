@@ -59,15 +59,15 @@
         <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
-    <view wx:if="{{hasUserInfo}}" class="per-mid-list3" bindtap='bindViewTodayGxz'>
+    <!-- <view wx:if="{{hasUserInfo}}" class="per-mid-list3" bindtap='bindViewTodayGxz'>
       <view class="per-mid-list3-left per-mid-list-left">
         <image src="../../images/shezhi.png"/>
-        <view class="per-mid-list3-left-text per-mid-list-left-text">修改信息</view>
+        <view class="per-mid-list3-left-text per-mid-list-left-text">个人信息</view>
       </view>
       <view class="per-mid-list3-right per-mid-list-right">
         <image src="../../images/jiantou_small.png"/>
       </view>
-    </view>
+    </view> -->
     <view class="per-mid-list4" bindtap='bindViewServicePhone'>
       <view class="per-mid-list4-left per-mid-list-left">
         <image src="../../images/mykefu.png"/>
@@ -77,24 +77,15 @@
         <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
-    <view wx:if="{{hasUserInfo}}" class="per-mid-list5" bindtap='bindExchangeLink'>
-      <view class="per-mid-list5-left per-mid-list-left">
-        <image src="../../images/login123.png"/>
-        <view class="per-mid-list5-left-text per-mid-list-left-text">信息交换</view>
-      </view>
-      <view class="per-mid-list5-right per-mid-list-right">
-        <image src="../../images/jiantou_small.png"/>
-      </view>
-    </view>
-    <view class="per-mid-list6 per-mid-contact-button" open-type="contact">
+    <button class="per-mid-list6 per-mid-contact-button" open-type="contact">
       <view class="per-mid-list6-left per-mid-list-left">
         <image src="../../images/weichat-fangxing.png"/>
-        <view class="per-mid-list6-left-text per-mid-list-left-text">微信咨询</view>
+        <view class="per-mid-list6-left-text per-mid-list-left-text">客服咨询</view>
       </view>
       <view class="per-mid-list6-right per-mid-list-right">
         <image src="../../images/jiantou_small.png"/>
       </view>
-    </view>
+    </button>
   </view>
   <view wx:if="{{hasUserInfo}}" class="personal-logout" bindtap='bindLogout'>
     退出登录

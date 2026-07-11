@@ -147,12 +147,6 @@ Page({
       url: '../servicephone/servicephone'
     })
   },
- //点击交换信息
- bindExchangeLink: function () {
-  wx.navigateTo({
-    url: '../linkings/linkings'
-  })
-},
 
   //点击个人中心里门店地址页面跳转
   bindViewMap: function () {

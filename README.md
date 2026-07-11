@@ -16,7 +16,7 @@
 *  search    查找
 *  searchinfor    查找结果
 *  servicephone    拨号
-*  setinfor    修改信息
+*  setinfor    个人信息
 *  today    今日招聘
 ##  项目截图：
 ### 主界面
@@ -28,7 +28,7 @@
 ### 推荐奖励
 ![推荐奖励](https://github.com/best-fan/wechat-app-zp/blob/master/screen/4.png)
 ### 修改信息
-![修改信息](https://github.com/best-fan/wechat-app-zp/blob/master/screen/5.png)
+![个人信息](https://github.com/best-fan/wechat-app-zp/blob/master/screen/5.png)
 ### 个人中心
 ![个人中心](https://github.com/best-fan/wechat-app-zp/blob/master/screen/6.png)
 ### 职位详情
