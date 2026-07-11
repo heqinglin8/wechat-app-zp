@@ -87,12 +87,12 @@ Page({
       locationText = '未填市名·' + districtName;
     }
     return {
-      title: this.firstText(item.title, item.detName, '未填职位名称'),
+      title: this.firstText(item.title, '未填职位名称'),
       topPayText: topPayText,
       payTypeText: payTypeText,
       jobDirectionText: jobDirectionText,
       educationExperienceText: educationForDetail + ' / ' + experienceForDetail,
-      entNumText: '0',
+      entNumText: this.firstText(item.entNum, '0'),
       locationText: locationText,
       experienceText: this.firstText(item.experience, '未填经验要求'),
       educationText: this.firstText(item.education, '未填学历要求'),
@@ -119,7 +119,6 @@ Page({
       viewData: this.buildViewData(result)
     });
     this.loadCompanyInfoForJob(result);
-    this.refreshJoinCount();
   },
   fetchActiveJobInfoById: function (jobId) {
     if (!jobId) return Promise.resolve(null);
@@ -161,30 +160,16 @@ Page({
       return result;
     });
   },
-  fetchJoinCountByJobId: function (jobId) {
-    if (!jobId) return Promise.resolve(0);
-    var query = Bmob.Query("MyJoinInfo");
-    query.equalTo("jobId", "==", jobId);
-    return query.count().then(function (count) {
-      var total = Number(count);
-      return isNaN(total) ? 0 : total;
-    });
-  },
-  refreshJoinCount: function () {
+  adjustJobEntNum: function (delta) {
     var that = this;
-    return that.fetchJoinCountByJobId(that.data.jobId).then(function (count) {
-      that.setData({
-        num: count,
-        'viewData.entNumText': String(count)
+    return that.fetchActiveJobInfoById(that.data.jobId).then(function (result) {
+      if (!result) return null;
+      var current = Number(result.entNum);
+      var next = Math.max(0, (isNaN(current) ? 0 : current) + delta);
+      result.set('entNum', next);
+      return result.save().then(function () {
+        return that.refreshJobDetail();
       });
-      return count;
-    }).catch(function (error) {
-      console.error('查询报名人数失败:', error);
-      that.setData({
-        num: 0,
-        'viewData.entNumText': '0'
-      });
-      return 0;
     });
   },
   showLoginPrompt: function (actionText) {
@@ -398,10 +383,10 @@ Page({
             icon: 'success',
             duration: 2000
           });
-          that.refreshJoinCount().then(function () {
+          that.adjustJobEntNum(1).then(function () {
             that.checkCollectStatus();
           }).catch(function(error) {
-            console.error('报名人数刷新失败:', error);
+            console.error('报名人数更新失败:', error);
           });
         }).catch(function(error) {
           // 添加失败
@@ -473,8 +458,8 @@ Page({
               icon: 'success',
               duration: 2000
             });
-            that.refreshJoinCount().catch(function (error) {
-              console.error('报名人数刷新失败:', error);
+            that.adjustJobEntNum(-1).catch(function (error) {
+              console.error('报名人数更新失败:', error);
             });
           }).catch(function (e) {
             console.error('取消报名失败:', e)
@@ -620,7 +605,6 @@ Page({
         hasJoined: false
       });
     });
-    that.refreshJoinCount();
     that.checkCollectStatus();
     
     if(that.data.isfist==false)
