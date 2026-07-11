@@ -1,4 +1,5 @@
 var STORAGE_KEY = 'currentCity';
+var regionUtil = null;
 
 var DEFAULT_CITY = {
   provinceName: '广东省',
@@ -28,6 +29,14 @@ function stripCitySuffix(value) {
 function truncateCityName(value) {
   var text = String(value || '').trim();
   return text.length > 4 ? text.slice(0, 4) + '...' : text;
+}
+
+// 延迟加载地区工具，避免页面初始化时提前加载完整地区数据。
+function getRegionUtil() {
+  if (!regionUtil) {
+    regionUtil = require('./region');
+  }
+  return regionUtil;
 }
 
 function normalizeCity(input) {
@@ -138,8 +147,11 @@ function applyJobInfoFilter(query, city) {
   return applyCityFilter(query, city);
 }
 
+// 按当前城市下所有 districtCode 过滤求职信息。
 function applyJobSeekerFilter(query, city) {
-  return applyCityFilter(query, city);
+  var next = normalizeCity(city || getCurrentCity());
+  query.containedIn('districtCode', getRegionUtil().districtCodesByCityCode(next.cityCode));
+  return query;
 }
 
 function applyCityFields(row, city, options) {

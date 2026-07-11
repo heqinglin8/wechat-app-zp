@@ -1,7 +1,7 @@
-var pcaCode = require('../assets/pca-code.json');
+var pcaCode = require('../assets/pca-code.json.js');
 
 var metadata = {
-  localFile: 'assets/pca-code.json',
+  localFile: 'assets/pca-code.json.js',
   sourceName: '国家统计局 统计用区划代码和城乡划分代码',
   sourceUrl: 'https://www.stats.gov.cn/sj/tjbz/tjyqhdmhcxhfdm/',
   snapshotYear: '2023',
@@ -86,6 +86,29 @@ function findByDistrictCode(districtCode) {
   return cloneRegion(getDistrictIndex()[code]);
 }
 
+// 根据城市编码返回该城市下所有区县/街道编码。
+function districtCodesByCityCode(cityCode) {
+  var normalizedCityCode = normalizeLevelCode(cityCode);
+  if (!normalizedCityCode) return [];
+
+  var provinces = pcaCode || [];
+  for (var i = 0; i < provinces.length; i++) {
+    var cities = (provinces[i] && provinces[i].children) || [];
+    for (var j = 0; j < cities.length; j++) {
+      var currentCity = cities[j] || {};
+      if (normalizeLevelCode(currentCity.code) === normalizedCityCode) {
+        return (currentCity.children || []).map(function (district) {
+          return normalizeInputCode(district && district.code);
+        }).filter(function (districtCode) {
+          return /^\d+$/.test(districtCode);
+        });
+      }
+    }
+  }
+
+  return [];
+}
+
 function findDisplayByDistrictCode(districtCode) {
   var region = findByDistrictCode(districtCode);
   if (region && /自治区$/.test(region.provinceName)) {
@@ -101,4 +124,5 @@ module.exports = {
   metadata: metadata,
   findByDistrictCode: findByDistrictCode,
   findDisplayByDistrictCode: findDisplayByDistrictCode,
+  districtCodesByCityCode: districtCodesByCityCode,
 };

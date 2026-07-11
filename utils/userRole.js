@@ -105,7 +105,8 @@ function getCurrentUserRole(Bmob) {
     return results && results.length && results[0].role != null
       ? normalizeRole(results[0].role)
       : cachedRole;
-  }).catch(function () {
+  }).catch(function (error) {
+    console.error('查询_User失败', error)
     return cachedRole;
   });
 }

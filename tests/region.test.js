@@ -77,6 +77,9 @@ assert.deepStrictEqual(region.findDisplayByDistrictCode('640104'), {
   districtName: '兴庆区',
 });
 
+assert.ok(region.districtCodesByCityCode('440100').indexOf('440106') !== -1);
+assert.ok(region.districtCodesByCityCode('441900').indexOf('441900003') !== -1);
+
 console.log('region.findByDistrictCode("110102") passed');
 console.log('region.findDisplayByDistrictCode("110102") passed');
 console.log('region.findDisplayByDistrictCode("500101") passed');
@@ -85,3 +88,4 @@ console.log('region.findDisplayByDistrictCode("659001") passed');
 console.log('region.findDisplayByDistrictCode("450102") passed');
 console.log('region.findDisplayByDistrictCode("540102") passed');
 console.log('region.findDisplayByDistrictCode("640104") passed');
+console.log('region.districtCodesByCityCode passed');
