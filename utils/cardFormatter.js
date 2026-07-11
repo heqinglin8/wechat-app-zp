@@ -1,4 +1,5 @@
 var util = require('./util');
+var companyCache = require('./companyCache');
 var findDisplayByDistrictCode = require('./region').findDisplayByDistrictCode;
 
 function firstText() {
@@ -59,10 +60,20 @@ function splitPhotoUrls(value, maxCount) {
   }).slice(0, maxCount || 3);
 }
 
+function applyCompanyCache(item) {
+  var company = companyCache.getCompanyById(item && item.companyId);
+  if (!company) return item;
+  item.companyName = firstText(company.companyName, item.companyName);
+  item.companyPeople = firstText(company.companyPeople, item.companyPeople);
+  item.financeStage = firstText(company.financeStage, item.financeStage);
+  return item;
+}
+
 function decorateJobCard(item) {
   item = item || {};
+  applyCompanyCache(item);
   var cityInfo = findDisplayByDistrictCode(item.districtCode);
-  var recruiter = firstText(item.commitUsername, '未写招聘者姓名');
+  var recruiter = firstText(item.commitNickname, '未写招聘者昵称');
   var recruiterRole = firstText(item.commitJobRole, '未写招聘者职位');
   var jobDirections = splitTags(item.jobDirection);
   item.cardTitle = firstText(item.title, '未写标题');
@@ -93,7 +104,7 @@ function decorateJobCards(list) {
 function decorateJobSeekerCard(item) {
   item = item || {};
   var cityInfo = findDisplayByDistrictCode(item.districtCode);
-  var recoName = firstText(item.recoName, '未写发布人');
+  var commitNickname = firstText(item.commitNickname, '未写发布人');
   var recruiterRole = firstText(item.commitJobRole, '');
   item.cardTitle = firstText(item.title, item.recoJobIntent, '未写标题');
   item.cardSalary = salaryText(item);
@@ -102,7 +113,7 @@ function decorateJobSeekerCard(item) {
   item.cardTags = compactTags([
     firstText(item.recoEducation, '')
   ].concat(splitTags(item.recoJobIntent)));
-  item.cardSeeker = recruiterRole ? recoName + ' · ' + recruiterRole : recoName;
+  item.cardSeeker = recruiterRole ? commitNickname + ' · ' + recruiterRole : commitNickname;
   item.cardLocation = cityInfo ? cityInfo.cityName : '';
   item.cardBadge = item.payType == 1 ? '临' : '';
   item.cardPhotos = splitPhotoUrls(item.photoImgs, 3);
@@ -120,6 +131,7 @@ module.exports = {
   compactTags: compactTags,
   splitTags: splitTags,
   splitPhotoUrls: splitPhotoUrls,
+  applyCompanyCache: applyCompanyCache,
   decorateJobCard: decorateJobCard,
   decorateJobCards: decorateJobCards,
   decorateJobSeekerCard: decorateJobSeekerCard,

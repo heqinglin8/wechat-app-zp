@@ -39,7 +39,7 @@
 
       <view class="award-list-name">
         <view class="name-text">电话</view>
-        <input class="name-input" type="number" maxlength="20" placeholder="手机号" value="{{recoContact}}" bindinput="onRecoContactInput" />
+        <input class="name-input" type="number" maxlength="20" placeholder="手机号" value="{{contact}}" bindinput="onContactInput" />
       </view>
 
       <view class="award-list-name">

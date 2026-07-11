@@ -14,12 +14,6 @@
         <view class="name-text">标题</view>
         <input class="name-input" type="text" maxlength="40" placeholder="如：叉车司机求职" value="{{title}}" bindinput="onTitleInput" />
       </view>
-
-      <view class="award-list-name">
-        <view class="name-text">名字</view>
-        <input class="name-input" type="text" placeholder="怎么称呼求职者？" value="{{recoName}}" bindinput="onRecoNameInput" />
-      </view>
-
       <view class="award-list-name award-picker-row">
         <view class="name-text">学历</view>
         <picker class="award-picker" mode="selector" range="{{educationOptions}}" value="{{educationIndex}}" bindchange="onEducationChange">

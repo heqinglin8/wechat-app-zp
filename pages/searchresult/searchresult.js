@@ -3,6 +3,7 @@ var Bmob = wx.Bmob;
 var util = require('../../utils/util');
 var city = require('../../utils/city');
 var cardFormatter = require('../../utils/cardFormatter');
+var companyCache = require('../../utils/companyCache');
 Page({
 
   /**
@@ -47,7 +48,10 @@ Page({
     query.limit(100);
     query.skip((pageIndex || 0) * 100);
     return query.find().then(function (rows) {
-      var list = (acc || []).concat(rows || []);
+      var enrichedRows = (rows || []).map(function (row) {
+        return cardFormatter.applyCompanyCache(row);
+      });
+      var list = (acc || []).concat(enrichedRows);
       if (rows && rows.length === 100) {
         return this.loadCurrentCityJobs((pageIndex || 0) + 1, list);
       }
@@ -103,7 +107,9 @@ Page({
       duration: 1500
     });
     Promise.all([
-      that.loadCurrentCityJobs(0, []),
+      companyCache.ensureLoaded(Bmob).then(function () {
+        return that.loadCurrentCityJobs(0, []);
+      }),
       that.loadCurrentCitySeekers(0, [])
     ]).then(function(results) {
       var jobs = results[0] || [];

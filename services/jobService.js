@@ -1,6 +1,7 @@
 var city = require('../utils/city');
 var util = require('../utils/util');
 var cardFormatter = require('../utils/cardFormatter');
+var companyCache = require('../utils/companyCache');
 
 var TAB_PRESETS = {
   home: [
@@ -63,10 +64,15 @@ function loadJobs(options) {
   var opts = options || {};
   var pageSize = opts.pageSize || 10;
   var pageIndex = opts.pageIndex || 0;
+  var Bmob = getBmob(opts);
   var query = buildActiveJobQuery(opts);
   query.limit(pageSize);
   query.skip(pageIndex * pageSize);
-  return query.find().then(function (rows) {
+  return Promise.all([
+    query.find(),
+    companyCache.ensureLoaded(Bmob)
+  ]).then(function (results) {
+    var rows = results[0] || [];
     var formatted = cardFormatter.decorateJobCards(util.formatList(rows || []));
     return {
       rows: rows || [],

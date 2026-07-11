@@ -137,21 +137,21 @@ function fullDisplayText(city) {
   return next.provinceName + ' ' + next.cityName + ' ' + next.districtName;
 }
 
-function applyCityFilter(query, city) {
+// 按当前城市下所有 districtCode 过滤记录。
+function applyCityDistrictFilter(query, city) {
   var next = normalizeCity(city || getCurrentCity());
-  query.equalTo('cityCode', '==', next.cityCode);
+  query.containedIn('districtCode', getRegionUtil().districtCodesByCityCode(next.cityCode));
   return query;
 }
 
+// 按当前城市下所有 districtCode 过滤招聘信息。
 function applyJobInfoFilter(query, city) {
-  return applyCityFilter(query, city);
+  return applyCityDistrictFilter(query, city);
 }
 
 // 按当前城市下所有 districtCode 过滤求职信息。
 function applyJobSeekerFilter(query, city) {
-  var next = normalizeCity(city || getCurrentCity());
-  query.containedIn('districtCode', getRegionUtil().districtCodesByCityCode(next.cityCode));
-  return query;
+  return applyCityDistrictFilter(query, city);
 }
 
 function applyCityFields(row, city, options) {

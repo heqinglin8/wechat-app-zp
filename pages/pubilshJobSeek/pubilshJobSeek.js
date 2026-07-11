@@ -4,7 +4,6 @@
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
 var Bmob = wx.Bmob;
-var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
 var imageUpload = require('../../utils/imageUpload.js');
 var userRole = require('../../utils/userRole.js');
@@ -17,7 +16,6 @@ var ALLOWED_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
 Page({
   data: {
     title: '',
-    recoName: '',
     recoContact: '',
     wxid: '',
     recoJobIntent: '',
@@ -40,9 +38,6 @@ Page({
     currentCityText: city.fullDisplayText(city.DEFAULT_CITY),
   },
 
-  onRecoNameInput: function (e) {
-    this.setData({ recoName: (e.detail && e.detail.value) || '' });
-  },
   onTitleInput: function (e) {
     this.setData({ title: (e.detail && e.detail.value) || '' });
   },
@@ -202,14 +197,13 @@ Page({
       if (!phone && u.userphone != null) {
         phone = String(u.userphone).trim();
       }
-      var nickname = u.nickname || '';
       that.setData({
-        recoName: nickname,
         recoContact: phone,
         userLoaded: true,
       });
       that._objectId = objectId;
       that._username = u.username || '';
+      that._nickname = u.nickname || '';
       that._currentUserRole = role;
     }).catch(function () {
       wx.showToast({ title: '用户信息加载失败', icon: 'none', duration: 2000 });
@@ -379,10 +373,6 @@ Page({
       wx.showToast({ title: '请填写标题', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.recoName && String(d.recoName).trim())) {
-      wx.showToast({ title: '请填写称呼', image: '../../images/warning.png', duration: 2000 });
-      return false;
-    }
     if (!(d.recoContact && String(d.recoContact).trim())) {
       wx.showToast({ title: '请填写电话', image: '../../images/warning.png', duration: 2000 });
       return false;
@@ -449,8 +439,8 @@ Page({
     var edu = this.educationLabel();
     row.set('commitUsername', this._username);
     row.set('commitUid', this._objectId || '');
+    row.set('commitNickname', String(this._nickname).trim());
     row.set('title', String(d.title).trim());
-    row.set('recoName', String(d.recoName).trim());
     row.set('recoEducation', edu);
     row.set('recoContact', String(d.recoContact).trim());
     row.set('wxid', String(d.wxid).trim());
@@ -484,7 +474,7 @@ Page({
 
     var query = Bmob.Query('JobSeeker');
     query.equalTo('commitUid', '==', that._objectId);
-    query.equalTo('recoName', '==', String(that.data.recoName).trim());
+    query.equalTo('title', '==', String(that.data.title).trim());
     query.equalTo('active', '==', 1);
 
     query.find().then(function (results) {

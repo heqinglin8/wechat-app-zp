@@ -2,6 +2,7 @@ var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
 var imageUpload = require('../../utils/imageUpload.js');
+var companyCache = require('../../utils/companyCache.js');
 
 var MAX_COMPANY_PHOTOS = 6;
 var MAX_PHOTO_BYTES = 3145728;
@@ -390,6 +391,7 @@ Page({
         });
       });
     }).then(function (company) {
+      companyCache.upsertCompany(company);
       try {
         wx.setStorageSync(LAST_PUBLISHED_COMPANY_KEY, company);
       } catch (e) {}

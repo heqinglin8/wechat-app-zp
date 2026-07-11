@@ -2,6 +2,7 @@
 //引入SDK
 const Bmob = require('/utils/Bmob-2.5.30.min.js');
 const city = require('/utils/city.js');
+const companyCache = require('/utils/companyCache.js');
 const userRole = require('/utils/userRole.js');
 //初始化Bmobkey
 Bmob.initialize("ba87e714fe642a8a", "489509");
@@ -52,10 +53,17 @@ App({
     });
   },
   /**
+   * 预加载公司信息到本地缓存，供招聘卡片按 companyId 补齐公司字段。
+   */
+  preloadCompanyInfoCache: function () {
+    return companyCache.preload(Bmob);
+  },
+  /**
    * 小程序启动时初始化城市、本地日志和微信登录态。
    */
   onLaunch: function () {
     city.initCurrentCity()
+    this.preloadCompanyInfoCache()
     const info = wx.getAppBaseInfo()
     console.log('SDKVersion:',info.SDKVersion)
     // 展示本地存储能力

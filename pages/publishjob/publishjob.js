@@ -1,5 +1,5 @@
 // pages/award/award.js
-// JobInfo（Bmob）：控制台 Class 须含 companyPeople financeStage recoEducation recoContact recoJobIntent recoIntro recoExtra、
+// JobInfo（Bmob）：控制台 Class 须含 recoEducation contact recoJobIntent
 // photoImgs（多张图 URL 半角 | 拼接）、commitUsername（提交人姓名）、commitUid（提交人 objectId）。
 // 配图：最多 3 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
@@ -33,7 +33,7 @@ Page({
     userName: '',
     title: '',
     recoName: '',
-    recoContact: '',
+    contact: '',
     wxid: '',
     payType: '0',
     payTypeOptions: ['普通月结', '临时工'],
@@ -52,8 +52,6 @@ Page({
     selectedCompany: null,
     companySelectorVisible: false,
     pendingCompanyIndex: -1,
-    recoIntro: '',
-    recoExtra: '',
     educationOptions: ['初中及以下', '中专 / 高中', '大专', '本科', '硕士及以上'],
     educationIndex: 2,
     userLoaded: false,
@@ -70,8 +68,8 @@ Page({
   onRecoNameInput: function (e) {
     this.setData({ title: (e.detail && e.detail.value) || '' });
   },
-  onRecoContactInput: function (e) {
-    this.setData({ recoContact: (e.detail && e.detail.value) || '' });
+  onContactInput: function (e) {
+    this.setData({ contact: (e.detail && e.detail.value) || '' });
   },
   onWxidInput: function (e) {
     this.setData({ wxid: (e.detail && e.detail.value) || '' });
@@ -327,7 +325,7 @@ Page({
       console.log('setData uname:',uname,' userId:',userId,' role:',role)
       that.setData({
         userName: uname,
-        recoContact: phone,
+        contact: phone,
         userLoaded: true,
         userId: userId,
         currentUserRole: role,
@@ -571,7 +569,7 @@ Page({
 
   validateForm: function () {
     var d = this.data;
-    if (!(d.selectedCompany && d.selectedCompanyName)) {
+    if (!d.selectedCompany) {
       wx.showToast({ title: '请选择公司', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
@@ -579,11 +577,11 @@ Page({
       wx.showToast({ title: '请填写标题', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.recoContact && String(d.recoContact).trim())) {
+    if (!(d.contact && String(d.contact).trim())) {
       wx.showToast({ title: '请填写电话', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    var contact = String(d.recoContact || '').trim();
+    var contact = String(d.contact || '').trim();
     var mobileReg = /^1[3-9]\d{9}$/;
     var landlineReg = /^0\d{2,3}-?\d{7,8}(?:-\d{1,6})?$/;
     if (!mobileReg.test(contact) && !landlineReg.test(contact)) {
@@ -655,25 +653,21 @@ Page({
     row.set('recoName', String(d.title).trim());
     row.set('education', edu);
     row.set('recoEducation', edu);
-    row.set('recoContact', String(d.recoContact).trim());
+    row.set('contact', String(d.contact).trim());
     row.set('wxid', String(d.wxid).trim());
     row.set('experience', String(d.experience || '').trim());
     row.set('summary', summaryText);
     row.set('jobDescription', jobDescriptionText);
     row.set('jobDirection', String(d.jobDirection || '').trim());
     row.set('companyId', d.selectedCompanyId || '');
-    row.set('companyName', d.selectedCompanyName || '');
-    row.set('companyPeople', toNumberOrZero(d.selectedCompany && d.selectedCompany.companyPeople));
-    row.set('financeStage', String((d.selectedCompany && d.selectedCompany.financeStage) || '').trim());
-    row.set('companyLogo', (d.selectedCompany && d.selectedCompany.logo) || '');
     row.set('detPayMin', parsePositiveNumber(d.detPayMin));
     row.set('detPayMax', parsePositiveNumber(d.detPayMax));
     row.set('payType', Number(d.payType || '0'));
-    row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
-    row.set('recoExtra', (d.recoExtra && String(d.recoExtra).trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
     row.set('active', this.resolvePublishActive());
-    city.applyCityFields(row, d.selectedCompany || d.currentCity);
+    var currentCity = city.normalizeCity(d.selectedCompany || d.currentCity);
+    row.set('districtName', currentCity.districtName);
+    row.set('districtCode', currentCity.districtCode);
   },
 
   put_infor: function () {
