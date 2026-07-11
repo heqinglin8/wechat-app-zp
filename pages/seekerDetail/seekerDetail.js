@@ -4,6 +4,7 @@
 var Bmob = wx.Bmob;
 var app = getApp();
 var util = require('../../utils/util.js');
+var findDisplayByDistrictCode = require('../../utils/region').findDisplayByDistrictCode;
 Page({
   data: {
     content: '',
@@ -36,8 +37,9 @@ Page({
     return text || (label + '未填写');
   },
   formatLocationText: function (item) {
-    var city = this.firstText(item.cityName);
-    var district = this.firstText(item.districtName);
+    var regionInfo = findDisplayByDistrictCode(item.districtCode);
+    var city = this.firstText(regionInfo && regionInfo.cityName);
+    var district = this.firstText(regionInfo && regionInfo.districtName);
     if (city && district) return city + '·' + district;
     return '城市未填写';
   },
@@ -70,16 +72,16 @@ Page({
   },
   buildViewData: function (item, collectNum) {
     return {
-      titleText: this.withFallback(this.firstText(item.title, item.recoName), '求职标题'),
+      titleText: this.withFallback(item.title, '求职标题'),
       salaryText: this.formatSalaryText(item),
       collectNumText: this.firstText(collectNum, '0'),
-      publisherText: this.withFallback(this.firstText(item.commitNickname, item.commitUsername), '发布人'),
+      publisherText: this.withFallback(item.commitNickname, '发布人'),
       locationText: this.formatLocationText(item),
-      educationText: this.withFallback(this.firstText(item.education, item.recoEducation), '学历'),
-      intentText: this.withFallback(this.firstText(item.jobIntent, item.recoJobIntent), '求职方向'),
+      educationText: this.withFallback(item.education, '学历'),
+      intentText: this.withFallback(item.jobIntent, '求职方向'),
       payTypeText: this.formatPayTypeText(item),
       expectedSalaryText: this.formatSalaryText(item),
-      phoneText: this.withFallback(this.firstText(item.contact, item.recoContact), '电话'),
+      phoneText: this.withFallback(item.contact, '电话'),
       wxidText: this.withFallback(item.wxid, '微信'),
       summaryText: this.withFallback(item.summary, '摘要'),
       introText: this.withFallback(item.recoIntro, '自我介绍'),
@@ -97,54 +99,112 @@ Page({
       viewData: this.buildViewData(item, normalizedCollectNum),
     });
   },
+  showLoginPrompt: function (actionText) {
+    wx.showModal({
+      title: '提示',
+      content: '请先登录后' + actionText,
+      cancelText: '取消',
+      confirmText: '去登录',
+      success: function (res) {
+        if (res.confirm) {
+          wx.switchTab({
+            url: '/pages/personal/personal'
+          });
+        }
+      }
+    });
+  },
+  showSetInfoPrompt: function (content) {
+    wx.showModal({
+      title: '提示',
+      content: content,
+      cancelText: '取消',
+      confirmText: '去完善',
+      success: function (res) {
+        if (res.confirm) {
+          wx.navigateTo({
+            url: '/pages/setinfor/setinfor'
+          });
+        }
+      }
+    });
+  },
+  fetchCurrentUserInfo: function (userId) {
+    if (!userId) return Promise.resolve(null);
+    var query = Bmob.Query("_User");
+    query.equalTo("objectId", "==", userId);
+    return query.find().then(function (results) {
+      return results && results.length ? results[0] : null;
+    });
+  },
+  ensureCurrentUserContactReady: function (actionText, callback) {
+    var that = this;
+    var currentUser = Bmob.User.current();
+    if (!currentUser || !currentUser.objectId) {
+      that.showLoginPrompt(actionText);
+      return;
+    }
+
+    that.fetchCurrentUserInfo(currentUser.objectId).then(function (userInfo) {
+      if (!userInfo) {
+        that.showLoginPrompt(actionText);
+        return;
+      }
+
+      var wxid = userInfo.wxid;
+      var mobilePhoneNumber = userInfo.mobilePhoneNumber;
+      that.setData({
+        userId: userInfo.objectId,
+      });
+
+      if (!wxid) {
+        that.showSetInfoPrompt('请先完善微信号，再' + actionText);
+        return;
+      }
+      if (!mobilePhoneNumber) {
+        that.showSetInfoPrompt('请先完善联系电话，再' + actionText);
+        return;
+      }
+
+      if (typeof callback === 'function') {
+        callback(userInfo);
+      }
+    }).catch(function (error) {
+      console.error('获取登录账号信息失败:', error);
+      wx.showToast({
+        title: '获取用户信息失败',
+        icon: 'none',
+        duration: 1500
+      });
+    });
+  },
   /**
    * 求职热线跳转
    */
   bindViewServicePhone: function () {
     var that = this;
-    var currentUser = Bmob.User.current();
-    if (!currentUser) {
-      wx.showModal({
-        title: '提示',
-        content: '请先登录后再电话咨询',
-        cancelText: '取消',
-        confirmText: '去登录',
-        success: function (res) {
-          if (res.confirm) {
-            wx.switchTab({
-              url: '/pages/personal/personal'
-            });
-          }
-        }
-      });
-      return;
-    }
-    if (!that.firstText(that.data.userId) && currentUser.objectId) {
-      that.setData({
-        userId: currentUser.objectId
-      });
-    }
-
-    var content = that.data.content || {};
-    var phone = that.firstText(content.contact, content.recoContact).replace(/\s+/g, '');
-    if (!phone) {
-      wx.showToast({
-        title: '未填联系电话',
-        image: "../../images/warning.png",
-        duration: 2000
-      });
-      return;
-    }
-
-    wx.makePhoneCall({
-      phoneNumber: phone,
-      fail: function () {
+    that.ensureCurrentUserContactReady('再电话咨询', function () {
+      var content = that.data.content || {};
+      var phone = content.contact.replace(/\s+/g, '');
+      if (!phone) {
         wx.showToast({
-          title: '拨号失败',
+          title: '未填联系电话',
           image: "../../images/warning.png",
           duration: 2000
         });
+        return;
       }
+
+      wx.makePhoneCall({
+        phoneNumber: phone,
+        fail: function () {
+          wx.showToast({
+            title: '拨号失败',
+            image: "../../images/warning.png",
+            duration: 2000
+          });
+        }
+      });
     });
   },
   /**
@@ -413,57 +473,36 @@ Page({
   //点击微信咨询
   bindViewXWZX: function () {
     var that = this;
-    var currentUser = Bmob.User.current();
-    if (!currentUser) {
-      wx.showModal({
-        title: '提示',
-        content: '请先登录后再微信咨询',
-        cancelText: '取消',
-        confirmText: '去登录',
-        success: function (res) {
-          if (res.confirm) {
-            wx.switchTab({
-              url: '/pages/personal/personal'
-            });
-          }
-        }
-      });
-      return;
-    }
-    if (!that.firstText(that.data.userId) && currentUser.objectId) {
-      that.setData({
-        userId: currentUser.objectId
-      });
-    }
-
-    var wxid = that.firstText(that.data.content && that.data.content.wxid);
-    if (!wxid) {
-      wx.showModal({
-        title: '提示',
-        content: '对方没有留下微信',
-        showCancel: false,
-        confirmText: '知道了'
-      });
-      return;
-    }
-
-    wx.setClipboardData({
-      data: wxid,
-      success: function () {
+    that.ensureCurrentUserContactReady('再微信咨询', function () {
+      var wxid = that.data.content && that.data.content.wxid;
+      if (!wxid) {
         wx.showModal({
           title: '提示',
-          content: '已经复制微信号，请直接去微信加好友',
+          content: '对方没有留下微信',
           showCancel: false,
           confirmText: '知道了'
         });
-      },
-      fail: function () {
-        wx.showToast({
-          title: '复制失败',
-          image: "../../images/warning.png",
-          duration: 2000
-        });
+        return;
       }
+
+      wx.setClipboardData({
+        data: wxid,
+        success: function () {
+          wx.showModal({
+            title: '提示',
+            content: '已经复制微信号，请直接去微信加好友',
+            showCancel: false,
+            confirmText: '知道了'
+          });
+        },
+        fail: function () {
+          wx.showToast({
+            title: '复制失败',
+            image: "../../images/warning.png",
+            duration: 2000
+          });
+        }
+      });
     });
   },
   /**
@@ -480,14 +519,13 @@ Page({
   isuser: function () {
     var that = this;
     var currentUser = Bmob.User.current();
-    if (!currentUser) {
+    if (!currentUser || currentUser.objectId) {
       that.setData({
         userId: '',
       });
     } else {
-      var userId = currentUser.objectId;
       that.setData({
-        userId: userId,
+        userId: currentUser.objectId,
       });
     }
   }
