@@ -33,11 +33,11 @@ function isJobSeekerRole(role) {
 }
 
 function canPublishRecruit(role) {
-  return isRecruiterRole(role) || isAdminRole(role);
+  return !isJobSeekerRole(role);
 }
 
 function canPublishJobSeeker(role) {
-  return isJobSeekerRole(role) || isAdminRole(role);
+  return isJobSeekerRole(role);
 }
 
 function resolvePublishActive(role) {
