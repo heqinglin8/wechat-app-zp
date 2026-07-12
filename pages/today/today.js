@@ -3,6 +3,7 @@ var Bmob = wx.Bmob;
 var city = require('../../utils/city');
 var userRole = require('../../utils/userRole');
 var util = require('../../utils/util');
+var jobTypeData = require('../../utils/jobTypeData');
 var jobType = util.jobType;
 var jobService = require('../../services/jobService');
 var jobSeekerService = require('../../services/jobSeekerService');
@@ -142,7 +143,7 @@ Page({
     currentCityCode: city.DEFAULT_CITY.cityCode,
     currentRole: '',
     isJobSeekerMode: false,
-    jobTypeCategories: jobType.categories,
+    jobTypeCategories: jobTypeData.categories,
     jobTypePopupVisible: false,
     appliedJobTypeCode: jobType.ALL_JOB_TYPE_CODE,
     tempJobTypeCode: jobType.ALL_JOB_TYPE_CODE,

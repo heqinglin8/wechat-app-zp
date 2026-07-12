@@ -13,7 +13,7 @@ function decorateJoinCard(jobInfo, joinInfo) {
   var job = jobInfo || {};
   var join = joinInfo || {};
   var cityInfo = findDisplayByDistrictCode(job.districtCode);
-  var directions = cardFormatter.splitTags(job.jobDirection);
+  var directions = cardFormatter.jobDirectionTags(job);
   var companyName = pickText(job.companyName, pickText(join.joinCompanyName, '公司名称未填写'));
   var experience = pickText(job.experience, '经验未填写');
   var education = pickText(job.education, '学历未填写');

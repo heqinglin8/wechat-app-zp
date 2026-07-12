@@ -50,6 +50,19 @@ function splitTags(value) {
   });
 }
 
+function jobTypeLabel(value) {
+  var code = util.jobType.normalizeCode(value);
+  if (code === util.jobType.ALL_JOB_TYPE_CODE) return '';
+  return util.jobType.getLabelByCode(code);
+}
+
+function jobDirectionTags(item) {
+  var tags = splitTags(item && item.jobDirection);
+  if (tags.length) return tags;
+  var label = jobTypeLabel(item && item.jobType);
+  return label ? [label] : [];
+}
+
 function splitPhotoUrls(value, maxCount) {
   var text = firstText(value);
   if (!text) return [];
@@ -75,7 +88,7 @@ function decorateJobCard(item) {
   var cityInfo = findDisplayByDistrictCode(item.districtCode);
   var recruiter = firstText(item.commitNickname, '未写招聘者昵称');
   var recruiterRole = firstText(item.commitJobRole, '未写招聘者职位');
-  var jobDirections = splitTags(item.jobDirection);
+  var jobDirections = jobDirectionTags(item);
   item.cardTitle = firstText(item.title, '未写标题');
   item.cardSalary = salaryText(item);
   item.cardCompany = firstText(item.companyName, '未写公司名称');
@@ -130,6 +143,8 @@ module.exports = {
   salaryText: salaryText,
   compactTags: compactTags,
   splitTags: splitTags,
+  jobTypeLabel: jobTypeLabel,
+  jobDirectionTags: jobDirectionTags,
   splitPhotoUrls: splitPhotoUrls,
   applyCompanyCache: applyCompanyCache,
   decorateJobCard: decorateJobCard,

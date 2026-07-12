@@ -1,5 +1,5 @@
 // pages/award/award.js
-// JobInfo（Bmob）：控制台 Class 须含 contact recoJobIntent
+// JobInfo（Bmob）：控制台 Class 须含 contact jobType
 // photoImgs（多张图 URL 半角 | 拼接）、commitNickname（提交人姓名）、commitUid（提交人 objectId）。
 // 配图：最多 3 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
@@ -8,6 +8,7 @@ var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
 var imageUpload = require('../../utils/imageUpload.js');
 var userRole = require('../../utils/userRole.js');
+var jobTypeData = require('../../utils/jobTypeData.js');
 var jobType = util.jobType;
 
 var MAX_RECOMMEND_PHOTOS = 3;
@@ -38,14 +39,13 @@ Page({
     payTypeOptions: ['普通月结', '临时工'],
     payTypeIndex: 0,
     jobType: jobType.ALL_JOB_TYPE_CODE,
-    jobTypeCategories: jobType.categories,
+    jobTypeCategories: jobTypeData.categories,
     jobTypePopupVisible: false,
     tempJobTypeCode: jobType.ALL_JOB_TYPE_CODE,
     activeJobTypeCategoryCode: DEFAULT_JOB_TYPE_CATEGORY_CODE,
     activeJobTypeGroups: jobType.getGroupsByCategory(DEFAULT_JOB_TYPE_CATEGORY_CODE),
-    recoJobIntent: '',
     experience: '',
-    jobDirection: '',
+    selectedJobTypeLabel: '',
     summary: '',
     jobDescription: '',
     detPayMin: '',
@@ -97,13 +97,6 @@ Page({
   },
   onExperienceInput: function (e) {
     this.setData({ experience: (e.detail && e.detail.value) || '' });
-  },
-  onJobDirectionInput: function (e) {
-    var value = (e.detail && e.detail.value) || '';
-    this.setData({
-      jobDirection: value,
-      recoJobIntent: value,
-    });
   },
   onSummaryInput: function (e) {
     var value = (e.detail && e.detail.value) || '';
@@ -170,8 +163,7 @@ Page({
     this.setData({
       jobTypePopupVisible: false,
       jobType: nextCode,
-      jobDirection: nextLabel,
-      recoJobIntent: nextLabel
+      selectedJobTypeLabel: nextLabel
     });
   },
 
@@ -683,10 +675,6 @@ Page({
     return true;
   },
 
-  onRecoJobIntentInput: function (e) {
-    this.setData({ recoJobIntent: (e.detail && e.detail.value) || '' });
-  },
-
   applyJobSeekerFields: function (row) {
     console.log("applyJobSeekerFields row:",row);
     var d = this.data;
@@ -708,8 +696,6 @@ Page({
     row.set('experience', String(d.experience || '').trim());
     row.set('summary', summaryText);
     row.set('jobDescription', jobDescriptionText);
-    row.set('jobDirection', String(d.jobDirection || '').trim());
-    row.set('recoJobIntent', String(d.recoJobIntent || d.jobDirection || '').trim());
     row.set('jobType', Number(jobType.normalizeCode(d.jobType)));
     row.set('companyId', d.selectedCompanyId || '');
     row.set('detPayMin', parsePositiveNumber(d.detPayMin));

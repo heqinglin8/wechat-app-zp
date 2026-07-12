@@ -71,7 +71,9 @@ Page({
     } else if (payTypeValue === '1') {
       payTypeText = '临时工';
     }
-    var jobDirectionText = this.firstText(item.jobDirection,'未填职业方向');
+    var jobTypeCode = util.jobType.normalizeCode(item.jobType);
+    var jobTypeText = jobTypeCode === util.jobType.ALL_JOB_TYPE_CODE ? '' : util.jobType.getLabelByCode(jobTypeCode);
+    var jobDirectionText = this.firstText(jobTypeText, '未填职业方向');
     var educationForDetail = this.firstText(item.education, '未填最低学历');
     var experienceForDetail = this.firstText(item.experience, '未填经验');
     var jobDescriptionText = this.firstText(item.jobDescription);

@@ -25,7 +25,7 @@
       <view class="award-list-name award-picker-row">
         <view class="name-text">职位方向</view>
         <view class="award-picker company-select-input" bindtap="openJobTypePopup">
-          <view class="picker-display {{jobDirection ? '' : 'picker-placeholder'}}">{{jobDirection || '请选择职能'}}</view>
+          <view class="picker-display {{selectedJobTypeLabel ? '' : 'picker-placeholder'}}">{{selectedJobTypeLabel || '请选择职能'}}</view>
           <text class="company-select-arrow">›</text>
         </view>
       </view>
@@ -71,7 +71,7 @@
 
       <view class="award-list-textarea">
         <view class="label-block">摘要</view>
-        <textarea class="jobDirection-textarea summary-textarea" placeholder="请输入职位摘要，字数在40以内..." value="{{summary}}" bindinput="onSummaryInput" maxlength="40" />
+        <textarea class="short-textarea summary-textarea" placeholder="请输入职位摘要，字数在40以内..." value="{{summary}}" bindinput="onSummaryInput" maxlength="40" />
       </view>
 
       <view class="award-list-textarea award-list-textarea-extra">

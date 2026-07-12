@@ -427,7 +427,7 @@
   margin-top: 8rpx;
 }
 
-.jobDirection-textarea {
+.short-textarea {
   box-shadow: 0px 0px 3px rgba(55, 55, 55, 0.5);
   border-radius: 10rpx;
   border: 1px #fc3 solid;
