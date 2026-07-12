@@ -277,12 +277,17 @@ Page({
    */
   loadCurrentList: function (pageIndex, tab) {
     var loader = this.getListLoader();
+    var currentTab = tab === undefined ? this.data.currentTab : tab;
+    var filters = cloneFilters(this.data.appliedFilters);
+    if (normalizeTab(currentTab) === 2) {
+      filters.payType = FILTER_ALL_VALUE;
+    }
     return loader({
       Bmob: Bmob,
       preset: 'today',
-      tab: tab === undefined ? this.data.currentTab : tab,
+      tab: currentTab,
       jobType: this.data.appliedJobTypeCode,
-      filters: this.data.appliedFilters,
+      filters: filters,
       pageIndex: pageIndex,
       pageSize: 10
     });

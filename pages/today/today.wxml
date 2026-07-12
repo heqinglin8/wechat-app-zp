@@ -11,9 +11,9 @@
     <scroll-view scroll-y="true" scroll-x="true" class="tab-h" scroll-left="{{scrollLeft}}">
       <view class="tab-h__inner">
         <view class="tab-group tab-group--left">
-          <view class="tab-item {{currentTab==1?'active':''}}" data-current="1" bindtap="swichNav">最新</view>
-          <view class="tab-item {{currentTab==0?'active':''}}" data-current="0" bindtap="swichNav">推荐</view>
-          <view class="tab-item {{appliedFilters.payType == '1' ? 'tab-item--filter-active' : ''}}" bindtap="filterPartTimeJobs">临时工</view>
+          <view class="tab-item {{currentTab==0?'active':''}}" data-current="0" bindtap="swichNav">最新</view>
+          <view class="tab-item {{currentTab==1?'active':''}}" data-current="1" bindtap="swichNav">推荐</view>
+          <view class="tab-item {{currentTab==2?'active':''}}" data-current="2" bindtap="swichNav">临时工</view>
         </view>
         <view class="tab-group tab-group--right">
           <view class="tab-item tab-item--filter {{appliedJobTypeCode != '000' ? 'tab-item--filter-active' : ''}}" bindtap="openJobTypePopup">{{jobTypeFilterText}}<text class="tab-item__arrow"></text></view>

@@ -6,14 +6,14 @@ var companyCache = require('../utils/companyCache');
 var TAB_PRESETS = {
   home: [
     { order: '-updatedAt' },
-    { order: '-detPayMax' },
-    { order: '-detPayMax' },
     { order: '-entNum' },
+    { payType: 1, order: '-updatedAt' },
+    { order: '-detPayMax' },
   ],
   today: [
-    { order: '-entNum' },
     { order: '-updatedAt' },
-    { order: '-detPayMax' },
+    { order: '-entNum' },
+    { payType: 1, order: '-updatedAt' },
     { order: '-detPayMax' },
   ],
 };
@@ -38,6 +38,9 @@ function normalizeTab(tab) {
  */
 function applyPreset(query, presetName, tab) {
   var preset = (TAB_PRESETS[presetName] || TAB_PRESETS.home)[normalizeTab(tab)] || TAB_PRESETS.home[0];
+  if (preset.payType !== undefined) {
+    query.equalTo('payType', '==', preset.payType);
+  }
   query.order(preset.order);
   return query;
 }

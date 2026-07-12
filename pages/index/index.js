@@ -401,11 +401,21 @@ Page({
   },
   //滚动tab
 
+  openTodayPage: function () {
+    wx.switchTab({
+      url: '/pages/today/today'
+    });
+  },
+
   /**
    * swiper 滑动切换 tab 时同步当前 tab 并重新加载列表。
    */
   switchTab: function (e) {
     var cur = normalizeTab(e.detail.current);
+    if (cur === 3) {
+      this.openTodayPage();
+      return;
+    }
     if (cur === normalizeTab(this.data.currentTab)) {
       return;
     }
@@ -422,6 +432,10 @@ Page({
   swichNav: function (e) {
 
     var cur = normalizeTab(e.currentTarget.dataset.current);
+    if (cur === 3) {
+      this.openTodayPage();
+      return false;
+    }
     if (normalizeTab(this.data.currentTab) === cur) {
       return false;
     }

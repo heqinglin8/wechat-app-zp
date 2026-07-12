@@ -5,15 +5,15 @@ var cardFormatter = require('../utils/cardFormatter');
 var TAB_PRESETS = {
   home: [
     { order: '-updatedAt' },
-    { payType: 0, order: '-detPayMax' },
-    { payType: 1, order: '-detPayMax' },
+    { order: '-collectNum' },
+    { payType: 1, order: '-updatedAt' },
     { order: '-collectNum' },
   ],
   today: [
-    { order: '-collectNum' },
     { order: '-updatedAt' },
-    { payType: 0, order: '-detPayMax' },
-    { payType: 1, order: '-detPayMax' },
+    { order: '-collectNum' },
+    { payType: 1, order: '-updatedAt' },
+    { order: '-collectNum' },
   ],
 };
 
