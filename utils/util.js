@@ -422,6 +422,73 @@ const jobType = {
   applyJobTypeFilter: applyJobTypeFilter,
 }
 
+const FILTER_ALL_VALUE = 'all'
+
+const normalizeFilterValue = value => {
+  const text = value === undefined || value === null ? FILTER_ALL_VALUE : String(value).trim()
+  return text || FILTER_ALL_VALUE
+}
+
+const normalizeJobFilters = filters => {
+  const next = filters || {}
+  return {
+    salary: normalizeFilterValue(next.salary),
+    payType: normalizeFilterValue(next.payType),
+    education: normalizeFilterValue(next.education),
+    companySize: normalizeFilterValue(next.companySize),
+  }
+}
+
+const applyJobFilterQuery = (query, filters) => {
+  const next = normalizeJobFilters(filters)
+  if (next.salary !== FILTER_ALL_VALUE) {
+    const salary = Number(next.salary)
+    if (!isNaN(salary) && salary > 0) {
+      query.equalTo('detPayMin', '>=', salary)
+    }
+  }
+  if (next.payType !== FILTER_ALL_VALUE) {
+    const payType = Number(next.payType)
+    if (!isNaN(payType)) {
+      query.equalTo('payType', '==', payType)
+    }
+  }
+  if (next.education !== FILTER_ALL_VALUE) {
+    query.equalTo('education', '==', next.education)
+  }
+  return query
+}
+
+const companyMatchesSize = (companyPeople, companySize) => {
+  const size = normalizeFilterValue(companySize)
+  if (size === FILTER_ALL_VALUE) return true
+  const count = Number(companyPeople)
+  if (isNaN(count) || count <= 0) return false
+  if (size === 'under20') return count <= 20
+  if (size === '20-99') return count >= 20 && count <= 99
+  if (size === '100-499') return count >= 100 && count <= 499
+  if (size === '500-999') return count >= 500 && count <= 999
+  if (size === '1000-9999') return count >= 1000 && count <= 9999
+  if (size === '10000') return count >= 10000
+  return true
+}
+
+const companyIdsBySize = (companies, companySize) => {
+  const size = normalizeFilterValue(companySize)
+  if (size === FILTER_ALL_VALUE) return null
+  return (companies || []).filter(company => {
+    return company && company.objectId && companyMatchesSize(company.companyPeople, size)
+  }).map(company => company.objectId)
+}
+
+const jobFilter = {
+  ALL_VALUE: FILTER_ALL_VALUE,
+  normalize: normalizeJobFilters,
+  applyQuery: applyJobFilterQuery,
+  companyMatchesSize: companyMatchesSize,
+  companyIdsBySize: companyIdsBySize,
+}
+
 module.exports = {
   formatTime: formatTime,
   formatList: formatList,
@@ -429,5 +496,6 @@ module.exports = {
   extractRelativePathFromUrl: extractRelativePathFromUrl,
   toDisplayUrl: toDisplayUrl,
   uploadAndSaveUserAvatar: uploadAndSaveUserAvatar,
-  jobType: jobType
+  jobType: jobType,
+  jobFilter: jobFilter
 }

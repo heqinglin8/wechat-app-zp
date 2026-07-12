@@ -2,11 +2,67 @@
 var Bmob = wx.Bmob;
 var city = require('../../utils/city');
 var userRole = require('../../utils/userRole');
-var jobType = require('../../utils/util').jobType;
+var util = require('../../utils/util');
+var jobType = util.jobType;
 var jobService = require('../../services/jobService');
 var jobSeekerService = require('../../services/jobSeekerService');
 var app = getApp();
 var DEFAULT_JOB_TYPE_CATEGORY_CODE = jobType.getDefaultCategoryCode();
+var FILTER_ALL_VALUE = util.jobFilter.ALL_VALUE;
+var DEFAULT_FILTERS = {
+  salary: FILTER_ALL_VALUE,
+  payType: FILTER_ALL_VALUE,
+  education: FILTER_ALL_VALUE,
+  companySize: FILTER_ALL_VALUE
+};
+var FILTER_CONFIG = [
+  {
+    key: 'salary',
+    title: '薪资要求',
+    options: [
+      { label: '全部', value: FILTER_ALL_VALUE },
+      { label: '2000以上', value: '2000' },
+      { label: '4000以上', value: '4000' },
+      { label: '6000以上', value: '6000' },
+      { label: '8000以上', value: '8000' },
+      { label: '10000以上', value: '10000' }
+    ]
+  },
+  {
+    key: 'payType',
+    title: '结算方式',
+    options: [
+      { label: '全部', value: FILTER_ALL_VALUE },
+      { label: '月结', value: '0' },
+      { label: '临时工', value: '1' }
+    ]
+  },
+  {
+    key: 'education',
+    title: '学历要求',
+    options: [
+      { label: '全部', value: FILTER_ALL_VALUE },
+      { label: '初中及以下', value: '初中及以下' },
+      { label: '中专 / 高中', value: '中专 / 高中' },
+      { label: '大专', value: '大专' },
+      { label: '本科', value: '本科' },
+      { label: '硕士及以上', value: '硕士及以上' }
+    ]
+  },
+  {
+    key: 'companySize',
+    title: '公司规模',
+    options: [
+      { label: '全部', value: FILTER_ALL_VALUE },
+      { label: '20人以下', value: 'under20' },
+      { label: '20-99人', value: '20-99' },
+      { label: '100-499人', value: '100-499' },
+      { label: '500-999人', value: '500-999' },
+      { label: '1000-9999人', value: '1000-9999' },
+      { label: '10000人以上', value: '10000' }
+    ]
+  }
+];
 
 /**
  * 将 tab 参数标准化为数字，非法值统一回退到第一个 tab。
@@ -14,6 +70,64 @@ var DEFAULT_JOB_TYPE_CATEGORY_CODE = jobType.getDefaultCategoryCode();
 function normalizeTab(tab) {
   var n = Number(tab);
   return isNaN(n) ? 0 : n;
+}
+
+function cloneFilters(filters) {
+  var next = filters || {};
+  return {
+    salary: next.salary || FILTER_ALL_VALUE,
+    payType: next.payType || FILTER_ALL_VALUE,
+    education: next.education || FILTER_ALL_VALUE,
+    companySize: next.companySize || FILTER_ALL_VALUE
+  };
+}
+
+function buildFilterSections(filters, isJobSeekerMode) {
+  var next = cloneFilters(filters);
+  return FILTER_CONFIG.filter(function (section) {
+    return !(isJobSeekerMode && section.key === 'companySize');
+  }).map(function (section) {
+    return {
+      key: section.key,
+      title: section.title,
+      options: section.options.map(function (option) {
+        return {
+          label: option.label,
+          value: option.value,
+          selected: option.value === next[section.key]
+        };
+      })
+    };
+  });
+}
+
+function filtersChanged(a, b) {
+  var left = cloneFilters(a);
+  var right = cloneFilters(b);
+  return left.salary !== right.salary ||
+    left.payType !== right.payType ||
+    left.education !== right.education ||
+    left.companySize !== right.companySize;
+}
+
+function hasActiveFilters(filters) {
+  var next = cloneFilters(filters);
+  return next.salary !== FILTER_ALL_VALUE ||
+    next.payType !== FILTER_ALL_VALUE ||
+    next.education !== FILTER_ALL_VALUE ||
+    next.companySize !== FILTER_ALL_VALUE;
+}
+
+function filterLabel(key, value, fallback) {
+  for (var i = 0; i < FILTER_CONFIG.length; i++) {
+    if (FILTER_CONFIG[i].key !== key) continue;
+    for (var j = 0; j < FILTER_CONFIG[i].options.length; j++) {
+      if (FILTER_CONFIG[i].options[j].value === value) {
+        return value === FILTER_ALL_VALUE ? fallback : FILTER_CONFIG[i].options[j].label;
+      }
+    }
+  }
+  return fallback;
 }
 
 Page({
@@ -35,6 +149,12 @@ Page({
     activeJobTypeCategoryCode: DEFAULT_JOB_TYPE_CATEGORY_CODE,
     activeJobTypeGroups: jobType.getGroupsByCategory(DEFAULT_JOB_TYPE_CATEGORY_CODE),
     jobTypeFilterText: '工种',
+    filterPopupVisible: false,
+    appliedFilters: cloneFilters(DEFAULT_FILTERS),
+    tempFilters: cloneFilters(DEFAULT_FILTERS),
+    filterSections: buildFilterSections(DEFAULT_FILTERS, false),
+    salaryFilterText: '薪资',
+    filterActive: false,
 
     //tab
     winHeight: "",
@@ -94,10 +214,20 @@ Page({
       this.data.isJobSeekerMode !== nextIsJobSeekerMode;
     var tabChanged = normalizeTab(this.data.currentTab) !== nextTab;
 
+    var nextFilters = cloneFilters(this.data.appliedFilters);
+    if (nextIsJobSeekerMode) {
+      nextFilters.companySize = FILTER_ALL_VALUE;
+    }
+
     this.setData({
       currentRole: nextRole,
       isJobSeekerMode: nextIsJobSeekerMode,
-      currentTab: nextTab
+      currentTab: nextTab,
+      appliedFilters: nextFilters,
+      tempFilters: cloneFilters(nextFilters),
+      filterSections: buildFilterSections(nextFilters, nextIsJobSeekerMode),
+      filterActive: hasActiveFilters(nextFilters),
+      salaryFilterText: filterLabel('salary', nextFilters.salary, '薪资')
     });
     this.updateNavigationTitle(nextIsJobSeekerMode);
 
@@ -151,6 +281,7 @@ Page({
       preset: 'today',
       tab: tab === undefined ? this.data.currentTab : tab,
       jobType: this.data.appliedJobTypeCode,
+      filters: this.data.appliedFilters,
       pageIndex: pageIndex,
       pageSize: 10
     });
@@ -277,6 +408,21 @@ Page({
     this.switchTabLoad(String(cur));
   },
   /**
+   * 点击“临时工”时直接按临时工结算方式筛选并刷新列表。
+   */
+  filterPartTimeJobs: function () {
+    var nextFilters = cloneFilters(this.data.appliedFilters);
+    nextFilters.payType = '1';
+    this.setData({
+      appliedFilters: nextFilters,
+      tempFilters: cloneFilters(nextFilters),
+      filterSections: buildFilterSections(nextFilters, this.data.isJobSeekerMode),
+      salaryFilterText: filterLabel('salary', nextFilters.salary, '薪资'),
+      filterActive: hasActiveFilters(nextFilters)
+    });
+    this.reloadCurrentTab();
+  },
+  /**
    * 打开工种筛选弹窗，并以当前已应用的筛选作为临时选择。
    */
   openJobTypePopup: function () {
@@ -338,6 +484,63 @@ Page({
       jobTypeFilterText: jobType.getLabelByCode(nextCode)
     });
     if (nextCode !== prevCode) {
+      this.reloadCurrentTab();
+    }
+  },
+  /**
+   * 打开全部筛选弹窗，薪资和筛选入口共用。
+   */
+  openFilterPopup: function () {
+    var tempFilters = cloneFilters(this.data.appliedFilters);
+    this.setData({
+      filterPopupVisible: true,
+      tempFilters: tempFilters,
+      filterSections: buildFilterSections(tempFilters, this.data.isJobSeekerMode)
+    });
+  },
+  /**
+   * 关闭全部筛选弹窗，不应用临时选择。
+   */
+  closeFilterPopup: function () {
+    this.setData({ filterPopupVisible: false });
+  },
+  /**
+   * 选择一个筛选项。
+   */
+  selectFilterOption: function (e) {
+    var key = e.currentTarget.dataset.key;
+    var value = String(e.currentTarget.dataset.value || FILTER_ALL_VALUE);
+    if (!key) return;
+    var tempFilters = cloneFilters(this.data.tempFilters);
+    tempFilters[key] = value;
+    this.setData({
+      tempFilters: tempFilters,
+      filterSections: buildFilterSections(tempFilters, this.data.isJobSeekerMode)
+    });
+  },
+  /**
+   * 清除全部筛选弹窗中的临时选择。
+   */
+  clearFilterPopup: function () {
+    var tempFilters = cloneFilters(DEFAULT_FILTERS);
+    this.setData({
+      tempFilters: tempFilters,
+      filterSections: buildFilterSections(tempFilters, this.data.isJobSeekerMode)
+    });
+  },
+  /**
+   * 应用全部筛选条件并刷新列表。
+   */
+  confirmFilterPopup: function () {
+    var nextFilters = cloneFilters(this.data.tempFilters);
+    var changed = filtersChanged(this.data.appliedFilters, nextFilters);
+    this.setData({
+      filterPopupVisible: false,
+      appliedFilters: nextFilters,
+      salaryFilterText: filterLabel('salary', nextFilters.salary, '薪资'),
+      filterActive: hasActiveFilters(nextFilters)
+    });
+    if (changed) {
       this.reloadCurrentTab();
     }
   },

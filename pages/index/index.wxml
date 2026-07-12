@@ -66,14 +66,12 @@
       </view>
     </view> -->
     <view class="nav-down">
-      <view class="nav-one-down nav-all">
-        <view class="nav-one-down nav-all" style="font-weight:600;" class="conbtn" bindtap="bindViewToWechatQun">
-          <view class="nav-one-down-img nav-all-img">
-            <image style="margin-right:auto;margin-left:auto;" src="../../images/wechat_green.png"/>
-          </view>
-          <view style="line-height:17px;font-weight:600;" class="nav-text">
-            加入群聊
-          </view>
+      <view class="nav-one-down nav-all conbtn" bindtap="bindViewToWechatQun">
+        <view class="nav-one-down-img nav-all-img">
+          <image src="../../images/wechat_green.png"/>
+        </view>
+        <view class="nav-text">
+          加入群聊
         </view>
       </view>
       <view class="nav-tow-down nav-all" bindtap="bindViewServicePhone">

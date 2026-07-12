@@ -54,6 +54,7 @@ function buildActiveJobSeekerQuery(options) {
   query.equalTo('active', '==', 1);
   applyPreset(query, options && options.preset, options && options.tab);
   util.jobType.applyJobTypeFilter(query, options && options.jobType);
+  util.jobFilter.applyQuery(query, options && options.filters);
   city.applyJobSeekerFilter(query, options && options.currentCity);
   return query;
 }

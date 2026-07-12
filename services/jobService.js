@@ -6,15 +6,15 @@ var companyCache = require('../utils/companyCache');
 var TAB_PRESETS = {
   home: [
     { order: '-updatedAt' },
-    { payType: 0, order: '-detPayMax' },
-    { payType: 1, order: '-detPayMax' },
+    { order: '-detPayMax' },
+    { order: '-detPayMax' },
     { order: '-entNum' },
   ],
   today: [
     { order: '-entNum' },
     { order: '-updatedAt' },
-    { payType: 0, order: '-detPayMax' },
-    { payType: 1, order: '-detPayMax' },
+    { order: '-detPayMax' },
+    { order: '-detPayMax' },
   ],
 };
 
@@ -34,19 +34,16 @@ function normalizeTab(tab) {
 }
 
 /**
- * 根据页面场景和 tab 下标给查询追加筛选条件与排序规则。
+ * 根据页面场景和 tab 下标给查询追加排序规则。
  */
 function applyPreset(query, presetName, tab) {
   var preset = (TAB_PRESETS[presetName] || TAB_PRESETS.home)[normalizeTab(tab)] || TAB_PRESETS.home[0];
-  if (preset.payType !== undefined) {
-    query.equalTo('payType', '==', preset.payType);
-  }
   query.order(preset.order);
   return query;
 }
 
 /**
- * 构建只查询有效招聘信息的基础查询，并叠加 tab 规则与城市过滤。
+ * 构建只查询有效招聘信息的基础查询，并叠加工种、全部筛选与城市过滤。
  */
 function buildActiveJobQuery(options) {
   var Bmob = getBmob(options);
@@ -54,7 +51,16 @@ function buildActiveJobQuery(options) {
   query.equalTo('active', '==', 1);
   applyPreset(query, options && options.preset, options && options.tab);
   util.jobType.applyJobTypeFilter(query, options && options.jobType);
+  util.jobFilter.applyQuery(query, options && options.filters);
   city.applyJobInfoFilter(query, options && options.currentCity);
+  return query;
+}
+
+function applyCompanySizeFilter(query, companies, filters) {
+  var nextFilters = util.jobFilter.normalize(filters);
+  var companyIds = util.jobFilter.companyIdsBySize(companies, nextFilters.companySize);
+  if (!companyIds) return query;
+  query.containedIn('companyId', companyIds.length ? companyIds : ['__NO_MATCH_COMPANY__']);
   return query;
 }
 
@@ -66,14 +72,19 @@ function loadJobs(options) {
   var pageSize = opts.pageSize || 10;
   var pageIndex = opts.pageIndex || 0;
   var Bmob = getBmob(opts);
-  var query = buildActiveJobQuery(opts);
-  query.limit(pageSize);
-  query.skip(pageIndex * pageSize);
-  return Promise.all([
-    query.find(),
-    companyCache.ensureLoaded(Bmob)
-  ]).then(function (results) {
-    var rows = results[0] || [];
+  return companyCache.ensureLoaded(Bmob).then(function (companies) {
+    var query = buildActiveJobQuery(opts);
+    applyCompanySizeFilter(query, companies, opts.filters);
+    query.limit(pageSize);
+    query.skip(pageIndex * pageSize);
+    return query.find().then(function (rows) {
+      return {
+        rows: rows || [],
+        companies: companies || []
+      };
+    });
+  }).then(function (result) {
+    var rows = result.rows || [];
     var formatted = cardFormatter.decorateJobCards(util.formatList(rows || []));
     return {
       rows: rows || [],
