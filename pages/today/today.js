@@ -2,9 +2,11 @@
 var Bmob = wx.Bmob;
 var city = require('../../utils/city');
 var userRole = require('../../utils/userRole');
+var jobType = require('../../utils/util').jobType;
 var jobService = require('../../services/jobService');
 var jobSeekerService = require('../../services/jobSeekerService');
 var app = getApp();
+var DEFAULT_JOB_TYPE_CATEGORY_CODE = jobType.getDefaultCategoryCode();
 
 /**
  * 将 tab 参数标准化为数字，非法值统一回退到第一个 tab。
@@ -26,6 +28,13 @@ Page({
     currentCityCode: city.DEFAULT_CITY.cityCode,
     currentRole: '',
     isJobSeekerMode: false,
+    jobTypeCategories: jobType.categories,
+    jobTypePopupVisible: false,
+    appliedJobTypeCode: jobType.ALL_JOB_TYPE_CODE,
+    tempJobTypeCode: jobType.ALL_JOB_TYPE_CODE,
+    activeJobTypeCategoryCode: DEFAULT_JOB_TYPE_CATEGORY_CODE,
+    activeJobTypeGroups: jobType.getGroupsByCategory(DEFAULT_JOB_TYPE_CATEGORY_CODE),
+    jobTypeFilterText: '工种',
 
     //tab
     winHeight: "",
@@ -141,6 +150,7 @@ Page({
       Bmob: Bmob,
       preset: 'today',
       tab: tab === undefined ? this.data.currentTab : tab,
+      jobType: this.data.appliedJobTypeCode,
       pageIndex: pageIndex,
       pageSize: 10
     });
@@ -265,6 +275,71 @@ Page({
       currentTab: cur
     });
     this.switchTabLoad(String(cur));
+  },
+  /**
+   * 打开工种筛选弹窗，并以当前已应用的筛选作为临时选择。
+   */
+  openJobTypePopup: function () {
+    var tempCode = jobType.normalizeCode(this.data.appliedJobTypeCode);
+    var categoryCode = jobType.getCategoryCodeForJobType(tempCode);
+    this.setData({
+      jobTypePopupVisible: true,
+      tempJobTypeCode: tempCode,
+      activeJobTypeCategoryCode: categoryCode,
+      activeJobTypeGroups: jobType.getGroupsByCategory(categoryCode)
+    });
+  },
+  /**
+   * 关闭工种筛选弹窗。
+   */
+  closeJobTypePopup: function () {
+    this.setData({ jobTypePopupVisible: false });
+  },
+  /**
+   * 空函数用于弹窗遮罩阻止冒泡和页面滚动。
+   */
+  noop: function () {},
+  /**
+   * 切换工种弹窗左侧一级分类。
+   */
+  selectJobTypeCategory: function (e) {
+    var categoryCode = jobType.normalizeCode(e.currentTarget.dataset.code);
+    this.setData({
+      activeJobTypeCategoryCode: categoryCode,
+      activeJobTypeGroups: jobType.getGroupsByCategory(categoryCode)
+    });
+  },
+  /**
+   * 选择右侧具体工种，支持 100/110/111 等层级编码。
+   */
+  selectJobTypeOption: function (e) {
+    var code = jobType.normalizeCode(e.currentTarget.dataset.code);
+    this.setData({ tempJobTypeCode: code });
+  },
+  /**
+   * 将弹窗临时选择重置为全部。
+   */
+  resetJobTypeFilter: function () {
+    this.setData({
+      tempJobTypeCode: jobType.ALL_JOB_TYPE_CODE,
+      activeJobTypeCategoryCode: DEFAULT_JOB_TYPE_CATEGORY_CODE,
+      activeJobTypeGroups: jobType.getGroupsByCategory(DEFAULT_JOB_TYPE_CATEGORY_CODE)
+    });
+  },
+  /**
+   * 应用工种筛选并重新加载当前 tab 列表。
+   */
+  confirmJobTypeFilter: function () {
+    var nextCode = jobType.normalizeCode(this.data.tempJobTypeCode);
+    var prevCode = jobType.normalizeCode(this.data.appliedJobTypeCode);
+    this.setData({
+      jobTypePopupVisible: false,
+      appliedJobTypeCode: nextCode,
+      jobTypeFilterText: jobType.getLabelByCode(nextCode)
+    });
+    if (nextCode !== prevCode) {
+      this.reloadCurrentTab();
+    }
   },
   /**
    * 根据当前 tab 调整 tab 标题横向滚动位置。

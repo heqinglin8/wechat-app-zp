@@ -53,6 +53,7 @@ function buildActiveJobSeekerQuery(options) {
   var query = Bmob.Query('JobSeeker');
   query.equalTo('active', '==', 1);
   applyPreset(query, options && options.preset, options && options.tab);
+  util.jobType.applyJobTypeFilter(query, options && options.jobType);
   city.applyJobSeekerFilter(query, options && options.currentCity);
   return query;
 }

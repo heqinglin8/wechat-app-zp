@@ -26,9 +26,9 @@
   </swiper>
 </view>
 <!--导航-->
-<!--
+
    <view class="nav">
-    <view class="nav-up">
+    <!-- <view class="nav-up">
       <view class="nav-four-up nav-all" bindtap='bindViewTodayTj'>
         <view class="nav-four-up-img nav-all-img">
           <image src="../../images/sgry.png"/>
@@ -64,17 +64,17 @@
           <text style="font-weight:600;">最新求职</text>
         </view>
       </view>
-    </view>
+    </view> -->
     <view class="nav-down">
       <view class="nav-one-down nav-all">
-        <button class="nav-one-down nav-all" style="font-weight:600;" class="conbtn" open-type="contact">
+        <view class="nav-one-down nav-all" style="font-weight:600;" class="conbtn" bindtap="bindViewToWechatQun">
           <view class="nav-one-down-img nav-all-img">
             <image style="margin-right:auto;margin-left:auto;" src="../../images/wechat_green.png"/>
           </view>
           <view style="line-height:17px;font-weight:600;" class="nav-text">
-            微信咨询
+            加入群聊
           </view>
-        </button>
+        </view>
       </view>
       <view class="nav-tow-down nav-all" bindtap="bindViewServicePhone">
         <view class="nav-tow-down-img nav-all-img">
@@ -102,7 +102,7 @@
       </view>
     </view>
   </view>
--->
+
 <!--滚动tab-->
 <view >
     <scroll-view scroll-y="true" scroll-x="true" class="tab-h" scroll-left="{{scrollLeft}}">
