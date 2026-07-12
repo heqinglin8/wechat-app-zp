@@ -8,12 +8,14 @@ var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
 var imageUpload = require('../../utils/imageUpload.js');
 var userRole = require('../../utils/userRole.js');
+var jobType = util.jobType;
 
 var MAX_RECOMMEND_PHOTOS = 3;
 var MAX_PHOTO_BYTES = 3145728;
 var WX_CHOOSE_IMAGE_MAX = 9;
 var ALLOWED_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
 var LAST_PUBLISHED_COMPANY_KEY = 'lastPublishedCompanyForJob';
+var DEFAULT_JOB_TYPE_CATEGORY_CODE = jobType.getDefaultCategoryCode();
 
 function toNumberOrZero(value) {
   var n = Number(value);
@@ -35,6 +37,12 @@ Page({
     payType: '0',
     payTypeOptions: ['普通月结', '临时工'],
     payTypeIndex: 0,
+    jobType: jobType.ALL_JOB_TYPE_CODE,
+    jobTypeCategories: jobType.categories,
+    jobTypePopupVisible: false,
+    tempJobTypeCode: jobType.ALL_JOB_TYPE_CODE,
+    activeJobTypeCategoryCode: DEFAULT_JOB_TYPE_CATEGORY_CODE,
+    activeJobTypeGroups: jobType.getGroupsByCategory(DEFAULT_JOB_TYPE_CATEGORY_CODE),
     recoJobIntent: '',
     experience: '',
     jobDirection: '',
@@ -123,6 +131,47 @@ Page({
     this.setData({
       payTypeIndex: idx,
       payType: idx === 1 ? '1' : '0',
+    });
+  },
+  openJobTypePopup: function () {
+    var tempCode = jobType.normalizeCode(this.data.jobType);
+    var categoryCode = jobType.getCategoryCodeForJobType(tempCode);
+    this.setData({
+      jobTypePopupVisible: true,
+      tempJobTypeCode: tempCode,
+      activeJobTypeCategoryCode: categoryCode,
+      activeJobTypeGroups: jobType.getGroupsByCategory(categoryCode)
+    });
+  },
+  closeJobTypePopup: function () {
+    this.setData({ jobTypePopupVisible: false });
+  },
+  selectJobTypeCategory: function (e) {
+    var categoryCode = jobType.normalizeCode(e.currentTarget.dataset.code);
+    this.setData({
+      activeJobTypeCategoryCode: categoryCode,
+      activeJobTypeGroups: jobType.getGroupsByCategory(categoryCode)
+    });
+  },
+  selectJobTypeOption: function (e) {
+    var code = jobType.normalizeCode(e.currentTarget.dataset.code);
+    this.setData({ tempJobTypeCode: code });
+  },
+  resetJobTypeFilter: function () {
+    this.setData({
+      tempJobTypeCode: jobType.ALL_JOB_TYPE_CODE,
+      activeJobTypeCategoryCode: DEFAULT_JOB_TYPE_CATEGORY_CODE,
+      activeJobTypeGroups: jobType.getGroupsByCategory(DEFAULT_JOB_TYPE_CATEGORY_CODE)
+    });
+  },
+  confirmJobTypeFilter: function () {
+    var nextCode = jobType.normalizeCode(this.data.tempJobTypeCode);
+    var nextLabel = nextCode === jobType.ALL_JOB_TYPE_CODE ? '' : jobType.getLabelByCode(nextCode);
+    this.setData({
+      jobTypePopupVisible: false,
+      jobType: nextCode,
+      jobDirection: nextLabel,
+      recoJobIntent: nextLabel
     });
   },
 
@@ -592,8 +641,8 @@ Page({
       wx.showToast({ title: '请填写微信号', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.jobDirection && String(d.jobDirection).trim())) {
-      wx.showToast({ title: '请填写职位方向', image: '../../images/warning.png', duration: 2000 });
+    if (jobType.normalizeCode(d.jobType) === jobType.ALL_JOB_TYPE_CODE) {
+      wx.showToast({ title: '请选择职位方向', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
     
@@ -660,6 +709,8 @@ Page({
     row.set('summary', summaryText);
     row.set('jobDescription', jobDescriptionText);
     row.set('jobDirection', String(d.jobDirection || '').trim());
+    row.set('recoJobIntent', String(d.recoJobIntent || d.jobDirection || '').trim());
+    row.set('jobType', Number(jobType.normalizeCode(d.jobType)));
     row.set('companyId', d.selectedCompanyId || '');
     row.set('detPayMin', parsePositiveNumber(d.detPayMin));
     row.set('detPayMax', parsePositiveNumber(d.detPayMax));

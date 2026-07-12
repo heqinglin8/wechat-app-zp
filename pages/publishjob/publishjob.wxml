@@ -16,10 +16,18 @@
       </view>
 
       <view class="award-list-name award-picker-row">
-        <view class="name-text">工种</view>
+        <view class="name-text">结算方式</view>
         <picker class="award-picker" mode="selector" range="{{payTypeOptions}}" value="{{payTypeIndex}}" bindchange="onPayTypeChange">
           <view class="picker-display">{{payTypeOptions[payTypeIndex]}}</view>
         </picker>
+      </view>
+
+      <view class="award-list-name award-picker-row">
+        <view class="name-text">职位方向</view>
+        <view class="award-picker company-select-input" bindtap="openJobTypePopup">
+          <view class="picker-display {{jobDirection ? '' : 'picker-placeholder'}}">{{jobDirection || '请选择职能'}}</view>
+          <text class="company-select-arrow">›</text>
+        </view>
       </view>
 
       <view class="award-list-name award-picker-row">
@@ -59,11 +67,6 @@
           <input class="name-input award-salary-input" type="number" placeholder="最高" value="{{detPayMax}}" bindinput="onDetPayMaxInput" />
         </view>
         <view class="award-salary-unit">{{payType == '1' ? '/天' : '/月'}}</view>
-      </view>
-
-      <view class="award-list-textarea">
-        <view class="label-block">职位方向</view>
-        <textarea class="jobDirection-textarea" placeholder="职位方向/类别，多个可用 | 分隔" value="{{jobDirection}}" bindinput="onJobDirectionInput" maxlength="400" />
       </view>
 
       <view class="award-list-textarea">
@@ -119,6 +122,48 @@
         <view wx:else class="company-selector-empty">暂无公司信息</view>
       </scroll-view>
       <view class="company-selector-add" bindtap="goPublishCompany">找不到公司？去录入</view>
+    </view>
+  </view>
+
+  <view wx:if="{{jobTypePopupVisible}}" class="job-type-mask" bindtap="closeJobTypePopup" catchtouchmove="noop">
+    <view class="job-type-panel" catchtap="noop">
+      <view class="job-type-title">请选择职能</view>
+      <view class="job-type-body">
+        <scroll-view scroll-y="true" class="job-type-categories">
+          <view
+            wx:for="{{jobTypeCategories}}"
+            wx:key="code"
+            class="job-type-category {{activeJobTypeCategoryCode == item.code ? 'job-type-category--active' : ''}}"
+            data-code="{{item.code}}"
+            bindtap="selectJobTypeCategory"
+          >{{item.name}}</view>
+        </scroll-view>
+        <scroll-view scroll-y="true" class="job-type-options">
+          <view
+            class="job-type-option job-type-option--category-all {{tempJobTypeCode == activeJobTypeCategoryCode ? 'job-type-option--active' : ''}}"
+            data-code="{{activeJobTypeCategoryCode}}"
+            bindtap="selectJobTypeOption"
+          >全部</view>
+          <block wx:for="{{activeJobTypeGroups}}" wx:for-item="group" wx:key="code">
+            <view class="job-type-group-title">{{group.name}}</view>
+            <view class="job-type-option-grid">
+              <view
+                wx:for="{{group.children}}"
+                wx:for-item="option"
+                wx:key="code"
+                class="job-type-option {{tempJobTypeCode == option.code ? 'job-type-option--active' : ''}}"
+                data-code="{{option.code}}"
+                bindtap="selectJobTypeOption"
+              >{{option.name}}</view>
+            </view>
+          </block>
+        </scroll-view>
+      </view>
+      <view class="job-type-actions">
+        <button class="job-type-action job-type-action--cancel" bindtap="closeJobTypePopup">取消</button>
+        <button class="job-type-action job-type-action--reset" bindtap="resetJobTypeFilter">重置</button>
+        <button class="job-type-action job-type-action--confirm" bindtap="confirmJobTypeFilter">确定</button>
+      </view>
     </view>
   </view>
 
