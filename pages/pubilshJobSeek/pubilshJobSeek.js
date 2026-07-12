@@ -197,8 +197,10 @@ Page({
       if (!phone && u.userphone != null) {
         phone = String(u.userphone).trim();
       }
+      var wxid = u.wxid != null ? String(u.wxid).trim() : '';
       that.setData({
         contact: phone,
+        wxid: that.data.wxid || wxid,
         userLoaded: true,
       });
       that._objectId = objectId;
