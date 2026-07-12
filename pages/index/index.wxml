@@ -87,7 +87,7 @@
           <image src="../../images/dh.png"/>
         </view>
         <view class="nav-text">
-          <text style="font-weight:600;">发布招聘</text>
+          <text style="font-weight:600;">发布帖子</text>
         </view>
       </view>
       <view class="nav-three-down nav-all"  bindtap="bindViewAward">
@@ -95,7 +95,7 @@
           <image src="../../images/jl.png"/>
         </view>
         <view class="nav-text">
-          <text style="font-weight:600;">发布求职</text>
+          <text style="font-weight:600;">职言</text>
         </view>
       </view>
     </view>

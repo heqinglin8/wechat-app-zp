@@ -5,6 +5,7 @@
     "pages/jobDetail/jobDetail",
     "pages/today/today",
     "pages/zhiyan/zhiyan",
+    "pages/sgZhaopinGroup/sgZhaopinGroup",
     "pages/zhiyanDetail/zhiyanDetail",
     "pages/publishPost/publishPost",
     "pages/pubilshJobSeek/pubilshJobSeek",
@@ -19,8 +20,7 @@
     "pages/todayjobseek/todayjobseek",
     "pages/seekerDetail/seekerDetail",
     "pages/publishjob/publishjob",
-    "pages/publishcompany/publishcompany",
-    "pages/linkings/linkings"
+    "pages/publishcompany/publishcompany"
   ],
   "window": {
     "navigationBarBackgroundColor": "#fc3",

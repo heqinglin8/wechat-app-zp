@@ -1,0 +1,13 @@
+<view class="group-page">
+  <view class="group-card">
+    <view class="group-title">韶关招聘加群</view>
+    <image
+      class="group-qr"
+      src="{{qrCode}}"
+      mode="widthFix"
+      show-menu-by-longpress="true"
+      bindtap="previewQrCode"
+    />
+    <view class="group-tip">长按识别二维码加入群聊</view>
+  </view>
+</view>

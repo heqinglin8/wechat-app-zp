@@ -86,13 +86,22 @@ Page({
         : '../jobDetail/jobDetail?jobId=' + item.objectId
     });
   },
-  // //点击门店导航页面跳转
-  // bindViewLoaction:function(){
-  //   wx.navigateTo({
-  //     url: '../publishjob/publishjob'
-  //   })
-  //
-  // },
+  /**
+   * 韶关招聘加群二维码页。
+   */
+  bindViewToWechatQun: function () {
+    wx.navigateTo({
+      url: '../sgZhaopinGroup/sgZhaopinGroup'
+    });
+  },
+  /**
+   * 发布帖子入口。
+   */
+  bindViewLoaction:function(){
+    wx.navigateTo({
+      url: '../publishPost/publishPost'
+    });
+  },
   /**
    * 微信咨询入口暂未启用时提示用户。
    */
@@ -287,23 +296,23 @@ Page({
       url: '../jobDetail/jobDetail'
     });
   },
-  // /**
-  //  * 推荐奖励跳转
-  //  */
-  // bindViewAward: function () {
-  //   wx.navigateTo({
-  //     url: '../pubilshJobSeek/pubilshJobSeek'
-  //   })
-  // },
+  /**
+   * 切换到职言 tab。
+   */
+  bindViewAward: function () {
+    wx.switchTab({
+      url: '../zhiyan/zhiyan'
+    });
+  },
 
-  // /**
-  //  * 求职热线跳转
-  //  */
-  // bindViewServicePhone: function () {
-  //   wx.navigateTo({
-  //     url: '../servicephone/servicephone'
-  //   })
-  // },
+  /**
+   * 求职热线跳转
+   */
+  bindViewServicePhone: function () {
+    wx.navigateTo({
+      url: '../servicephone/servicephone'
+    });
+  },
   // /**
   //  * 今日招聘（全部职位）跳转
   //  */
