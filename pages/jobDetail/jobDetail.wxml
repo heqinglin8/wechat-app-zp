@@ -57,7 +57,7 @@
     <view class="det-money"><view>薪资详情</view></view>
     <view class="det-money-list">
       <view class="det-info-row"><text class="det-info-label">工种：</text><text class="det-info-value">{{viewData.payTypeText}}</text></view>
-      <view class="det-info-row"><text class="det-info-label">职业方向：</text><text class="det-info-value">{{viewData.jobDirectionText}}</text></view>
+      <view class="det-info-row"><text class="det-info-label">职业方向：</text><text class="det-info-value">{{viewData.jobTypeLabel}}</text></view>
       <view class="det-info-row"><text class="det-info-label">最低学历/经验：</text><text class="det-info-value">{{viewData.educationExperienceText}}</text></view>
       <view class="det-info-row"><text class="det-info-label">已报名：</text><text class="det-info-value">{{viewData.entNumText}}人</text></view>
     </view>

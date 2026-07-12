@@ -72,8 +72,7 @@ Page({
       payTypeText = '临时工';
     }
     var jobTypeCode = util.jobType.normalizeCode(item.jobType);
-    var jobTypeText = jobTypeCode === util.jobType.ALL_JOB_TYPE_CODE ? '' : util.jobType.getLabelByCode(jobTypeCode);
-    var jobDirectionText = this.firstText(jobTypeText, '未填职业方向');
+    var jobTypeLabel = jobTypeCode === util.jobType.ALL_JOB_TYPE_CODE ? '' : util.jobType.getLabelByCode(jobTypeCode);
     var educationForDetail = this.firstText(item.education, '未填最低学历');
     var experienceForDetail = this.firstText(item.experience, '未填经验');
     var jobDescriptionText = this.firstText(item.jobDescription);
@@ -92,7 +91,7 @@ Page({
       title: this.firstText(item.title, '未填职位名称'),
       topPayText: topPayText,
       payTypeText: payTypeText,
-      jobDirectionText: jobDirectionText,
+      jobTypeLabel: this.firstText(jobTypeLabel, '未填职业方向'),
       educationExperienceText: educationForDetail + ' / ' + experienceForDetail,
       entNumText: this.firstText(item.entNum, '0'),
       locationText: locationText,

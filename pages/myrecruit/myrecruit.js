@@ -13,12 +13,11 @@ function decorateRecruitCard(jobInfo, joinInfo) {
   var job = jobInfo || {};
   var join = joinInfo || {};
   var cityInfo = findDisplayByDistrictCode(job.districtCode);
-  var directions = cardFormatter.jobDirectionTags(job);
+  var jobTypeLabel = cardFormatter.jobTypeLabel(job.jobType);
   var companyName = pickText(job.companyName, pickText(join.joinCompanyName, '公司名称未填写'));
   var experience = pickText(job.experience, '经验未填写');
   var education = pickText(job.education, '学历未填写');
-  var direction = directions[0] || '方向未填写';
-  var tagList = [experience, education, direction];
+  var tagList = [experience, education, jobTypeLabel || '方向未填写'];
   return {
     joinRecordId: pickText(join.objectId, ''),
     objectId: pickText(job.objectId, join.jobId || ''),

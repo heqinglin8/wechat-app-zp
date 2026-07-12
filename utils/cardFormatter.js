@@ -56,9 +56,7 @@ function jobTypeLabel(value) {
   return util.jobType.getLabelByCode(code);
 }
 
-function jobDirectionTags(item) {
-  var tags = splitTags(item && item.jobDirection);
-  if (tags.length) return tags;
+function jobTypeTags(item) {
   var label = jobTypeLabel(item && item.jobType);
   return label ? [label] : [];
 }
@@ -88,7 +86,7 @@ function decorateJobCard(item) {
   var cityInfo = findDisplayByDistrictCode(item.districtCode);
   var recruiter = firstText(item.commitNickname, '未写招聘者昵称');
   var recruiterRole = firstText(item.commitJobRole, '未写招聘者职位');
-  var jobDirections = jobDirectionTags(item);
+  var jobTypeLabels = jobTypeTags(item);
   item.cardTitle = firstText(item.title, '未写标题');
   item.cardSalary = salaryText(item);
   item.cardCompany = firstText(item.companyName, '未写公司名称');
@@ -96,11 +94,11 @@ function decorateJobCard(item) {
   item.cardFinancing = firstText(item.financeStage, '未写融资');
   item.cardExperience = firstText(item.experience, '未写经验');
   item.cardEducation = firstText(item.education, '未写学历');
-  item.cardDirection = firstText(jobDirections[0], '未写方向');
+  item.cardDirection = firstText(jobTypeLabels[0], '未写方向');
   item.cardTags = compactTags([
     item.cardExperience,
     item.cardEducation
-  ].concat(jobDirections));
+  ].concat(jobTypeLabels));
   item.cardRecruiter = recruiter
     ? recruiter + ' · ' + recruiterRole
     : '未写招聘者 · ' + recruiterRole;
@@ -144,7 +142,7 @@ module.exports = {
   compactTags: compactTags,
   splitTags: splitTags,
   jobTypeLabel: jobTypeLabel,
-  jobDirectionTags: jobDirectionTags,
+  jobTypeTags: jobTypeTags,
   splitPhotoUrls: splitPhotoUrls,
   applyCompanyCache: applyCompanyCache,
   decorateJobCard: decorateJobCard,
