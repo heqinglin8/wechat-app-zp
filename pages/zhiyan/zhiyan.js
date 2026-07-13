@@ -201,6 +201,24 @@ Page({
   },
 
   onPublishTap: function () {
+    var userId = postService.getCurrentUserId(Bmob);
+    if (!userId) {
+      wx.showModal({
+        title: '提示',
+        content: '登录后才能发帖',
+        showCancel: false,
+        confirmText: '知道了',
+        success: function (res) {
+          if (res.confirm) {
+            wx.switchTab({
+              url: '/pages/personal/personal'
+            });
+          }
+        }
+      });
+      return;
+    }
+
     wx.navigateTo({
       url: '/pages/publishPost/publishPost',
       fail: function () {

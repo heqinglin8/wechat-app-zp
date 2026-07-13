@@ -98,6 +98,24 @@ Page({
    * 发布帖子入口。
    */
   bindViewLoaction:function(){
+    var currentUser = Bmob.User.current();
+    if (!currentUser || !currentUser.objectId) {
+      wx.showModal({
+        title: '提示',
+        content: '登录后才能发帖',
+        showCancel: false,
+        confirmText: '知道了',
+        success: function (res) {
+          if (res.confirm) {
+            wx.switchTab({
+              url: '/pages/personal/personal'
+            });
+          }
+        }
+      });
+      return;
+    }
+
     wx.navigateTo({
       url: '../publishPost/publishPost'
     });

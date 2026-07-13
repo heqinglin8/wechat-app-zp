@@ -110,9 +110,6 @@ function getCurrentUserId(Bmob) {
   var currentUser = Bmob && Bmob.User && Bmob.User.current ? Bmob.User.current() : null;
   var currentId = currentUser && currentUser.objectId;
   if (currentId) return currentId;
-  if (typeof wx !== 'undefined' && wx.getStorageSync) {
-    return firstText(wx.getStorageSync('objectId'));
-  }
   return '';
 }
 
