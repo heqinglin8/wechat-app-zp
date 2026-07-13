@@ -83,10 +83,10 @@ function cloneFilters(filters) {
   };
 }
 
-function buildFilterSections(filters, isJobSeekerMode) {
+function buildFilterSections(filters, isRecruitList) {
   var next = cloneFilters(filters);
   return FILTER_CONFIG.filter(function (section) {
-    return !(isJobSeekerMode && section.key === 'companySize');
+    return isRecruitList || section.key !== 'companySize';
   }).map(function (section) {
     return {
       key: section.key,
@@ -204,7 +204,7 @@ Page({
     });
   },
   /**
-   * 应用角色信息：role=2 使用求职模式，其它角色使用招聘模式。
+   * 应用角色信息：求职者看招聘信息，其它角色看求职信息。
    */
   applyRoleMode: function (roleInfo, targetTab, options) {
     var opts = options || {};
@@ -214,9 +214,10 @@ Page({
     var roleChanged = this.data.currentRole !== nextRole ||
       this.data.isJobSeekerMode !== nextIsJobSeekerMode;
     var tabChanged = normalizeTab(this.data.currentTab) !== nextTab;
+    var nextIsRecruitList = nextIsJobSeekerMode;
 
     var nextFilters = cloneFilters(this.data.appliedFilters);
-    if (nextIsJobSeekerMode) {
+    if (!nextIsRecruitList) {
       nextFilters.companySize = FILTER_ALL_VALUE;
     }
 
@@ -226,11 +227,11 @@ Page({
       currentTab: nextTab,
       appliedFilters: nextFilters,
       tempFilters: cloneFilters(nextFilters),
-      filterSections: buildFilterSections(nextFilters, nextIsJobSeekerMode),
+      filterSections: buildFilterSections(nextFilters, nextIsRecruitList),
       filterActive: hasActiveFilters(nextFilters),
       salaryFilterText: filterLabel('salary', nextFilters.salary, '薪资')
     });
-    this.updateNavigationTitle(nextIsJobSeekerMode);
+    this.updateNavigationTitle(nextIsRecruitList);
 
     if (opts.force || opts.cityChanged || roleChanged || tabChanged || !this._todayLoaded) {
       this.switchTabLoad(String(nextTab));
@@ -239,9 +240,9 @@ Page({
   /**
    * 根据当前模式设置页面导航标题。
    */
-  updateNavigationTitle: function (isJobSeekerMode) {
+  updateNavigationTitle: function (isRecruitList) {
     wx.setNavigationBarTitle({
-      title: isJobSeekerMode ? '今日求职' : '今日招聘'
+      title: isRecruitList ? '今日招聘' : '今日求职'
     });
   },
   /**
@@ -265,12 +266,12 @@ Page({
     });
   },
   /**
-   * 根据当前角色选择今日页列表的数据服务。
+   * 求职者看招聘信息，其它角色看求职信息。
    */
   getListLoader: function () {
     return this.data.isJobSeekerMode
-      ? jobSeekerService.loadJobSeekers
-      : jobService.loadJobs;
+      ? jobService.loadJobs
+      : jobSeekerService.loadJobSeekers;
   },
   /**
    * 加载当前模式下指定分页和 tab 的今日页列表。
@@ -293,7 +294,7 @@ Page({
     });
   },
   /**
-   * 点击列表卡片时按当前角色跳转到招聘详情或求职详情。
+   * 点击列表卡片时按当前列表类型跳转到招聘详情或求职详情。
    */
   showDetail: function (e) {
     var index = e.currentTarget.dataset.index;
@@ -304,8 +305,8 @@ Page({
 
     wx.navigateTo({
       url: this.data.isJobSeekerMode
-        ? '../seekerDetail/seekerDetail?jobSeekId=' + item.objectId
-        : '../jobDetail/jobDetail?jobId=' + item.objectId
+        ? '../jobDetail/jobDetail?jobId=' + item.objectId
+        : '../seekerDetail/seekerDetail?jobSeekId=' + item.objectId
     });
   },
   /**

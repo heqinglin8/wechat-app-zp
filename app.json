@@ -41,10 +41,10 @@
         "text": "首页"
       },
       {
-        "selectedIconPath": "images/today_p.png",
-        "iconPath": "images/today.png",
+        "selectedIconPath": "images/money_p.png",
+        "iconPath": "images/money.png",
         "pagePath": "pages/today/today",
-        "text": "今日招聘"
+        "text": "今日求职"
       },
       {
         "selectedIconPath": "images/post_p.png",

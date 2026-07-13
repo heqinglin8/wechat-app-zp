@@ -25,9 +25,9 @@ App({
 
     wx.setTabBarItem({
       index: 1,
-      text: isJobSeeker ? '今日求职' : '今日招聘',
-      iconPath: isJobSeeker ? 'images/money.png' : 'images/today.png',
-      selectedIconPath: 'images/today_p.png',
+      text: isJobSeeker ? '今日招聘' : '今日求职',
+      iconPath: isJobSeeker ? 'images/today.png' : 'images/money.png',
+      selectedIconPath: isJobSeeker ? 'images/today_p.png' : 'images/money_p.png',
       fail: function (err) {
         console.log('动态设置今日 tabbar 失败:', err);
       }

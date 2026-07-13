@@ -71,7 +71,7 @@ Page({
     // })
   },
   /**
-   * 点击列表卡片时按当前角色跳转到招聘详情或求职详情。
+   * 点击列表卡片时按当前列表类型跳转到招聘详情或求职详情。
    */
   showDetail: function (e) {
     var index = e.currentTarget.dataset.index;
@@ -81,7 +81,7 @@ Page({
     }
 
     wx.navigateTo({
-      url: this.data.isJobSeekerMode
+      url: !this.data.isJobSeekerMode
         ? '../seekerDetail/seekerDetail?jobSeekId=' + item.objectId
         : '../jobDetail/jobDetail?jobId=' + item.objectId
     });
@@ -213,12 +213,12 @@ Page({
     this.refreshModeAndMaybeLoad({ force: true });
   },
   /**
-   * 根据当前角色选择首页列表的数据服务。
+   * 求职者看招聘信息，其它角色看求职信息。
    */
   getListLoader: function () {
     return this.data.isJobSeekerMode
-      ? jobSeekerService.loadJobSeekers
-      : jobService.loadJobs;
+      ? jobService.loadJobs
+      : jobSeekerService.loadJobSeekers;
   },
   /**
    * 加载当前模式下指定分页和 tab 的首页列表。
