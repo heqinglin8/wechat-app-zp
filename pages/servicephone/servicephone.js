@@ -10,8 +10,8 @@ Page({
    */
   data: {
     phoneNumberOne:'17520040550',
-    phoneNumberTwo: '15622189139',
-    phoneNumberThree: '15622189139',
+    phoneNumberTwo: '17773562773',
+    phoneNumberThree: '17773562773',
     phoneNumberFour: '17520040550',
     phoneNameOne:'求职热线-1',
     phoneNameTwo: '求职热线-2',
