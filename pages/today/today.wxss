@@ -578,7 +578,7 @@ page{
 }
 
 .filter-option--active{
-  color: #1687ee;
+  color: #13aaa3;
   font-weight: 700;
   background: #f0f8ff;
 }
@@ -617,5 +617,5 @@ page{
 .filter-action--confirm{
   flex: 1;
   color: #fff;
-  background: #1687ee;
+  background: #13aaa3;
 }
