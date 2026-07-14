@@ -92,7 +92,7 @@
   </view>
 </view>
 
-<view wx:if="{{showRoleDialog}}" class="role-dialog-mask" catchtouchmove="noop">
+<view wx:if="{{showRoleDialog}}" class="role-dialog-mask" catchtap="noop" catchtouchmove="noop">
   <view class="role-dialog" catchtap="noop">
     <view class="role-dialog-title">请选择身份</view>
     <view class="role-options">
@@ -102,7 +102,7 @@
     <view wx:if="{{selectedRole == 1}}" class="role-field">
       <input class="role-input" type="text" maxlength="30" placeholder="请输入职位角色" value="{{roleJobRole}}" bindinput="onRoleJobInput" />
     </view>
-    <button class="role-confirm" bindtap="confirmRoleDialog">确定</button>
+    <button class="role-confirm" loading="{{isSavingRole}}" disabled="{{isSavingRole}}" bindtap="confirmRoleDialog">确定</button>
   </view>
 </view>
 

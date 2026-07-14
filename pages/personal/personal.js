@@ -15,6 +15,7 @@ Page({
   data: {
     //微信官方信息
     userInfo:{},
+    userId: '',
     //数据库个人信息
     nickname:'',
     hasUserInfo: false,
@@ -23,6 +24,7 @@ Page({
     showRoleDialog: false,
     selectedRole: 2,
     roleJobRole: '',
+    isSavingRole: false,
     showMyJoinEntry: false,
     showMyJobSeekEntry: false,
     showMyRecruitEntry: false,
@@ -54,41 +56,23 @@ Page({
       var objectId = currentUser ? currentUser.objectId : '';
       //获取用户当前信息
     if (objectId!=undefined && objectId.length > 0) {
-      var query = Bmob.Query("_User");
-      query.equalTo("objectId", "==", objectId);
-      // 查询用户是否注册
-      query.find().then(function(results) {
-        console.log("onShow 个人中心判断:共查询到 " + objectId+":" +results.length + " 条记录");
-        if (results.length != 0) {
-          var userInfo = results[0];
-          userInfo.sessionToken = sessionToken;
-          console.log("onShow 个人中心当前用户: " ,userInfo);
-          var rolePromise = that.isEmptyRole(userInfo.role) ? that.promptUserRole() : Promise.resolve(null);
-          rolePromise.then(function (roleInfo) {
-            return that.updateRoleUserInfo(userInfo, roleInfo);
-          }).then(function (latestUserInfo) {
-            //用户已注册
-            that.applyUserInfo(latestUserInfo);
-            console.log('login success')
-          }).catch(function (error) {
-            console.log('onShow 设置角色信息失败:', error);
-            that.applyUserInfo(userInfo);
-            wx.showToast({
-              title: '设置角色信息失败',
-              icon: 'none',
-              duration: 1500
-            });
-          });
-        } else {
+      that.fetchCurrentUserInfo(objectId, sessionToken).then(function(userInfo) {
+        console.log("onShow 个人中心当前用户: " ,userInfo);
+        //用户已注册
+        that.applyUserInfo(userInfo);
+        console.log('login success')
+      }).catch(function(error) {
+        if (error && error.code === 'USER_NOT_FOUND') {
           console.log("onShow 没有注册，objectId: " + objectId);
           that.logoutCurrentUser();
+          return;
         }
-      }).catch(function(error) {
         console.log("查询失败: " + error.code + " " + error.message);
         that.logoutCurrentUser();
       });
     }else{
       console.log("没有登录，objectId: " + objectId);
+      that.clearPersonalUserState();
     }
 
   },
@@ -241,16 +225,19 @@ Page({
   },
 //点击个人中心里登录页面跳转
 
-  logoutCurrentUser: function () {
-    try {
-      Bmob.User.logout();
-    } catch (e) {
-      console.log("退出登录失败: " + e.code + " " + e.message);
-    }
+  clearPersonalUserState: function () {
+    app.globalData.currentUserRole = '';
     this.setData({
       userInfo: {},
+      userId: '',
       nickname: '',
+      mobilePhoneNumber: '',
       hasUserInfo: false,
+      avatarUrl: defaultAvatarUrl,
+      showRoleDialog: false,
+      selectedRole: 2,
+      roleJobRole: '',
+      isSavingRole: false,
       showMyJoinEntry: false,
       showMyJobSeekEntry: false,
       showMyRecruitEntry: false
@@ -259,26 +246,40 @@ Page({
     this.refreshFabVisibility();
   },
 
+  logoutCurrentUser: function () {
+    try {
+      Bmob.User.logout();
+    } catch (e) {
+      console.log("退出登录失败: " + e.code + " " + e.message);
+    }
+    this.clearPersonalUserState();
+  },
+
   isEmptyRole: function (role) {
     return userRole.isEmptyRole(role);
   },
 
-  promptUserRole: function () {
-    var that = this;
-    if (that._rolePromise) {
-      return that._rolePromise;
-    }
-
-    that._rolePromise = new Promise(function (resolve) {
-      that._roleResolve = resolve;
-      that.setData({
-        showRoleDialog: true,
-        selectedRole: 2,
-        roleJobRole: ''
-      });
+  fetchCurrentUserInfo: function (objectId, sessionToken) {
+    var query = Bmob.Query("_User");
+    query.equalTo("objectId", "==", objectId);
+    return query.find().then(function(results) {
+      console.log("onShow 个人中心判断:共查询到 " + objectId + ":" + results.length + " 条记录");
+      if (results.length === 0) {
+        return Promise.reject({
+          code: 'USER_NOT_FOUND',
+          message: '用户不存在'
+        });
+      }
+      var userInfo = results[0];
+      userInfo.sessionToken = sessionToken;
+      return userInfo;
     });
+  },
 
-    return that._rolePromise;
+  shouldShowRoleDialog: function (userInfo) {
+    var currentUserInfo = userInfo || {};
+    var userId = currentUserInfo.objectId || this.data.userId || '';
+    return !!userId && this.isEmptyRole(currentUserInfo.role);
   },
 
   onRoleSelect: function (e) {
@@ -299,9 +300,24 @@ Page({
   },
 
   confirmRoleDialog: function () {
+    if (this.data.isSavingRole) {
+      return;
+    }
+
+    var that = this;
     var selectedRole = Number(this.data.selectedRole);
     var jobRole = ((this.data.roleJobRole || '') + '').trim();
+    var userInfo = this.data.userInfo || {};
+    var userId = this.data.userId || userInfo.objectId || '';
 
+    if (selectedRole !== 1 && selectedRole !== 2) {
+      wx.showToast({
+        title: '请选择身份',
+        icon: 'none',
+        duration: 1500
+      });
+      return;
+    }
     if (selectedRole === 1 && !jobRole) {
       wx.showToast({
         title: '请输入职位角色',
@@ -311,23 +327,64 @@ Page({
       return;
     }
 
-    var resolve = this._roleResolve;
-    this._roleResolve = null;
-    this._rolePromise = null;
+    if (!userId) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+        duration: 1500
+      });
+      this.clearPersonalUserState();
+      return;
+    }
+
+    userInfo.objectId = userId;
     this.setData({
-      showRoleDialog: false,
-      roleJobRole: selectedRole === 1 ? jobRole : ''
+      isSavingRole: true
     });
 
-    if (resolve) {
-      resolve({
+    this.updateRoleUserInfo(userInfo, {
         role: String(selectedRole),
         jobRole: selectedRole === 1 ? jobRole : ''
+    }).then(function (latestUserInfo) {
+      that.applyUserInfo(latestUserInfo);
+      wx.showToast({
+        title: '身份已设置',
+        icon: 'success',
+        duration: 1500
       });
-    }
+    }).catch(function (error) {
+      console.log('设置角色信息失败:', error);
+      that.setData({
+        showRoleDialog: false,
+        isSavingRole: false
+      });
+      wx.showToast({
+        title: '设置身份失败，请再次登陆',
+        icon: 'none',
+        duration: 1500
+      });
+      setTimeout(function () {
+        that.showReloginModal();
+      }, 1500);
+    });
   },
 
   noop: function () {},
+
+  showReloginModal: function () {
+    var that = this;
+    wx.showModal({
+      title: '退出登录',
+      content: '请退出后重新登录',
+      showCancel: false,
+      confirmText: '确定',
+      success: function (res) {
+        if (res.confirm) {
+          that.logoutCurrentUser();
+        }
+      }
+    });
+  },
 
   updateRoleUserInfo: function (userInfo, roleInfo) {
     if (!roleInfo) {
@@ -349,6 +406,14 @@ Page({
   },
 
   resolvePersonalEntryVisibility: function (role) {
+    if (this.isEmptyRole(role)) {
+      return {
+        showMyJoinEntry: false,
+        showMyJobSeekEntry: false,
+        showMyRecruitEntry: false
+      };
+    }
+
     var isJobSeeker = userRole.isJobSeekerRole(role);
     return {
       showMyJoinEntry: isJobSeeker,
@@ -358,16 +423,27 @@ Page({
   },
 
   applyUserInfo: function (userInfo) {
-    var entryVisibility = this.resolvePersonalEntryVisibility(userInfo.role);
+    var userId = userInfo.objectId || '';
+    var role = userRole.normalizeRole(userInfo.role);
+    userInfo.role = role;
+    var showRoleDialog = this.shouldShowRoleDialog(userInfo);
+    var entryVisibility = this.resolvePersonalEntryVisibility(role);
     userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath) || userInfo.avatarUrl || userInfo.wechatAvatarUrl || '';
-    app.globalData.currentUserRole = userInfo.role || '';
-    app.syncTodayTabBarByRole(userInfo.role);
+    app.globalData.currentUserRole = showRoleDialog ? '' : role;
+    if (!showRoleDialog) {
+      app.syncTodayTabBarByRole(role);
+    }
     this.setData({
       userInfo: userInfo,
+      userId: userId,
       nickname: userInfo.nickname || '',
       mobilePhoneNumber: userInfo.mobilePhoneNumber || userInfo.userphone || '',
       hasUserInfo: true,
       avatarUrl: userInfo.avatarUrl || defaultAvatarUrl,
+      showRoleDialog: showRoleDialog,
+      selectedRole: showRoleDialog && !this.data.showRoleDialog ? 2 : this.data.selectedRole,
+      roleJobRole: showRoleDialog && !this.data.showRoleDialog ? '' : this.data.roleJobRole,
+      isSavingRole: false,
       showMyJoinEntry: entryVisibility.showMyJoinEntry,
       showMyJobSeekEntry: entryVisibility.showMyJobSeekEntry,
       showMyRecruitEntry: entryVisibility.showMyRecruitEntry
@@ -395,9 +471,18 @@ Page({
     var that = this;
     Bmob.User.auth().then(function (userInfo) {
       console.log('Bmob.User.auth res:', userInfo)
-      var rolePromise = that.isEmptyRole(userInfo.role) ? that.promptUserRole() : Promise.resolve(null);
-      return rolePromise.then(function (roleInfo) {
-        return that.updateRoleUserInfo(userInfo, roleInfo);
+      var sessionToken = userInfo ? userInfo.sessionToken : '';
+      var objectId = userInfo ? userInfo.objectId : '';
+      if (!objectId) {
+        return Promise.reject({
+          code: 'USER_ID_EMPTY',
+          message: '未获取到用户ID'
+        });
+      }
+      return that.fetchCurrentUserInfo(objectId, sessionToken).catch(function (error) {
+        console.log('登录后查询用户信息失败，使用授权返回信息:', error);
+        userInfo.sessionToken = sessionToken;
+        return userInfo;
       });
     }).then(function (userInfo) {
       that.applyUserInfo(userInfo);
