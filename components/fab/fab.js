@@ -86,7 +86,7 @@ Component({
           return;
         }
 
-        var mobilePhoneNumber = that.firstText(userInfo.mobilePhoneNumber, userInfo.userphone);
+        var mobilePhoneNumber = that.firstText(userInfo.mobilePhoneNumber);
         var wxid = that.firstText(userInfo.wxid);
         if (!mobilePhoneNumber || !wxid) {
           that.showSetInfoPrompt(publishType);

@@ -3,7 +3,6 @@ var util = require('../utils/util');
 var POST_CLASS = 'Post';
 var POST_LIKE_CLASS = 'PostLike';
 var MESSAGE_CLASS = 'MessageBoardMessage';
-var DEFAULT_AVATAR = '/images/default_user_avatar.jpeg';
 
 // Bmob schema used by 职言:
 // Post: title, content, commitUid, commitUsername, photoImgs, optional active.
@@ -47,27 +46,18 @@ function splitImages(value) {
 function resolvePhotoList(row) {
   if (!row) return [];
   if (row.photoImgs) return splitImages(row.photoImgs);
-  if (row.images) return splitImages(row.images);
-  if (row.imageUrls) return splitImages(row.imageUrls);
-  if (row.photos) return splitImages(row.photos);
   return [];
 }
 
 function displayAvatar(user) {
-  if (!user) return DEFAULT_AVATAR;
-  return toDisplayUrl(firstText(
-    user.avatarPath,
-    user.imgSrc,
-    user.avatarUrl,
-    user.userPic,
-    user.authorAvatarPath
-  )) || DEFAULT_AVATAR;
+  if (!user) return '';
+  return toDisplayUrl(user.avatarPath);
 }
 
 function normalizeAuthor(user, uid) {
   var profile = user || {};
-  var name = withFallback(firstText(profile.nickname, profile.username, profile.nickName), '昵称');
-  var role = withFallback(firstText(profile.jobRole, profile.commitJobRole, profile.position, profile.roleName), '职位');
+  var name = firstText(profile.nickname);
+  var role = firstText(profile.jobRole);
   var years = withFallback(firstText(profile.workYears, profile.experience, profile.years), '年限');
   var company = firstText(profile.companyName, profile.company);
   var metaParts = [];

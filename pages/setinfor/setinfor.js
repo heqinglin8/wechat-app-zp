@@ -282,10 +282,10 @@ Page({
       console.log("个人中心判断:共查询到 objectId："+objectId+" " + results.length + " 条记录");
       var userInfo = results[0]
       var avatarUrl = util.toDisplayUrl(userInfo.avatarPath)
-      var gender = that.normalizeGender(userInfo.gender || userInfo.sex || '');
+      var gender = that.normalizeGender(userInfo.gender || '');
       var genderIndex = gender === '女' ? 1 : 0;
       var registerDate = that.formatDateText(userInfo.createdAt);
-      var phone = userInfo.mobilePhoneNumber || userInfo.userphone || '';
+      var phone = userInfo.mobilePhoneNumber || '';
       var wxid = userInfo.wxid || '';
       console.log('avatarUrl:',avatarUrl)
         //用户已注册
@@ -435,21 +435,6 @@ Page({
           var phoneQuery = Bmob.Query("_User");
           phoneQuery.equalTo("mobilePhoneNumber", "==", mobilePhoneNumber);
           return phoneQuery.find();
-        }).then(function(results) {
-          if (!results) {
-            return;
-          }
-          if (hasOtherPhone(results)) {
-            wx.showToast({
-              title: "该手机号已注册",
-              image: "../../images/warning.png",
-              duration: 2000
-            });
-            return Promise.reject('phone_exists');
-          }
-          var legacyPhoneQuery = Bmob.Query("_User");
-          legacyPhoneQuery.equalTo("userphone", "==", mobilePhoneNumber);
-          return legacyPhoneQuery.find();
         }).then(function(results) {
           if (!results) {
             return;

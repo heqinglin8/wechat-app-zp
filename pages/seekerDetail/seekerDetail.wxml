@@ -46,8 +46,6 @@
       <view class="det-info-row"><text class="det-info-label">工种：</text><text class="det-info-value">{{viewData.payTypeText}}</text></view>
       <view class="det-info-row"><text class="det-info-label">期望薪资：</text><text class="det-info-value">{{viewData.expectedSalaryText}}</text></view>
       <view class="det-info-row"><text class="det-info-label">学历：</text><text class="det-info-value">{{viewData.educationText}}</text></view>
-      <view class="det-info-row"><text class="det-info-label">电话：</text><text class="det-info-value">{{viewData.phoneText}}</text></view>
-      <view class="det-info-row"><text class="det-info-label">微信：</text><text class="det-info-value">{{viewData.wxidText}}</text></view>
     </view>
 
     <view class="det-money"><view>个人详情</view></view>

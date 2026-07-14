@@ -356,9 +356,6 @@ Page({
         return;
       }
       var phone = u.mobilePhoneNumber != null ? String(u.mobilePhoneNumber).trim() : '';
-      if (!phone && u.userphone != null) {
-        phone = String(u.userphone).trim();
-      }
       var wxid = u.wxid != null ? String(u.wxid).trim() : '';
       console.log('setData userId:',userId,' role:',role)
       that.setData({

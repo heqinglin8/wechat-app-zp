@@ -397,7 +397,7 @@ Page({
     userInfo.role = role;
     var showRoleDialog = this.shouldShowRoleDialog(userInfo);
     var roleInfo = userRole.getRoleInfo(role);
-    userInfo.mobilePhoneNumber = userInfo.mobilePhoneNumber;
+    userInfo.mobilePhoneNumber = userInfo.mobilePhoneNumber || '';
     userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath);
     app.globalData.currentUserRole = showRoleDialog ? '' : role;
     if (!showRoleDialog) {

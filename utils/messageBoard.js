@@ -12,7 +12,6 @@ var PAGE_SIZE = 10;
 var MAX_IMAGE_WIDTH = 1080;
 var MAX_IMAGE_HEIGHT = 960;
 var MAX_IMAGE_BYTES = 1048576;
-var DEFAULT_AVATAR = '/images/default_user_avatar.jpeg';
 
 var FIELD_SCHEMA = {
   message: {
@@ -20,7 +19,7 @@ var FIELD_SCHEMA = {
     targetId: 'bound business record objectId',
     parentId: 'empty for main messages; main message objectId for first-level replies',
     authorId: '_User objectId',
-    authorName: 'display name from _User.username / nickname',
+    authorName: 'display name from _User.nickname',
     authorAvatarPath: 'relative Bmob avatar path',
     authorCity: 'city/province/location text shown beside time',
     displayCityName: 'city name displayed in message list',
@@ -186,19 +185,13 @@ function displayImageUrl(value) {
 }
 
 function displayAvatar(userOrMessage) {
-  var value = userOrMessage && (
-    userOrMessage.authorAvatar ||
-    userOrMessage.authorAvatarUrl ||
-    userOrMessage.avatarUrl ||
-    userOrMessage.authorAvatarPath ||
-    userOrMessage.avatarPath
-  );
-  return displayImageUrl(value) || DEFAULT_AVATAR;
+  var value = userOrMessage && userOrMessage.authorAvatarPath;
+  return displayImageUrl(value);
 }
 
 function displayName(user) {
-  if (!user) return '匿名用户';
-  return user.nickname || user.username || user.authorName || '匿名用户';
+  if (!user) return '';
+  return user.nickname || '';
 }
 
 function displayLocation(user) {
@@ -226,8 +219,8 @@ function normalizeMessage(row, currentUserId, admin) {
     targetType: row.targetType || '',
     targetId: row.targetId || '',
     parentId: parentId,
-    authorId: row.authorId || row.userId || '',
-    authorName: row.authorName || row.userName || '匿名用户',
+    authorId: row.authorId || '',
+    authorName: row.authorName || '',
     authorAvatar: displayAvatar(row),
     authorCity: row.authorCity || row.location || row.ipCity || '',
     displayCityName: row.displayCityName || row.authorCity || row.location || row.ipCity || '',
@@ -239,9 +232,9 @@ function normalizeMessage(row, currentUserId, admin) {
     isHidden: row.isHidden === true,
     isFeatured: row.isFeatured === true,
     isPinned: parentId ? false : row.isPinned === true,
-    createdAt: row.createdAt || row.clientCreatedAt || '',
-    timeText: formatTimeText(row.createdAt || row.clientCreatedAt),
-    canDelete: !!(admin || (currentUserId && (row.authorId || row.userId) === currentUserId)),
+    createdAt: row.createdAt || '',
+    timeText: formatTimeText(row.createdAt),
+    canDelete: !!(admin || (currentUserId && row.authorId === currentUserId)),
     replies: [],
     repliesExpanded: false,
   };

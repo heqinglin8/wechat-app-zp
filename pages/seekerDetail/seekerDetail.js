@@ -81,8 +81,6 @@ Page({
       intentText: this.withFallback(item.jobIntent, '求职方向'),
       payTypeText: this.formatPayTypeText(item),
       expectedSalaryText: this.formatSalaryText(item),
-      phoneText: this.withFallback(item.contact, '电话'),
-      wxidText: this.withFallback(item.wxid, '微信'),
       summaryText: this.withFallback(item.summary, '摘要'),
       introText: this.withFallback(item.recoIntro, '自我介绍'),
     };

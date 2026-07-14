@@ -59,7 +59,7 @@ Page({
     return '未填薪资';
   },
   resolveRecruiterAvatar: function (item) {
-    var avatar = this.firstText(item.commitAvatar, item.firstPhoto);
+    var avatar = this.firstText(item.commitAvatar);
     return avatar ? util.toDisplayUrl(avatar) : '';
   },
   buildViewData: function (item) {
@@ -225,7 +225,7 @@ Page({
         return;
       }
 
-      var mobilePhoneNumber = that.firstText(userInfo.mobilePhoneNumber, userInfo.userphone);
+      var mobilePhoneNumber = that.firstText(userInfo.mobilePhoneNumber);
       var wxid = that.firstText(userInfo.wxid);
       that.setData({
         userId: userInfo.objectId,
@@ -289,7 +289,7 @@ Page({
     var that = this;
     that.ensureContactReady('再电话咨询', function () {
       var content = that.data.content || {};
-      var phone = that.firstText(content.recoContact, content.contact).replace(/\s+/g, '');
+      var phone = that.firstText(content.contact).replace(/\s+/g, '');
       if (!phone) {
         wx.showToast({
           title: '未填联系电话',
@@ -650,7 +650,7 @@ Page({
    */
   onShareAppMessage: function () {
     var content = this.data.content || {};
-    var title = this.firstText(content.title, content.detName, '职位详情');
+    var title = this.firstText(content.title);
     var imageUrl = this.firstText(this.data.photoList && this.data.photoList[0]);
     return {
       title: title,

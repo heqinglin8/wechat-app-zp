@@ -30,7 +30,7 @@ function decorateRecruitCard(jobInfo, joinInfo) {
     cardRecruiter: pickText(job.commitUsername, '招聘者未填写') + ' · ' + pickText(job.commitJobRole, '职位未填写'),
     cardLocation: cityInfo ? cityInfo.cityName : '',
     cardBadge: job.payType == 1 ? '临' : '',
-    avatar: util.toDisplayUrl(job.commitAvatar) || job.firstPhoto || ''
+    avatar: util.toDisplayUrl(job.commitAvatar)
   };
 }
 

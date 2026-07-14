@@ -104,7 +104,7 @@ function decorateJobCard(item) {
     : '未写招聘者 · ' + recruiterRole;
   item.cardLocation = cityInfo ? cityInfo.cityName : '';
   item.cardBadge = item.payType == 1 ? '临' : '';
-  item.avatar = util.toDisplayUrl(item.commitAvatar) ? util.toDisplayUrl(item.commitAvatar) : item.firstPhoto;
+  item.avatar = util.toDisplayUrl(item.commitAvatar);
   return item;
 }
 
@@ -117,18 +117,18 @@ function decorateJobSeekerCard(item) {
   var cityInfo = findDisplayByDistrictCode(item.districtCode);
   var commitNickname = firstText(item.commitNickname, '未写发布人');
   var recruiterRole = firstText(item.commitJobRole, '');
-  item.cardTitle = firstText(item.title, item.jobIntent, item.recoJobIntent, '未写标题');
+  item.cardTitle = firstText(item.title);
   item.cardSalary = salaryText(item);
   item.cardSummary = firstText(item.summary, '未写摘要');
-  item.cardFinancing = firstText(item.education, item.recoEducation, '未写学历');
+  item.cardFinancing = firstText(item.education);
   item.cardTags = compactTags([
-    firstText(item.education, item.recoEducation, '')
-  ].concat(splitTags(firstText(item.jobIntent, item.recoJobIntent))));
+    firstText(item.education)
+  ].concat(splitTags(firstText(item.jobIntent))));
   item.cardSeeker = recruiterRole ? commitNickname + ' · ' + recruiterRole : commitNickname;
   item.cardLocation = cityInfo ? cityInfo.cityName : '';
   item.cardBadge = item.payType == 1 ? '临' : '';
   item.cardPhotos = splitPhotoUrls(item.photoImgs, 3);
-  item.avatar = util.toDisplayUrl(item.seekerAvatar) ? util.toDisplayUrl(item.seekerAvatar) : item.firstPhoto;
+  item.avatar = util.toDisplayUrl(item.commitAvatar);
   return item;
 }
 
