@@ -9,8 +9,8 @@
           <image class="personal-user-avatar" src="{{avatarUrl || defaultAvatarUrl}}" mode="aspectFill"></image>
         </view>
         <view class="personal-user-card-center">
-          <view class="personal-user-name">{{nickname || '请完善用户名'}}</view>
-          <view class="personal-user-no">手机号：{{mobilePhoneNumber || '--'}}</view>
+          <view class="personal-user-name">{{userInfo.nickname || '请完善用户名'}}</view>
+          <view class="personal-user-no">手机号：{{userInfo.mobilePhoneNumber || '--'}}</view>
         </view>
         <view class="personal-user-card-right">
           <view class="personal-user-arrow"></view>
@@ -21,8 +21,8 @@
           <image class="personal-user-avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
         </view>
         <view class="personal-user-card-center">
-          <view class="personal-user-name">{{nickname || '请完善用户名'}}</view>
-          <view class="personal-user-no">手机号：{{mobilePhoneNumber || '--'}}</view>
+          <view class="personal-user-name">{{userInfo.nickname || '请完善用户名'}}</view>
+          <view class="personal-user-no">手机号：{{userInfo.mobilePhoneNumber || '--'}}</view>
         </view>
         <view class="personal-user-card-right">
           <view class="personal-user-arrow"></view>
@@ -32,7 +32,7 @@
 
   </view>
   <view class="personal-middle">
-    <view wx:if="{{hasUserInfo && showMyJoinEntry}}" class="per-mid-list1" bindtap='bindViewMyJoin'>
+    <view wx:if="{{hasUserInfo && roleInfo.role == '2'}}" class="per-mid-list1" bindtap='bindViewMyJoin'>
       <view class="per-mid-list1-left per-mid-list-left">
         <image src="../../images/mybaoming.png"/>
         <view class="per-mid-list1-left-text per-mid-list-left-text">报名岗位</view>
@@ -41,7 +41,7 @@
         <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
-    <view wx:if="{{hasUserInfo && showMyRecruitEntry}}" class="per-mid-list-recruit" bindtap='bindViewMyRecruit'>
+    <view wx:if="{{hasUserInfo && roleInfo.role && roleInfo.role != '0' && roleInfo.role != '2'}}" class="per-mid-list-recruit" bindtap='bindViewMyRecruit'>
       <view class="per-mid-list-recruit-left per-mid-list-left">
         <image src="../../images/mybaoming.png"/>
         <view class="per-mid-list-recruit-left-text per-mid-list-left-text">我的招聘</view>
@@ -50,7 +50,7 @@
         <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
-    <view wx:if="{{hasUserInfo && showMyJobSeekEntry}}" class="per-mid-list2"bindtap='bindViewMyaward'>
+    <view wx:if="{{hasUserInfo && roleInfo.role == '2'}}" class="per-mid-list2"bindtap='bindViewMyaward'>
       <view class="per-mid-list2-left per-mid-list-left">
         <image src="../../images/mytuijian.png"/>
         <view class="per-mid-list2-left-text per-mid-list-left-text">我的求职</view>

@@ -15,19 +15,14 @@ Page({
   data: {
     //微信官方信息
     userInfo:{},
-    userId: '',
-    //数据库个人信息
-    nickname:'',
     hasUserInfo: false,
     defaultAvatarUrl: defaultAvatarUrl,
     avatarUrl: defaultAvatarUrl,
+    roleInfo: userRole.getRoleInfo(''),
     showRoleDialog: false,
     selectedRole: 2,
     roleJobRole: '',
     isSavingRole: false,
-    showMyJoinEntry: false,
-    showMyJobSeekEntry: false,
-    showMyRecruitEntry: false,
   },
 
   /**
@@ -113,16 +108,16 @@ Page({
   },
   //点击个人中心里我的报名页面跳转
   bindViewMyJoin: function () {
-    var userId=this.data.userInfo.objectId
+    var objectId=this.data.userInfo.objectId
     wx.navigateTo({
-      url: '../myjoin/myjoin?userId=' + userId
+      url: '../myjoin/myjoin?userId=' + objectId
     })
   },
   //点击个人中心里我的招聘页面跳转
   bindViewMyRecruit: function () {
-    var userId = this.data.userInfo.objectId
+    var objectId = this.data.userInfo.objectId
     wx.navigateTo({
-      url: '../myrecruit/myrecruit?userId=' + userId
+      url: '../myrecruit/myrecruit?userId=' + objectId
     })
   },
   //点击个人中心里求职热线页面跳转
@@ -146,9 +141,9 @@ Page({
   },
   //点击个人中心里我的求职跳转
   bindViewMyaward:function(){
-    var userId = this.data.userInfo.objectId
+    var objectId = this.data.userInfo.objectId
     wx.navigateTo({
-      url: '../myjobseeks/myjobseeks?userId=' + userId
+      url: '../myjobseeks/myjobseeks?userId=' + objectId
     })
   },
   // 点击头像修改
@@ -229,18 +224,13 @@ Page({
     app.globalData.currentUserRole = '';
     this.setData({
       userInfo: {},
-      userId: '',
-      nickname: '',
-      mobilePhoneNumber: '',
       hasUserInfo: false,
       avatarUrl: defaultAvatarUrl,
+      roleInfo: userRole.getRoleInfo(''),
       showRoleDialog: false,
       selectedRole: 2,
       roleJobRole: '',
-      isSavingRole: false,
-      showMyJoinEntry: false,
-      showMyJobSeekEntry: false,
-      showMyRecruitEntry: false
+      isSavingRole: false
     });
     app.syncTodayTabBarByRole('');
     this.refreshFabVisibility();
@@ -278,8 +268,7 @@ Page({
 
   shouldShowRoleDialog: function (userInfo) {
     var currentUserInfo = userInfo || {};
-    var userId = currentUserInfo.objectId || this.data.userId || '';
-    return !!userId && this.isEmptyRole(currentUserInfo.role);
+    return !!currentUserInfo.objectId && this.isEmptyRole(currentUserInfo.role);
   },
 
   onRoleSelect: function (e) {
@@ -308,7 +297,6 @@ Page({
     var selectedRole = Number(this.data.selectedRole);
     var jobRole = ((this.data.roleJobRole || '') + '').trim();
     var userInfo = this.data.userInfo || {};
-    var userId = this.data.userId || userInfo.objectId || '';
 
     if (selectedRole !== 1 && selectedRole !== 2) {
       wx.showToast({
@@ -327,7 +315,7 @@ Page({
       return;
     }
 
-    if (!userId) {
+    if (!userInfo.objectId) {
       wx.showToast({
         title: '请先登录',
         icon: 'none',
@@ -337,7 +325,6 @@ Page({
       return;
     }
 
-    userInfo.objectId = userId;
     this.setData({
       isSavingRole: true
     });
@@ -405,48 +392,26 @@ Page({
     });
   },
 
-  resolvePersonalEntryVisibility: function (role) {
-    if (this.isEmptyRole(role)) {
-      return {
-        showMyJoinEntry: false,
-        showMyJobSeekEntry: false,
-        showMyRecruitEntry: false
-      };
-    }
-
-    var isJobSeeker = userRole.isJobSeekerRole(role);
-    return {
-      showMyJoinEntry: isJobSeeker,
-      showMyJobSeekEntry: isJobSeeker,
-      showMyRecruitEntry: !isJobSeeker
-    };
-  },
-
   applyUserInfo: function (userInfo) {
-    var userId = userInfo.objectId || '';
     var role = userRole.normalizeRole(userInfo.role);
     userInfo.role = role;
     var showRoleDialog = this.shouldShowRoleDialog(userInfo);
-    var entryVisibility = this.resolvePersonalEntryVisibility(role);
-    userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath) || userInfo.avatarUrl || userInfo.wechatAvatarUrl || '';
+    var roleInfo = userRole.getRoleInfo(role);
+    userInfo.mobilePhoneNumber = userInfo.mobilePhoneNumber;
+    userInfo.avatarUrl = util.toDisplayUrl(userInfo.avatarPath);
     app.globalData.currentUserRole = showRoleDialog ? '' : role;
     if (!showRoleDialog) {
       app.syncTodayTabBarByRole(role);
     }
     this.setData({
       userInfo: userInfo,
-      userId: userId,
-      nickname: userInfo.nickname || '',
-      mobilePhoneNumber: userInfo.mobilePhoneNumber || userInfo.userphone || '',
       hasUserInfo: true,
       avatarUrl: userInfo.avatarUrl || defaultAvatarUrl,
+      roleInfo: roleInfo,
       showRoleDialog: showRoleDialog,
       selectedRole: showRoleDialog && !this.data.showRoleDialog ? 2 : this.data.selectedRole,
       roleJobRole: showRoleDialog && !this.data.showRoleDialog ? '' : this.data.roleJobRole,
-      isSavingRole: false,
-      showMyJoinEntry: entryVisibility.showMyJoinEntry,
-      showMyJobSeekEntry: entryVisibility.showMyJobSeekEntry,
-      showMyRecruitEntry: entryVisibility.showMyRecruitEntry
+      isSavingRole: false
     });
     this.refreshFabVisibility();
   },
@@ -479,18 +444,17 @@ Page({
           message: '未获取到用户ID'
         });
       }
-      return that.fetchCurrentUserInfo(objectId, sessionToken).catch(function (error) {
-        console.log('登录后查询用户信息失败，使用授权返回信息:', error);
-        userInfo.sessionToken = sessionToken;
-        return userInfo;
-      });
+      return that.fetchCurrentUserInfo(objectId, sessionToken);
     }).then(function (userInfo) {
+      var showRoleDialog = that.shouldShowRoleDialog(userInfo);
       that.applyUserInfo(userInfo);
-      wx.showToast({
-        title: '登录成功',
-        icon: 'success',
-        duration: 1500
-      });
+      if (!showRoleDialog) {
+        wx.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 1500
+        });
+      }
     }).catch(function (err) {
       console.log(err);
       wx.showToast({
