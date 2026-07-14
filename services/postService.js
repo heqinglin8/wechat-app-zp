@@ -193,7 +193,7 @@ function normalizePost(row, authorMap, options) {
   var userId = opts.currentUserId || '';
   var uid = firstText(row && row.commitUid);
   var photos = resolvePhotoList(row);
-  var title = withFallback(row && row.title, '标题');
+  var title = firstText(row && row.title);
   var content = withFallback(row && row.content, '内容');
   var postId = firstText(row && row.objectId);
   var fallbackOverflow = title.length > 48;

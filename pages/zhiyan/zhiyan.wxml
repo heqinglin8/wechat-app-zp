@@ -30,7 +30,7 @@
           </view>
         </view>
 
-        <view class="post-title-area" bindtap="onCardTap" data-index="{{index}}">
+        <view wx:if="{{item.titleText}}" class="post-title-area" bindtap="onCardTap" data-index="{{index}}">
           <view class="post-title-clamp">{{item.titleText}}</view>
           <text
             wx:if="{{item.showTitleFullAction}}"
@@ -38,7 +38,7 @@
             catchtap="onFullTextTap"
             data-index="{{index}}"
           >全文</text>
-          <view class="post-title-measure">{{item.titleText}}</view>
+          <view class="post-title-measure" data-index="{{index}}">{{item.titleText}}</view>
         </view>
 
         <view class="post-content" bindtap="onCardTap" data-index="{{index}}">{{item.contentText}}</view>

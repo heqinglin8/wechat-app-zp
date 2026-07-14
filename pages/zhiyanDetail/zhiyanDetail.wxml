@@ -19,7 +19,7 @@
         </view>
       </view>
 
-      <view class="detail-title">{{post.titleText}}</view>
+      <view wx:if="{{post.titleText}}" class="detail-title">{{post.titleText}}</view>
       <view class="detail-content">{{post.contentText}}</view>
 
       <view wx:if="{{post.detailPhotos.length}}" class="detail-photos">

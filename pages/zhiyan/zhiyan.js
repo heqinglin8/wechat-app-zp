@@ -170,14 +170,15 @@ Page({
       var maxHeight = lineHeightPx * 3 + 2;
       wx.createSelectorQuery()
         .selectAll('.post-title-measure')
-        .boundingClientRect(function (rects) {
+        .fields({ size: true, dataset: true }, function (rects) {
           if (!rects || !rects.length) return;
           var nextPosts = that.data.posts.slice();
           rects.forEach(function (rect, index) {
-            if (!nextPosts[index]) return;
+            var postIndex = rect && rect.dataset ? Number(rect.dataset.index) : index;
+            if (isNaN(postIndex) || !nextPosts[postIndex]) return;
             var byHeight = rect && rect.height > maxHeight;
-            var byLength = String(nextPosts[index].titleText || '').length > 48;
-            nextPosts[index].showTitleFullAction = !!(byHeight || byLength);
+            var byLength = String(nextPosts[postIndex].titleText || '').length > 48;
+            nextPosts[postIndex].showTitleFullAction = !!(byHeight || byLength);
           });
           that.setData({ posts: nextPosts });
         })
