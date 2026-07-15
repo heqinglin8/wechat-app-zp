@@ -144,43 +144,49 @@ const getJobTypeLabelByCode = code => {
   return '工种'
 }
 
+const JOB_TYPE_RANGE_END_SENTINEL = '~~~'
+const JOB_TYPE_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+const incrementJobTypeCodeAt = (code, index) => {
+  const chars = normalizeJobTypeCode(code).split('')
+  for (let i = index; i >= 0; i--) {
+    const digitIndex = JOB_TYPE_DIGITS.indexOf(chars[i])
+    if (digitIndex >= 0 && digitIndex < JOB_TYPE_DIGITS.length - 1) {
+      chars[i] = JOB_TYPE_DIGITS[digitIndex + 1]
+      for (let j = i + 1; j < chars.length; j++) {
+        chars[j] = '0'
+      }
+      return chars.join('')
+    }
+  }
+  return JOB_TYPE_RANGE_END_SENTINEL
+}
+
 const getJobTypeFilterRange = code => {
   const normalized = normalizeJobTypeCode(code)
   if (normalized === ALL_JOB_TYPE_CODE) return null
-  const start = Number(normalized)
-  let end = start + 1
+  let endCode = incrementJobTypeCodeAt(normalized, 2)
   if (normalized.charAt(1) === '0' && normalized.charAt(2) === '0') {
-    end = start + 100
+    endCode = incrementJobTypeCodeAt(normalized, 0)
   } else if (normalized.charAt(2) === '0') {
-    end = start + 10
+    endCode = incrementJobTypeCodeAt(normalized, 1)
   }
   return {
-    start: start,
-    end: end,
-    startCode: padJobTypeCode(start),
-    endCode: padJobTypeCode(end),
+    startCode: normalized,
+    endCode: endCode,
   }
 }
 
-const jobTypeRangeCondition = (start, end) => {
-  return { $gte: start, $lt: end }
+const jobTypeRangeCondition = (startCode, endCode) => {
+  return { $gte: startCode, $lt: endCode }
 }
 
 const applyJobTypeFilter = (query, code) => {
   const range = getJobTypeFilterRange(code)
   if (!range) return query
 
-  if (typeof query.or === 'function') {
-    const numericCondition = {}
-    const stringCondition = {}
-    numericCondition.jobType = jobTypeRangeCondition(range.start, range.end)
-    stringCondition.jobType = jobTypeRangeCondition(range.startCode, range.endCode)
-    query.or(numericCondition, stringCondition)
-    return query
-  }
-
-  query.equalTo('jobType', '>=', range.start)
-  query.equalTo('jobType', '<', range.end)
+  query.equalTo('jobType', '>=', range.startCode)
+  query.equalTo('jobType', '<', range.endCode)
   return query
 }
 

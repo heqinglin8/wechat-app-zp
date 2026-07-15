@@ -33,7 +33,9 @@
 
       <view class="award-list-name">
         <view class="name-text">求职意向</view>
-        <input class="name-input" type="text" placeholder="期望岗位或方向" value="{{jobIntent}}" bindinput="onJobIntentInput" />
+        <view class="name-input job-intent-input" bindtap="openJobTypePopup">
+          <text class="{{jobIntent ? '' : 'picker-placeholder'}}">{{jobIntent || '请选择职能'}}</text>
+        </view>
       </view>
 
       <view class="award-list-name award-picker-row">
@@ -86,5 +88,47 @@
     </view>
 
     <view class="award-btn" bindtap="put_infor">确定</view>
+  </view>
+
+  <view wx:if="{{jobTypePopupVisible}}" class="job-type-mask" bindtap="closeJobTypePopup" catchtouchmove="noop">
+    <view class="job-type-panel" catchtap="noop">
+      <view class="job-type-title">请选择职能</view>
+      <view class="job-type-body">
+        <scroll-view scroll-y="true" class="job-type-categories">
+          <view
+            wx:for="{{jobTypeCategories}}"
+            wx:key="code"
+            class="job-type-category {{activeJobTypeCategoryCode == item.code ? 'job-type-category--active' : ''}}"
+            data-code="{{item.code}}"
+            bindtap="selectJobTypeCategory"
+          >{{item.name}}</view>
+        </scroll-view>
+        <scroll-view scroll-y="true" class="job-type-options">
+          <view
+            class="job-type-option job-type-option--category-all {{tempJobTypeCode == activeJobTypeCategoryCode ? 'job-type-option--active' : ''}}"
+            data-code="{{activeJobTypeCategoryCode}}"
+            bindtap="selectJobTypeOption"
+          >全部</view>
+          <block wx:for="{{activeJobTypeGroups}}" wx:for-item="group" wx:key="code">
+            <view class="job-type-group-title">{{group.name}}</view>
+            <view class="job-type-option-grid">
+              <view
+                wx:for="{{group.children}}"
+                wx:for-item="option"
+                wx:key="code"
+                class="job-type-option {{tempJobTypeCode == option.code ? 'job-type-option--active' : ''}}"
+                data-code="{{option.code}}"
+                bindtap="selectJobTypeOption"
+              >{{option.name}}</view>
+            </view>
+          </block>
+        </scroll-view>
+      </view>
+      <view class="job-type-actions">
+        <button class="job-type-action job-type-action--cancel" bindtap="closeJobTypePopup">取消</button>
+        <button class="job-type-action job-type-action--reset" bindtap="resetJobTypeFilter">重置</button>
+        <button class="job-type-action job-type-action--confirm" bindtap="confirmJobTypeFilter">确定</button>
+      </view>
+    </view>
   </view>
 </scroll-view>

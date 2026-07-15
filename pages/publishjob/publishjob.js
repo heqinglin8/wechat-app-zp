@@ -693,7 +693,7 @@ Page({
     row.set('experience', String(d.experience || '').trim());
     row.set('summary', summaryText);
     row.set('jobDescription', jobDescriptionText);
-    row.set('jobType', Number(jobType.normalizeCode(d.jobType)));
+    row.set('jobType', String(jobType.normalizeCode(d.jobType)));
     row.set('companyId', d.selectedCompanyId || '');
     row.set('detPayMin', parsePositiveNumber(d.detPayMin));
     row.set('detPayMax', parsePositiveNumber(d.detPayMax));

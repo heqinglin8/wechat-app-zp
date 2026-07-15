@@ -1,17 +1,21 @@
 // pages/award/award.js
-// JobSeeker（Bmob）：控制台 Class 须含 title education contact jobIntent recoIntro summary
+// JobSeeker（Bmob）：控制台 Class 须含 title education contact jobIntent jobType recoIntro summary
 // photoImgs（多张图 URL 半角 | 拼接）、commitUid（提交人 objectId）。
 // 配图：最多 6 张；单张 ≤3MB（≤3145728 字节）；扩展名 jpg/jpeg/png/gif/webp/bmp；支持替换与删除；即选即传。
 
 var Bmob = wx.Bmob;
+var util = require('../../utils/util.js');
 var city = require('../../utils/city.js');
 var imageUpload = require('../../utils/imageUpload.js');
 var userRole = require('../../utils/userRole.js');
+var jobTypeData = require('../../utils/jobTypeData.js');
+var jobType = util.jobType;
 
 var MAX_RECOMMEND_PHOTOS = 6;
 var MAX_PHOTO_BYTES = 3145728;
 var WX_CHOOSE_IMAGE_MAX = 9;
 var ALLOWED_IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+var DEFAULT_JOB_TYPE_CATEGORY_CODE = jobType.getDefaultCategoryCode();
 
 Page({
   data: {
@@ -19,6 +23,12 @@ Page({
     contact: '',
     wxid: '',
     jobIntent: '',
+    jobType: jobType.ALL_JOB_TYPE_CODE,
+    jobTypeCategories: jobTypeData.categories,
+    jobTypePopupVisible: false,
+    tempJobTypeCode: jobType.ALL_JOB_TYPE_CODE,
+    activeJobTypeCategoryCode: DEFAULT_JOB_TYPE_CATEGORY_CODE,
+    activeJobTypeGroups: jobType.getGroupsByCategory(DEFAULT_JOB_TYPE_CATEGORY_CODE),
     detPayMin: '',
     detPayMax: '',
     recoIntro: '',
@@ -47,8 +57,45 @@ Page({
   onWxidInput: function (e) {
     this.setData({ wxid: (e.detail && e.detail.value) || '' });
   },
-  onJobIntentInput: function (e) {
-    this.setData({ jobIntent: (e.detail && e.detail.value) || '' });
+  openJobTypePopup: function () {
+    var tempCode = jobType.normalizeCode(this.data.jobType);
+    var categoryCode = jobType.getCategoryCodeForJobType(tempCode);
+    this.setData({
+      jobTypePopupVisible: true,
+      tempJobTypeCode: tempCode,
+      activeJobTypeCategoryCode: categoryCode,
+      activeJobTypeGroups: jobType.getGroupsByCategory(categoryCode)
+    });
+  },
+  closeJobTypePopup: function () {
+    this.setData({ jobTypePopupVisible: false });
+  },
+  selectJobTypeCategory: function (e) {
+    var categoryCode = jobType.normalizeCode(e.currentTarget.dataset.code);
+    this.setData({
+      activeJobTypeCategoryCode: categoryCode,
+      activeJobTypeGroups: jobType.getGroupsByCategory(categoryCode)
+    });
+  },
+  selectJobTypeOption: function (e) {
+    var code = jobType.normalizeCode(e.currentTarget.dataset.code);
+    this.setData({ tempJobTypeCode: code });
+  },
+  resetJobTypeFilter: function () {
+    this.setData({
+      tempJobTypeCode: jobType.ALL_JOB_TYPE_CODE,
+      activeJobTypeCategoryCode: DEFAULT_JOB_TYPE_CATEGORY_CODE,
+      activeJobTypeGroups: jobType.getGroupsByCategory(DEFAULT_JOB_TYPE_CATEGORY_CODE)
+    });
+  },
+  confirmJobTypeFilter: function () {
+    var nextCode = jobType.normalizeCode(this.data.tempJobTypeCode);
+    var nextLabel = nextCode === jobType.ALL_JOB_TYPE_CODE ? '' : jobType.getLabelByCode(nextCode);
+    this.setData({
+      jobTypePopupVisible: false,
+      jobType: nextCode,
+      jobIntent: nextLabel
+    });
   },
 
   onDetPayMinInput: function (e) {
@@ -106,6 +153,8 @@ Page({
   },
 
   onShareAppMessage: function () {},
+
+  noop: function () {},
 
   isAllowedJobSeekerRole: function (role) {
     return userRole.canPublishJobSeeker(role);
@@ -185,7 +234,7 @@ Page({
         return;
       }
       var u = results[0];
-      var role = u.role == null ? '' : String(u.role).trim();
+      var role = u.role == null ? '' : u.role.trim();
       if (!that.isAllowedJobSeekerRole(role)) {
         that.setData({
           userLoaded: false
@@ -193,8 +242,8 @@ Page({
         that.handleJobSeekerRoleDenied();
         return;
       }
-      var phone = u.mobilePhoneNumber != null ? String(u.mobilePhoneNumber).trim() : '';
-      var wxid = u.wxid != null ? String(u.wxid).trim() : '';
+      var phone = u.mobilePhoneNumber != null ? u.mobilePhoneNumber.trim() : '';
+      var wxid = u.wxid != null ? u.wxid.trim() : '';
       that.setData({
         contact: phone,
         wxid: that.data.wxid || wxid,
@@ -368,27 +417,31 @@ Page({
 
   validateForm: function () {
     var d = this.data;
-    if (!(d.title && String(d.title).trim())) {
+    if (!(d.title && d.title.trim())) {
       wx.showToast({ title: '请填写标题', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.contact && String(d.contact).trim())) {
+    if (!(d.contact.trim())) {
       wx.showToast({ title: '请填写电话', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    var phone = String(d.contact || '').trim();
+    var phone = d.contact.trim();
     var mobileReg = /^1[3-9]\d{9}$/;
     var landlineReg = /^0\d{2,3}-?\d{7,8}(?:-\d{1,6})?$/;
     if (!mobileReg.test(phone) && !landlineReg.test(phone)) {
       wx.showToast({ title: '手机号或固话不正确', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.wxid && String(d.wxid).trim())) {
+    if (!d.wxid) {
       wx.showToast({ title: '请填写微信号', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
-    if (!(d.jobIntent && String(d.jobIntent).trim())) {
-      wx.showToast({ title: '请填写求职意向', image: '../../images/warning.png', duration: 2000 });
+    if (jobType.normalizeCode(d.jobType) === jobType.ALL_JOB_TYPE_CODE) {
+      wx.showToast({ title: '请选择求职意向', image: '../../images/warning.png', duration: 2000 });
+      return false;
+    }
+    if (!d.jobIntent) {
+      wx.showToast({ title: '请选择求职意向', image: '../../images/warning.png', duration: 2000 });
       return false;
     }
     
@@ -437,18 +490,19 @@ Page({
     var d = this.data;
     var edu = this.educationLabel();
     row.set('commitUid', this._objectId || '');
-    row.set('commitNickname', String(this._nickname).trim());
+    row.set('commitNickname', this._nickname.trim());
     row.set('commitAvatar', this._avatarPath || '');
-    row.set('title', String(d.title).trim());
+    row.set('title', d.title);
     row.set('education', edu);
-    row.set('contact', String(d.contact).trim());
-    row.set('wxid', String(d.wxid).trim());
-    row.set('jobIntent', String(d.jobIntent).trim());
-    row.set('payType', Number(d.payType || 0));
+    row.set('contact', d.contact.trim());
+    row.set('wxid', d.wxid.trim());
+    row.set('jobIntent', d.jobIntent.trim());
+    row.set('jobType', jobType.normalizeCode(d.jobType));
+    row.set('payType', d.payType || 0);
     row.set('detPayMin', Number(d.detPayMin || ''));
     row.set('detPayMax', Number(d.detPayMax || ''));
-    row.set('recoIntro', (d.recoIntro && String(d.recoIntro).trim()) || '');
-    row.set('summary', (d.summary && String(d.summary).trim()) || '');
+    row.set('recoIntro', (d.recoIntro && d.recoIntro.trim()) || '');
+    row.set('summary', (d.summary && d.summary.trim()) || '');
     row.set('photoImgs', this.buildPhotoImgsField());
     row.set('active', this.resolvePublishActive());
     var currentCity = city.normalizeCity(this.refreshCurrentCity());
@@ -475,7 +529,7 @@ Page({
 
     var query = Bmob.Query('JobSeeker');
     query.equalTo('commitUid', '==', that._objectId);
-    query.equalTo('title', '==', String(that.data.title).trim());
+    query.equalTo('title', '==', that.data.title.trim());
     query.equalTo('active', '==', 1);
 
     query.find().then(function (results) {
@@ -518,7 +572,7 @@ Page({
       }).then(function () {
         var updatedQuery = Bmob.Query('JobSeeker');
         return updatedQuery.get(row.objectId).then(function (existing) {
-          if (String(existing.commitUid || '').trim() !== that._objectId) {
+          if (existing.commitUid.trim() !== that._objectId) {
             wx.showToast({
               title: '无权编辑该求职',
               icon: 'none',
