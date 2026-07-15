@@ -225,7 +225,7 @@ Page({
         return;
       }
 
-      var mobilePhoneNumber = that.firstText(userInfo.mobilePhoneNumber);
+      var mobilePhoneNumber = userInfo.mobilePhoneNumber;
       var wxid = that.firstText(userInfo.wxid);
       that.setData({
         userId: userInfo.objectId,

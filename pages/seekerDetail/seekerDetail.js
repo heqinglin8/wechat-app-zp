@@ -183,8 +183,7 @@ Page({
     var that = this;
     that.ensureCurrentUserContactReady('再电话咨询', function () {
       var content = that.data.content || {};
-      var phone = content.contact.replace(/\s+/g, '');
-      if (!phone) {
+      if (!content.contact) {
         wx.showToast({
           title: '未填联系电话',
           image: "../../images/warning.png",
@@ -192,7 +191,7 @@ Page({
         });
         return;
       }
-
+      var phone = content.contact.replace(/\s+/g, '');
       wx.makePhoneCall({
         phoneNumber: phone,
         fail: function () {
