@@ -419,7 +419,7 @@
 }
 
 .job-type-category--active {
-  color: #2f80ed;
+  color: #13aaa3;
   font-weight: 600;
 }
 
@@ -431,7 +431,7 @@
   width: 6rpx;
   height: 48rpx;
   border-radius: 0 6rpx 6rpx 0;
-  background: #2f80ed;
+  background: #13aaa3;
 }
 
 .job-type-options {
@@ -474,7 +474,7 @@
 }
 
 .job-type-option--active {
-  color: #2f80ed;
+  color: #13aaa3;
   background: #eef6ff;
 }
 
@@ -515,5 +515,5 @@
 
 .job-type-action--confirm {
   color: #fff;
-  background: #2f80ed;
+  background: #13aaa3;
 }

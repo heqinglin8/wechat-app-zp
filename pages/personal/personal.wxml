@@ -59,15 +59,15 @@
         <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
-    <!-- <view wx:if="{{hasUserInfo}}" class="per-mid-list3" bindtap='bindViewTodayGxz'>
+    <view wx:if="{{hasUserInfo}}" class="per-mid-list3" bindtap='bindViewTodayGxz'>
       <view class="per-mid-list3-left per-mid-list-left">
         <image src="../../images/shezhi.png"/>
-        <view class="per-mid-list3-left-text per-mid-list-left-text">个人信息</view>
+        <view class="per-mid-list3-left-text per-mid-list-left-text">我的收藏</view>
       </view>
       <view class="per-mid-list3-right per-mid-list-right">
         <image src="../../images/jiantou_small.png"/>
       </view>
-    </view> -->
+    </view>
     <view class="per-mid-list4" bindtap='bindViewServicePhone'>
       <view class="per-mid-list4-left per-mid-list-left">
         <image src="../../images/mykefu.png"/>
