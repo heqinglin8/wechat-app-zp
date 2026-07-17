@@ -59,7 +59,7 @@
         <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
-    <view wx:if="{{hasUserInfo}}" class="per-mid-list3" bindtap='bindViewTodayGxz'>
+    <view wx:if="{{hasUserInfo}}" class="per-mid-list3" bindtap='bindViewMyCollect'>
       <view class="per-mid-list3-left per-mid-list-left">
         <image src="../../images/shezhi.png"/>
         <view class="per-mid-list3-left-text per-mid-list-left-text">我的收藏</view>

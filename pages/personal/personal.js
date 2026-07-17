@@ -140,6 +140,13 @@ Page({
     // })
     
   },
+  //点击个人中心里我的收藏跳转
+  bindViewMyCollect:function(){
+    var objectId = this.data.userInfo.objectId
+    wx.navigateTo({
+      url: '../mycollect/mycollect?userId=' + objectId
+    })
+  },
   //点击个人中心里我的求职跳转
   bindViewMyaward:function(){
     var objectId = this.data.userInfo.objectId

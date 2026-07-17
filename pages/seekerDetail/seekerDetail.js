@@ -224,7 +224,7 @@ Page({
   fetchSeekerCollectCount: function (jobSeekId) {
     if (!jobSeekId) return Promise.resolve(0);
     var query = Bmob.Query("MyCollectInfo");
-    query.equalTo("jobSeekId", "==", jobSeekId);
+    query.equalTo("jobId", "==", jobSeekId);
     query.equalTo("type", "==", "2");
     return query.count().then(function (count) {
       var total = Number(count);
@@ -285,7 +285,7 @@ Page({
     } else {
       var query = Bmob.Query("MyCollectInfo");
       query.equalTo("userId", "==", that.data.userId);
-      query.equalTo("jobSeekId", "==", that.data.jobSeekId);
+      query.equalTo("jobId", "==", that.data.jobSeekId);
       query.equalTo("type", "==", "2");
       query.find().then(function (results) {
         if (results.length == 0) {
@@ -293,7 +293,7 @@ Page({
           diary.set("userId", that.data.userId);
           //类型："1"=收藏岗位；"2"=收藏求职信息
           diary.set("type", "2");
-          diary.set("jobSeekId", that.data.jobSeekId);
+          diary.set("jobId", that.data.jobSeekId);
           diary.save().then(function () {
             that.setData({
               isfist: false,
@@ -339,7 +339,7 @@ Page({
 
     var query = Bmob.Query("MyCollectInfo");
     query.equalTo("userId", "==", that.data.userId);
-    query.equalTo("jobSeekId", "==", that.data.jobSeekId);
+    query.equalTo("jobId", "==", that.data.jobSeekId);
     query.equalTo("type", "==", "2");
     query.find().then(function (results) {
       that.setData({
@@ -367,7 +367,7 @@ Page({
 
         var query = Bmob.Query("MyCollectInfo");
         query.equalTo("userId", "==", that.data.userId);
-        query.equalTo("jobSeekId", "==", that.data.jobSeekId);
+        query.equalTo("jobId", "==", that.data.jobSeekId);
         query.equalTo("type", "==", "2");
         query.find().then(function (results) {
           if (!results || results.length === 0) {

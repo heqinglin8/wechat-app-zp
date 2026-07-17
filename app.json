@@ -17,6 +17,7 @@
     "pages/myjoin/myjoin",
     "pages/myrecruit/myrecruit",
     "pages/myjobseeks/myjobseeks",
+    "pages/mycollect/mycollect",
     "pages/todayjobseek/todayjobseek",
     "pages/seekerDetail/seekerDetail",
     "pages/publishjob/publishjob",
