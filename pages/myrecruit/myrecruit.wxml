@@ -1,6 +1,6 @@
 <!--pages/myrecruit/myrecruit.wxml-->
 <view class="myrecruit-page">
-  <checkbox-group bindchange="onSelectChange">
+  <view>
     <block wx:for="{{jobInfo}}" wx:key="joinRecordId">
       <view class="job-card-row">
         <view class="job-card-main" bindtap="showDetail" data-index="{{index}}">
@@ -10,7 +10,7 @@
                 <text class="job-card__title">{{item.cardTitle}}</text>
                 <text wx:if="{{item.cardBadge}}" class="job-card__badge job-card__badge--primary">{{item.cardBadge}}</text>
               </view>
-              <text class="job-card__salary">{{item.cardSalary}}</text>
+              <view class="job-card__salary-wrap"><text class="job-card__salary">{{item.cardSalary}}</text><view class="job-card__more" catchtap="openActionSheet" data-index="{{index}}"><view class="job-card__more-dot"></view><view class="job-card__more-dot"></view><view class="job-card__more-dot"></view></view></view>
             </view>
             <view class="job-card__company">
               <text>{{item.cardCompany}}</text>
@@ -28,17 +28,14 @@
               </view>
               <text class="job-card__location">{{item.cardLocation}}</text>
             </view>
-            <view class="job-card-check" catchtap="noop">
-              <checkbox value="{{item.joinRecordId}}"></checkbox>
-            </view>
           </view>
         </view>
       </view>
     </block>
-  </checkbox-group>
+  </view>
   <view wx:if="{{isEmpty}}" class="empty-state">
     <view class="empty-state__text">暂无招聘信息</view>
     <button class="empty-state__button" bindtap="onRetryLoad">重新刷新</button>
   </view>
-  <view wx:if="{{selectedCount > 0}}" class="delete-bar" bindtap="deleteinfor">删除</view>
 </view>
+<view wx:if="{{actionSheetVisible}}" class="action-sheet-mask" catchtap="closeActionSheet"><view class="action-sheet" catchtap="noop"><view class="action-sheet__title">更多功能</view><view class="action-sheet__close" catchtap="closeActionSheet">×</view><view class="action-sheet__option" catchtap="onEditAction">编辑</view><view class="action-sheet__option action-sheet__option--danger" catchtap="onDeleteAction">删除</view></view></view>

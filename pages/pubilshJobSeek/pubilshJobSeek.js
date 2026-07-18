@@ -124,8 +124,9 @@ Page({
     });
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
     this._objectId = '';
+    this._editId = options && options.editId ? options.editId : '';
     this.refreshCurrentCity();
   },
 
@@ -137,6 +138,32 @@ Page({
     }
     this.refreshCurrentCity();
     this.loadCurrentUserProfile(currentUser.objectId);
+    if (this._editId && !this._editLoaded) this.loadEditRecord(this._editId);
+  },
+
+  loadEditRecord: function (objectId) {
+    var that = this;
+    var query = Bmob.Query('JobSeeker');
+    query.get(objectId).then(function (row) {
+      if (!row || row.commitUid !== that._objectId && row.commitUid !== (Bmob.User.current() || {}).objectId) {
+        wx.showToast({ title: '无权编辑该求职', icon: 'none' });
+        return;
+      }
+      var eduOptions = that.data.educationOptions;
+      var eduIndex = eduOptions.indexOf(row.education);
+      var payType = Number(row.payType) || 0;
+      that._editLoaded = true;
+      that.setData({
+        title: row.title || '', contact: row.contact || '', wxid: row.wxid || '',
+        jobIntent: row.jobIntent || '', jobType: jobType.normalizeCode(row.jobType),
+        tempJobTypeCode: jobType.normalizeCode(row.jobType), payType: payType,
+        payTypeIndex: payType, detPayMin: row.detPayMin == null ? '' : String(row.detPayMin),
+        detPayMax: row.detPayMax == null ? '' : String(row.detPayMax), recoIntro: row.recoIntro || '',
+        summary: row.summary || '', educationIndex: eduIndex >= 0 ? eduIndex : 2,
+        recommendPhotos: (row.photoImgs || '').split('|').filter(Boolean).map(function (path) { return { path: path, url: util.toDisplayUrl(path), uploading: false }; })
+      });
+      that._editId = objectId;
+    }).catch(function () { wx.showToast({ title: '读取求职信息失败', icon: 'none' }); });
   },
 
   refreshCurrentCity: function () {
@@ -529,7 +556,7 @@ Page({
 
     var query = Bmob.Query('JobSeeker');
     query.equalTo('commitUid', '==', that._objectId);
-    query.equalTo('title', '==', that.data.title.trim());
+    query.equalTo(that._editId ? 'objectId' : 'title', '==', that._editId ? that._editId : that.data.title.trim());
     query.equalTo('active', '==', 1);
 
     query.find().then(function (results) {

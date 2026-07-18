@@ -167,7 +167,8 @@ Page({
     });
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
+    this._editId = options && options.editId ? options.editId : '';
     this.refreshCurrentCity();
     this.loadCompanyOptions();
   },
@@ -180,6 +181,35 @@ Page({
     }
     this.consumeLastPublishedCompany();
     this.loadCompanyOptions();
+    if (this._editId && !this._editLoaded) this.loadEditRecord(this._editId);
+  },
+
+  loadEditRecord: function (objectId) {
+    var that = this;
+    Bmob.Query('JobInfo').get(objectId).then(function (row) {
+      var currentUser = Bmob.User.current();
+      if (!row || !currentUser || String(row.commitUid || '').trim() !== currentUser.objectId) {
+        wx.showToast({ title: '无权编辑该招聘', icon: 'none' });
+        return;
+      }
+      var code = jobType.normalizeCode(row.jobType);
+      if (!jobType.getLabelByCode(code)) code = row.jobType;
+      var jobTypeLabel = jobType.getLabelByCode(code) || row.jobIntent || String(row.jobType || '');
+      var eduIndex = that.data.educationOptions.indexOf(row.education);
+      that._editLoaded = true;
+      that.setData({
+        title: row.title || '', contact: row.contact || '', wxid: row.wxid || '',
+        experience: row.experience || '', summary: row.summary || '',
+        jobDescription: row.jobDescription || '', jobType: code,
+        tempJobTypeCode: code, selectedJobTypeLabel: jobTypeLabel,
+        payType: String(row.payType == null ? '0' : row.payType), payTypeIndex: Number(row.payType) || 0,
+        detPayMin: row.detPayMin == null ? '' : String(row.detPayMin), detPayMax: row.detPayMax == null ? '' : String(row.detPayMax),
+        educationIndex: eduIndex >= 0 ? eduIndex : 2,
+        selectedCompanyId: row.companyId || '',
+        recommendPhotos: (row.photoImgs || '').split('|').filter(Boolean).map(function (path) { return { path: path, url: util.toDisplayUrl(path), uploading: false }; })
+      });
+      that._editId = objectId;
+    }).catch(function () { wx.showToast({ title: '读取招聘信息失败', icon: 'none' }); });
   },
 
   refreshCurrentCity: function () {
@@ -725,7 +755,7 @@ Page({
 
     var query = Bmob.Query('JobInfo');
     query.equalTo('commitUid', '==', that._userId);
-    query.equalTo('title', '==', String(that.data.title).trim());
+    query.equalTo(that._editId ? 'objectId' : 'title', '==', that._editId ? that._editId : String(that.data.title).trim());
     query.equalTo('active', '==', 1);
 
     query.find().then(function (results) {

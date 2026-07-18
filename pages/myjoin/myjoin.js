@@ -39,8 +39,8 @@ Page({
     userId: '',
     jobInfo: [],
     isEmpty: false,
-    selectedJoinIds: [],
-    selectedCount: 0
+    actionSheetVisible: false,
+    activeItem: null
   },
 
   onLoad: function (options) {
@@ -75,8 +75,6 @@ Page({
       that.setData({
         jobInfo: [],
         isEmpty: true,
-        selectedJoinIds: [],
-        selectedCount: 0
       });
       return;
     }
@@ -90,8 +88,6 @@ Page({
         that.setData({
           jobInfo: [],
           isEmpty: true,
-          selectedJoinIds: [],
-          selectedCount: 0
         });
         return;
       }
@@ -107,16 +103,12 @@ Page({
         that.setData({
           jobInfo: list,
           isEmpty: list.length === 0,
-          selectedJoinIds: [],
-          selectedCount: 0
         });
       });
     }).catch(function () {
       that.setData({
         jobInfo: [],
         isEmpty: true,
-        selectedJoinIds: [],
-        selectedCount: 0
       });
       wx.showToast({
         title: '加载失败',
@@ -147,6 +139,17 @@ Page({
   },
 
   noop: function () {},
+  openActionSheet: function (e) { this.setData({ actionSheetVisible: true, activeItem: this.data.jobInfo[Number(e.currentTarget.dataset.index)] }); },
+  closeActionSheet: function () { this.setData({ actionSheetVisible: false, activeItem: null }); },
+  onCancelJoinAction: function () {
+    var that = this, item = this.data.activeItem || {};
+    this.closeActionSheet();
+    if (!item.joinRecordId) return;
+    wx.showModal({ title: '取消报名', content: '删除不可恢复，是否取消报名？', cancelText: '取消', confirmText: '确认', success: function (res) {
+      if (!res.confirm) return;
+      Bmob.Query('MyJoinInfo').destroy(item.joinRecordId).then(function () { wx.showToast({ title: '已取消报名', icon: 'success' }); that.getinfor(); });
+    } });
+  },
 
   onSelectChange: function (e) {
     var rawIds = (e.detail && e.detail.value) || [];

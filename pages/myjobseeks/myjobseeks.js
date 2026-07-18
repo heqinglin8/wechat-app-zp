@@ -19,8 +19,7 @@ Page({
     num: '',
     isEmpty: false,
     loadingTip: '没有更多内容',
-    selectedSeekIds: [],
-    selectedCount: 0
+    actionSheetVisible: false, activeItem: null
   },
 
   /**
@@ -137,6 +136,10 @@ Page({
   },
 
   noop: function () {},
+  openActionSheet: function (e) { this.setData({ actionSheetVisible: true, activeItem: this.data.infor[Number(e.currentTarget.dataset.index)] }); },
+  closeActionSheet: function () { this.setData({ actionSheetVisible: false, activeItem: null }); },
+  onEditAction: function () { var item = this.data.activeItem || {}; this.closeActionSheet(); if (item.objectId) wx.navigateTo({ url: '../pubilshJobSeek/pubilshJobSeek?editId=' + item.objectId }); },
+  onDeleteAction: function () { var that = this, item = this.data.activeItem || {}; this.closeActionSheet(); if (!item.objectId) return; wx.showModal({ title: '删除', content: '删除不可恢复，是否删除？', cancelText: '取消', confirmText: '删除', success: function (r) { if (!r.confirm) return; Bmob.Query('JobSeeker').destroy(item.objectId).then(function () { that.getinfor(); }); } }); },
 
   onSelectChange: function (e) {
     var rawIds = (e.detail && e.detail.value) || [];

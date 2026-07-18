@@ -39,8 +39,7 @@ Page({
     userId: '',
     jobInfo: [],
     isEmpty: false,
-    selectedJoinIds: [],
-    selectedCount: 0
+    actionSheetVisible: false, activeItem: null
   },
 
   onLoad: function (options) {
@@ -81,11 +80,11 @@ Page({
       return;
     }
 
-    var joinQuery = Bmob.Query('MyJoinInfo');
-    joinQuery.equalTo('userId', '==', that.data.userId);
-    joinQuery.order('-createdAt');
-    joinQuery.find().then(function (joinRows) {
-      var rows = Array.isArray(joinRows) ? joinRows : [];
+    var jobQuery = Bmob.Query('JobInfo');
+    jobQuery.equalTo('commitUid', '==', that.data.userId);
+    jobQuery.order('-createdAt');
+    jobQuery.find().then(function (jobRows) {
+      var rows = Array.isArray(jobRows) ? jobRows : [];
       if (!rows.length) {
         that.setData({
           jobInfo: [],
@@ -95,21 +94,12 @@ Page({
         });
         return;
       }
-      var tasks = rows.map(function (row) {
-        return that.fetchJobInfoById(row.jobId);
-      });
-      return Promise.all(tasks).then(function (jobs) {
-        var list = rows.map(function (row, index) {
-          return decorateRecruitCard(jobs[index], row);
-        }).filter(function (item) {
-          return !!item.joinRecordId;
-        });
-        that.setData({
-          jobInfo: list,
-          isEmpty: list.length === 0,
-          selectedJoinIds: [],
-          selectedCount: 0
-        });
+      var list = rows.map(function (row) {
+        return decorateRecruitCard(row, { objectId: row.objectId, jobId: row.objectId });
+      }).filter(function (item) { return !!item.objectId; });
+      that.setData({
+        jobInfo: list,
+        isEmpty: list.length === 0
       });
     }).catch(function () {
       that.setData({
@@ -147,6 +137,10 @@ Page({
   },
 
   noop: function () {},
+  openActionSheet: function (e) { this.setData({ actionSheetVisible: true, activeItem: this.data.jobInfo[Number(e.currentTarget.dataset.index)] }); },
+  closeActionSheet: function () { this.setData({ actionSheetVisible: false, activeItem: null }); },
+  onEditAction: function () { var item = this.data.activeItem || {}; this.closeActionSheet(); if (item.objectId) wx.navigateTo({ url: '../publishjob/publishjob?editId=' + item.objectId }); },
+  onDeleteAction: function () { var that = this, item = this.data.activeItem || {}; this.closeActionSheet(); if (!item.objectId) return; wx.showModal({ title: '删除', content: '删除不可恢复，是否删除？', cancelText: '取消', confirmText: '删除', success: function (r) { if (!r.confirm) return; Bmob.Query('JobInfo').destroy(item.objectId).then(function () { that.getinfor(); }); } }); },
 
   onSelectChange: function (e) {
     var rawIds = (e.detail && e.detail.value) || [];

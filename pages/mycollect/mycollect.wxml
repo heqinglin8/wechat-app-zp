@@ -88,11 +88,12 @@
 
   <view wx:if="{{actionSheetVisible}}" class="action-sheet-mask" catchtap="closeActionSheet" catchtouchmove="noop">
     <view class="action-sheet" catchtap="noop">
+      <view class="action-sheet__title">更多功能</view>
       <view class="action-sheet__close" catchtap="closeActionSheet">
         <view class="action-sheet__close-icon"></view>
       </view>
       <view class="action-sheet__option" catchtap="onEditAction">编辑</view>
-      <view class="action-sheet__option action-sheet__option--danger" catchtap="onDeleteAction">删除</view>
+      <view class="action-sheet__option action-sheet__option--danger" catchtap="onDeleteAction">取消收藏</view>
     </view>
   </view>
 </view>
