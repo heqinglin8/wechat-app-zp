@@ -6,6 +6,7 @@ var app = getApp();
 var util = require('../../utils/util.js');
 var findDisplayByDistrictCode = require('../../utils/region').findDisplayByDistrictCode;
 Page({
+  _userId: '',
   data: {
     content: '',
     viewData: {},
@@ -137,13 +138,12 @@ Page({
   },
   ensureCurrentUserContactReady: function (actionText, callback) {
     var that = this;
-    var currentUser = Bmob.User.current();
-    if (!currentUser || !currentUser.objectId) {
+    if (!that._userId) {
       that.showLoginPrompt(actionText);
       return;
     }
 
-    that.fetchCurrentUserInfo(currentUser.objectId).then(function (userInfo) {
+    that.fetchCurrentUserInfo(that._userId).then(function (userInfo) {
       if (!userInfo) {
         that.showLoginPrompt(actionText);
         return;
@@ -250,8 +250,6 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    this.isuser();
-
     var that = this;
     if (options != null) {
       that.setData({
@@ -259,7 +257,6 @@ Page({
       });
     }
 
-    that.checkCollectStatus();
     that.refreshSeekerDetail().then(function (results) {
       if (!results) {
         wx.showToast({
@@ -276,7 +273,7 @@ Page({
   //提交信息
   bindViewPutinfor: function () {
     var that = this;
-    if (that.data.userId.length == 0) {
+    if (!that._userId) {
       wx.showToast({
         title: '请先登录',
         image: "../../images/warning.png",
@@ -284,13 +281,13 @@ Page({
       });
     } else {
       var query = Bmob.Query("MyCollectInfo");
-      query.equalTo("userId", "==", that.data.userId);
+      query.equalTo("userId", "==", that._userId);
       query.equalTo("jobId", "==", that.data.jobSeekId);
       query.equalTo("type", "==", "2");
       query.find().then(function (results) {
         if (results.length == 0) {
           var diary = Bmob.Query("MyCollectInfo");
-          diary.set("userId", that.data.userId);
+          diary.set("userId", that._userId);
           //类型："1"=收藏岗位；"2"=收藏求职信息
           diary.set("type", "2");
           diary.set("jobId", that.data.jobSeekId);
@@ -330,7 +327,7 @@ Page({
   // 查询当前用户是否已收藏当前求职信息
   checkCollectStatus: function () {
     var that = this;
-    if (!that.data.userId || !that.data.jobSeekId) {
+    if (!that._userId || !that.data.jobSeekId) {
       that.setData({
         hasCollected: false,
       });
@@ -338,7 +335,7 @@ Page({
     }
 
     var query = Bmob.Query("MyCollectInfo");
-    query.equalTo("userId", "==", that.data.userId);
+    query.equalTo("userId", "==", that._userId);
     query.equalTo("jobId", "==", that.data.jobSeekId);
     query.equalTo("type", "==", "2");
     query.find().then(function (results) {
@@ -366,7 +363,7 @@ Page({
         }
 
         var query = Bmob.Query("MyCollectInfo");
-        query.equalTo("userId", "==", that.data.userId);
+        query.equalTo("userId", "==", that._userId);
         query.equalTo("jobId", "==", that.data.jobSeekId);
         query.equalTo("type", "==", "2");
         query.find().then(function (results) {
@@ -439,8 +436,9 @@ Page({
    */
   onShow: function () {
     var that = this;
-    that.isuser();
-    that.checkCollectStatus();
+    that.isUser().then(function () {
+      that.checkCollectStatus();
+    });
   },
 
   /**
@@ -513,17 +511,25 @@ Page({
   /**
    * 判断用户是否存在
    */
-  isuser: function () {
+  isUser: function () {
     var that = this;
     var currentUser = Bmob.User.current();
-    if (!currentUser || currentUser.objectId) {
-      that.setData({
-        userId: '',
-      });
-    } else {
-      that.setData({
-        userId: currentUser.objectId,
-      });
+    var objectId = currentUser && currentUser.objectId;
+    if (!objectId) {
+      that._userId = '';
+      that.setData({ userId: '' });
+      return Promise.resolve(false);
     }
+
+    return that.fetchCurrentUserInfo(objectId).then(function (userInfo) {
+      that._userId = userInfo && userInfo.objectId ? userInfo.objectId : '';
+      that.setData({ userId: that._userId });
+      return !!that._userId;
+    }).catch(function (error) {
+      console.error('查询当前登录用户失败:', error);
+      that._userId = '';
+      that.setData({ userId: '' });
+      return false;
+    });
   }
 });
