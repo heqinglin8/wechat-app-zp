@@ -92,7 +92,6 @@ Page({
       payTypeText: payTypeText,
       jobTypeLabel: this.firstText(jobTypeLabel, '未填职业方向'),
       educationExperienceText: educationForDetail + ' / ' + experienceForDetail,
-      entNumText: this.firstText(item.entNum, '0'),
       locationText: locationText,
       experienceText: this.firstText(item.experience, '未填经验要求'),
       educationText: this.firstText(item.education, '未填学历要求'),
@@ -158,15 +157,6 @@ Page({
         that.applyJobResult(result);
       }
       return result;
-    });
-  },
-  adjustJobEntNum: function (delta) {
-    var that = this;
-    return that.fetchActiveJobInfoById(that.data.jobId).then(function (result) {
-      if (!result) return null;
-      var current = Number(result.entNum);
-      result.set('entNum', Math.max(0, (isNaN(current) ? 0 : current) + delta));
-      return result.save().then(function () { return that.refreshJobDetail(); });
     });
   },
   showLoginPrompt: function (actionText) {
@@ -357,7 +347,6 @@ Page({
         join.save().then(function () {
           that.setData({ hasJoined: true, isfist: false });
           wx.showToast({ title: '报名成功', icon: 'success', duration: 2000 });
-          that.adjustJobEntNum(1);
         });
       } else {
         wx.showModal({ title: '取消报名', content: '您已报名过此岗位，是否要取消报名？', cancelText: '保持报名', confirmText: '取消报名', success: function (res) { if (res.confirm) that.cancelJoin(); } });
@@ -375,7 +364,6 @@ Page({
         Promise.all((results || []).map(function (item) { return item && item.objectId ? query.destroy(item.objectId) : null; }).filter(Boolean)).then(function () {
           that.setData({ hasJoined: false, isfist: false });
           wx.showToast({ title: '取消报名成功', icon: 'success', duration: 2000 });
-          that.adjustJobEntNum(-1);
         });
       });
     } });
