@@ -6,6 +6,7 @@ var util = require('../../utils/util');
 var findDisplayByDistrictCode = require('../../utils/region').findDisplayByDistrictCode;
 var app = getApp();
 Page({
+  _userId: '',
 
   /**
    * 页面的初始数据
@@ -19,12 +20,10 @@ Page({
     //当前轮播索引
     currentPhotoIndex: 0,
     jobId: '',
-    //报名个数
     num: '',
     //是否为第一次加载
     isfist: true,
-    userId: '', //用户id
-    hasJoined: false, //是否已报名
+    hasJoined: false,
     hasCollected: false, //是否已收藏
     detailMessageEnabled: true,
     viewData: {},
@@ -166,11 +165,8 @@ Page({
     return that.fetchActiveJobInfoById(that.data.jobId).then(function (result) {
       if (!result) return null;
       var current = Number(result.entNum);
-      var next = Math.max(0, (isNaN(current) ? 0 : current) + delta);
-      result.set('entNum', next);
-      return result.save().then(function () {
-        return that.refreshJobDetail();
-      });
+      result.set('entNum', Math.max(0, (isNaN(current) ? 0 : current) + delta));
+      return result.save().then(function () { return that.refreshJobDetail(); });
     });
   },
   showLoginPrompt: function (actionText) {
@@ -213,13 +209,12 @@ Page({
   },
   ensureContactReady: function (actionText, callback) {
     var that = this;
-    var currentUser = Bmob.User.current();
-    if (!currentUser || !currentUser.objectId) {
+    if (!that._userId) {
       that.showLoginPrompt(actionText);
       return;
     }
 
-    that.fetchCurrentUserInfo(currentUser.objectId).then(function (userInfo) {
+    that.fetchCurrentUserInfo(that._userId).then(function (userInfo) {
       if (!userInfo) {
         that.showLoginPrompt(actionText);
         return;
@@ -227,10 +222,6 @@ Page({
 
       var mobilePhoneNumber = userInfo.mobilePhoneNumber;
       var wxid = that.firstText(userInfo.wxid);
-      that.setData({
-        userId: userInfo.objectId,
-      });
-
       if (!mobilePhoneNumber) {
         that.showSetInfoPrompt('提醒完善联系方式，' + actionText);
         return;
@@ -323,9 +314,6 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    //判断用户是否注册
-    this.isuser();
-
     var that = this;
     // 获取传参
     if (options != null) {
@@ -351,140 +339,51 @@ Page({
     });
   
   },
-  //提交信息
   bindViewPutinfor: function () {
-    console.log('bindViewPutinfor，点击报名')
     var that = this;
-    that.ensureContactReady('再报名', function () {
-      that.submitJoinInfo();
-    });
+    that.ensureContactReady('再报名', function () { that.submitJoinInfo(); });
   },
   submitJoinInfo: function () {
     var that = this;
-    var query = Bmob.Query("MyJoinInfo"); 
-    query.equalTo("userId", "==", that.data.userId);
-    query.equalTo("jobId", "==", that.data.jobId);
-    // 查询用户是否已经报名过这个岗位
-    query.find().then(function(results) {
-      console.log("查询报名状态:共查询到 " + results.length + " 条记录");
-      if (results.length == 0) {
-        // 未报名，执行报名逻辑
-        var diary = Bmob.Query("MyJoinInfo");
-        diary.set("userId", that.data.userId);
-        diary.set("jobId", that.data.jobId);
-        diary.set("joinCompanyName", that.data.companyName);
-        diary.save().then(function(result) {
-          // 报名表添加成功
-          that.setData({
-            hasJoined: true,
-            isfist: false,
-          });
-          wx.showToast({
-            title: '报名成功',
-            icon: 'success',
-            duration: 2000
-          });
-          that.adjustJobEntNum(1).then(function () {
-            that.checkCollectStatus();
-          }).catch(function(error) {
-            console.error('报名人数更新失败:', error);
-          });
-        }).catch(function(error) {
-          // 添加失败
-          console.error('bindViewPutinfor，报名失败 error：', error)
+    var query = Bmob.Query('MyJoinInfo');
+    query.equalTo('userId', '==', that._userId);
+    query.equalTo('jobId', '==', that.data.jobId);
+    query.find().then(function (results) {
+      if (results.length === 0) {
+        var join = Bmob.Query('MyJoinInfo');
+        join.set('userId', that._userId);
+        join.set('jobId', that.data.jobId);
+        join.set('joinCompanyName', that.data.companyName);
+        join.save().then(function () {
+          that.setData({ hasJoined: true, isfist: false });
+          wx.showToast({ title: '报名成功', icon: 'success', duration: 2000 });
+          that.adjustJobEntNum(1);
         });
       } else {
-        // 已报名，弹出确认对话框
-        wx.showModal({
-          title: '取消报名',
-          content: '您已报名过此岗位，是否要取消报名？',
-          cancelText: '保持报名',
-          confirmText: '取消报名',
-          success: function(res) {
-            if (res.confirm) {
-              // 用户点击确认，执行取消报名逻辑
-              that.cancelJoin();
-            }
-          }
-        });
+        wx.showModal({ title: '取消报名', content: '您已报名过此岗位，是否要取消报名？', cancelText: '保持报名', confirmText: '取消报名', success: function (res) { if (res.confirm) that.cancelJoin(); } });
       }
-    }).catch(function(error) {
-      // 查询失败
-      console.error('bindViewPutinfor，查询报名失败 error：', error)
     });
   },
-
-  // 取消报名：删除 uid 和 jobId 同时匹配的报名记录
   cancelJoin: function () {
     var that = this;
-    wx.showModal({
-      title: '取消报名',
-      content: '确认取消该岗位报名吗？',
-      cancelText: '再想想',
-      confirmText: '确认取消',
-      success: function (res) {
-        if (!res.confirm) {
-          return;
-        }
-
-        var query = Bmob.Query("MyJoinInfo");
-        query.equalTo("userId", "==", that.data.userId);
-        query.equalTo("jobId", "==", that.data.jobId);
-        query.find().then(function (results) {
-          if (!results || results.length === 0) {
-            that.setData({
-              hasJoined: false
-            });
-            return;
-          }
-
-          var destroyTasks = results
-            .map(function (item) {
-              return item && item.objectId;
-            })
-            .filter(function (id) {
-              return !!id;
-            })
-            .map(function (id) {
-              return query.destroy(id);
-            });
-
-          Promise.all(destroyTasks).then(function () {
-            that.setData({
-              hasJoined: false,
-              isfist: false
-            });
-            wx.showToast({
-              title: '取消报名成功',
-              icon: 'success',
-              duration: 2000
-            });
-            that.adjustJobEntNum(-1).catch(function (error) {
-              console.error('报名人数更新失败:', error);
-            });
-          }).catch(function (e) {
-            console.error('取消报名失败:', e)
-            wx.showToast({
-              title: '取消报名失败',
-              image: "../../images/warning.png",
-              duration: 2000
-            });
-          });
-        }).catch(function (e) {
-          console.error("取消报名失败,e:",e);
-          wx.showToast({
-            title: '取消报名失败',
-            image: "../../images/warning.png",
-            duration: 2000
-          });
+    wx.showModal({ title: '取消报名', content: '确认取消该岗位报名吗？', cancelText: '再想想', confirmText: '确认取消', success: function (res) {
+      if (!res.confirm) return;
+      var query = Bmob.Query('MyJoinInfo');
+      query.equalTo('userId', '==', that._userId);
+      query.equalTo('jobId', '==', that.data.jobId);
+      query.find().then(function (results) {
+        Promise.all((results || []).map(function (item) { return item && item.objectId ? query.destroy(item.objectId) : null; }).filter(Boolean)).then(function () {
+          that.setData({ hasJoined: false, isfist: false });
+          wx.showToast({ title: '取消报名成功', icon: 'success', duration: 2000 });
+          that.adjustJobEntNum(-1);
         });
-      }
-    });
+      });
+    } });
   },
   // 收藏岗位
   bindCollectJob: function () {
     var that = this;
-    if (!that.firstText(that.data.userId)) {
+    if (!that._userId) {
       wx.showToast({
         title: '请先登录',
         image: "../../images/warning.png",
@@ -494,7 +393,7 @@ Page({
     }
 
     var query = Bmob.Query("MyCollectInfo");
-    query.equalTo("userId", "==", that.data.userId);
+    query.equalTo("userId", "==", that._userId);
     query.equalTo("jobId", "==", that.data.jobId);
     query.equalTo("type", "==", "1");
     query.find().then(function (results) {
@@ -528,7 +427,7 @@ Page({
         return;
       }
       var collect = Bmob.Query("MyCollectInfo");
-      collect.set("userId", that.data.userId);
+      collect.set("userId", that._userId);
       collect.set("jobId", that.data.jobId);
       collect.set("type", "1");
       collect.save().then(function () {
@@ -558,14 +457,14 @@ Page({
   // 查询当前用户是否已收藏当前岗位
   checkCollectStatus: function () {
     var that = this;
-    if (!that.data.userId || !that.data.jobId) {
+    if (!that._userId || !that.data.jobId) {
       that.setData({
         hasCollected: false
       });
       return;
     }
     var query = Bmob.Query("MyCollectInfo");
-    query.equalTo("userId", "==", that.data.userId);
+    query.equalTo("userId", "==", that._userId);
     query.equalTo("jobId", "==", that.data.jobId);
     query.equalTo("type", "==", "1");
     query.find().then(function (results) {
@@ -591,30 +490,20 @@ Page({
    */
   onShow: function () {
     var that = this;
-    console.log('userId:'+that.data.userId+' jobId:'+that.data.jobId)
-    // 查询是否已报名
-    var query = Bmob.Query("MyJoinInfo");
-    query.equalTo("userId", "==", that.data.userId);
-    query.equalTo("jobId", "==", that.data.jobId);
-    query.find().then(function(results) {
-      console.log("查询报名状态:共查询到 " + results.length + " 条记录");
-      that.setData({
-        hasJoined: results.length > 0
-      });
-    }).catch(function(error) {
-      that.setData({
-        hasJoined: false
-      });
+    that.isUser().then(function () {
+      if (!that._userId || !that.data.jobId) {
+        that.setData({ hasJoined: false });
+      } else {
+        var joinQuery = Bmob.Query('MyJoinInfo');
+        joinQuery.equalTo('userId', '==', that._userId);
+        joinQuery.equalTo('jobId', '==', that.data.jobId);
+        joinQuery.find().then(function (results) { that.setData({ hasJoined: results.length > 0 }); }).catch(function () { that.setData({ hasJoined: false }); });
+      }
+      that.checkCollectStatus();
+      if (that.data.isfist === false) {
+        that.refreshJobDetail().catch(function() {});
+      }
     });
-    that.checkCollectStatus();
-    
-    if(that.data.isfist==false)
-    {
-    that.refreshJobDetail().catch(function(error) {
-      // 查询失败
-    });
-    
-    }
   },
 
   /**
@@ -668,39 +557,22 @@ Page({
   /**
    * 判断用户是否存在
    */
-  isuser:function(){
-    var that = this
+  isUser: function () {
+    var that = this;
     var currentUser = Bmob.User.current();
-    if (!currentUser) {
-      //console.log('用户不存在');
-      that.setData({
-        userId: '',
-      });
-      that.checkCollectStatus();
+    var objectId = currentUser && currentUser.objectId;
+    if (!objectId) {
+      that._userId = '';
+      return Promise.resolve(false);
     }
-      //console.log('用户存在');
-      var query = Bmob.Query("_User");
-      query.equalTo("objectId", "==", currentUser.objectId);
-          // 查询用户是否存在
-      query.find().then(function(results) {
-        //console.log("个人中心判断:共查询到 " + results.length + " 条记录");
-        if (results.length == 0) {
-          that.setData({
-            userId: '',
-          });
-          that.checkCollectStatus();
-          return
-        }
-
-        //用户存在
-        var userInfo = results[0];
-        that.setData({
-          userId: userInfo.objectId,
-        });
-        that.checkCollectStatus();
-      }).catch(function(error) {
-        //console.error("查询失败: " + error.code + " " + error.message);
-      });
+    return that.fetchCurrentUserInfo(objectId).then(function (userInfo) {
+      that._userId = userInfo && userInfo.objectId ? userInfo.objectId : '';
+      return !!that._userId;
+    }).catch(function (error) {
+      console.error('查询当前登录用户失败:', error);
+      that._userId = '';
+      return false;
+    });
   },
 
   /**
