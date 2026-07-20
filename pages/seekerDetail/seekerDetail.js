@@ -216,7 +216,6 @@ Page({
     if (!jobSeekId) return Promise.resolve(null);
     var query = Bmob.Query("JobSeeker");
     query.equalTo("objectId", "==", jobSeekId);
-    query.equalTo("active", "==", 1);
     return query.find().then(function (rows) {
       return rows && rows.length ? rows[0] : null;
     });

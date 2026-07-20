@@ -123,7 +123,6 @@ Page({
     if (!jobId) return Promise.resolve(null);
     var query = Bmob.Query("JobInfo");
     query.equalTo("objectId", "==", jobId);
-    query.equalTo("active", "==", 1);
     return query.find().then(function (rows) {
       return rows && rows.length ? rows[0] : null;
     });
