@@ -2,6 +2,7 @@
 var Bmob = wx.Bmob;
 var util = require('../../utils/util.js');
 var cardFormatter = require('../../utils/cardFormatter');
+var companyCache = require('../../utils/companyCache');
 var findDisplayByDistrictCode = require('../../utils/region').findDisplayByDistrictCode;
 
 function pickText(value, fallback) {
@@ -10,7 +11,7 @@ function pickText(value, fallback) {
 }
 
 function decorateRecruitCard(jobInfo, joinInfo) {
-  var job = jobInfo || {};
+  var job = cardFormatter.applyCompanyCache(jobInfo || {});
   var join = joinInfo || {};
   var cityInfo = findDisplayByDistrictCode(job.districtCode);
   var jobTypeLabel = cardFormatter.jobTypeLabel(job.jobType);
@@ -27,7 +28,7 @@ function decorateRecruitCard(jobInfo, joinInfo) {
     cardCompanySize: pickText(job.companyPeople, '规模未填写'),
     cardFinancing: pickText(job.financeStage, '融资阶段未填写'),
     cardTags: tagList,
-    cardRecruiter: pickText(job.commitUsername, '招聘者未填写') + ' · ' + pickText(job.commitJobRole, '职位未填写'),
+    cardRecruiter: pickText(job.commitNickname, '招聘者未填写') + ' · ' + pickText(job.commitJobRole, '职位未填写'),
     cardLocation: cityInfo ? cityInfo.cityName : '',
     cardBadge: job.payType == 1 ? '临' : '',
     avatar: util.toDisplayUrl(job.commitAvatar)
@@ -94,12 +95,14 @@ Page({
         });
         return;
       }
-      var list = rows.map(function (row) {
-        return decorateRecruitCard(row, { objectId: row.objectId, jobId: row.objectId });
-      }).filter(function (item) { return !!item.objectId; });
-      that.setData({
-        jobInfo: list,
-        isEmpty: list.length === 0
+      return companyCache.ensureLoaded(Bmob).then(function () {
+        var list = rows.map(function (row) {
+          return decorateRecruitCard(row, { objectId: row.objectId, jobId: row.objectId });
+        }).filter(function (item) { return !!item.objectId; });
+        that.setData({
+          jobInfo: list,
+          isEmpty: list.length === 0
+        });
       });
     }).catch(function () {
       that.setData({

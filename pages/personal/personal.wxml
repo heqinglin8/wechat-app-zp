@@ -4,7 +4,6 @@
   
 <button wx:if="{{!hasUserInfo}}" bindtap="bingLogin">微信一键登录</button>
     <block wx:else>
-     
       <view class="personal-user-card" bindtap="bindViewTodayGxz">
         <view class="personal-user-card-left">
           <image class="personal-user-avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
