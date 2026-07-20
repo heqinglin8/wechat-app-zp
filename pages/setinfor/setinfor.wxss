@@ -36,6 +36,15 @@
   flex-shrink: 0;
 }
 
+.profile-avatar-right{
+  display: flex;
+  align-items: center;
+}
+
+.profile-avatar-arrow{
+  margin-left: 10rpx;
+}
+
 .profile-label{
   color: #111;
   font-size: 38rpx;

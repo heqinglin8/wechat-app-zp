@@ -135,9 +135,9 @@ Page({
   },
   //点击个人中心里修改信息页面跳转
   bindViewTodayGxz:function(){
-    // wx.navigateTo({
-    //   url: '../setinfor/setinfor' 
-    // })
+    wx.navigateTo({
+      url: '../setinfor/setinfor' 
+    })
     
   },
   //点击个人中心里我的收藏跳转

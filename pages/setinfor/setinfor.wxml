@@ -2,7 +2,10 @@
 <view class="profile-page">
   <button class="profile-card profile-card-button" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
     <view class="profile-label">头像</view>
-    <image class="profile-avatar" src="{{avatarUrl}}"></image>
+    <view class="profile-avatar-right">
+      <image class="profile-avatar" src="{{avatarUrl}}"></image>
+      <view class="info-row-arrow profile-avatar-arrow"></view>
+    </view>
   </button>
 
   <view class="info-list">

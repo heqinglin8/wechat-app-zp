@@ -4,19 +4,8 @@
   
 <button wx:if="{{!hasUserInfo}}" bindtap="bingLogin">微信一键登录</button>
     <block wx:else>
-      <button wx:if="{{!avatarUrl || avatarUrl === defaultAvatarUrl}}" class="personal-user-card personal-user-card-button" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-        <view class="personal-user-card-left">
-          <image class="personal-user-avatar" src="{{avatarUrl || defaultAvatarUrl}}" mode="aspectFill"></image>
-        </view>
-        <view class="personal-user-card-center">
-          <view class="personal-user-name">{{userInfo.nickname || '请完善用户名'}}</view>
-          <view class="personal-user-no">手机号：{{userInfo.mobilePhoneNumber || '--'}}</view>
-        </view>
-        <view class="personal-user-card-right">
-          <view class="personal-user-arrow"></view>
-        </view>
-      </button>
-      <view wx:else class="personal-user-card" bindtap="bindViewTodayGxz">
+     
+      <view class="personal-user-card" bindtap="bindViewTodayGxz">
         <view class="personal-user-card-left">
           <image class="personal-user-avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
         </view>
@@ -28,6 +17,7 @@
           <view class="personal-user-arrow"></view>
         </view>
       </view>
+     
     </block>
 
   </view>
