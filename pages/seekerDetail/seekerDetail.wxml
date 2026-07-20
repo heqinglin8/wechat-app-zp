@@ -24,7 +24,6 @@
         <view class='det-list-tow-one'>{{viewData.salaryText}}</view>
         <view class='det-list-tow-tow'>{{viewData.collectNumText}}人收藏</view>
       </view>
-      <view class='det-list-three'>伯乐：{{viewData.publisherText}}</view>
       <view class='det-list-meta'>
         <view class='det-list-meta-item'>
           <text class="det-list-meta-icon">📍</text>

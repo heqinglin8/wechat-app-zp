@@ -95,12 +95,12 @@
   float: right;
   height: 90rpx;
 }
-.per-mid-list4,.per-mid-list5,.per-mid-list6{
+.per-mid-list4,.per-mid-list5,.per-mid-list6,.per-mid-list7{
   width: 90%;
   float: right;
   height: 90rpx;
 }
-.per-mid-list4,.per-mid-list5{
+.per-mid-list4,.per-mid-list5,.per-mid-list-border{
   border-bottom: 1px #e5e5e5 solid;
 }
 .per-mid-contact-button{
@@ -237,4 +237,58 @@
   color: #111;
   font-size: 32rpx;
   background: #fc3;
+}
+
+.switch-role-dialog{
+  width: 620rpx;
+  padding: 40rpx 32rpx 0;
+  border-radius: 16rpx;
+  background: #fff;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.switch-role-title{
+  color: #111;
+  font-size: 34rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+.switch-role-content{
+  margin-top: 28rpx;
+  color: #333;
+  font-size: 30rpx;
+  line-height: 44rpx;
+  text-align: center;
+}
+
+.switch-role-actions{
+  display: flex;
+  margin: 36rpx -32rpx 0;
+  border-top: 1px solid #e5e5e5;
+}
+
+.switch-role-cancel,.switch-role-confirm{
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  color: #333;
+  font-size: 30rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.switch-role-confirm{
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid #e5e5e5;
+  border-radius: 0;
+  color: #07c160;
+  background: #fff;
+}
+
+.switch-role-confirm::after{
+  border: none;
 }

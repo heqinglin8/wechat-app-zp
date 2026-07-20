@@ -66,7 +66,7 @@
         <image src="../../images/jiantou_small.png"/>
       </view>
     </view>
-    <button class="per-mid-list6 per-mid-contact-button" open-type="contact">
+    <button class="per-mid-list6 per-mid-contact-button {{hasUserInfo && (roleInfo.isRecruiter || roleInfo.isJobSeeker) ? 'per-mid-list-border' : ''}}" open-type="contact">
       <view class="per-mid-list6-left per-mid-list-left">
         <image src="../../images/weichat-fangxing.png"/>
         <view class="per-mid-list6-left-text per-mid-list-left-text">客服咨询</view>
@@ -75,6 +75,15 @@
         <image src="../../images/jiantou_small.png"/>
       </view>
     </button>
+    <view wx:if="{{hasUserInfo && (roleInfo.isRecruiter || roleInfo.isJobSeeker)}}" class="per-mid-list7" bindtap="bindShowSwitchRoleDialog">
+      <view class="per-mid-list7-left per-mid-list-left">
+        <image src="../../images/convert-1.png"/>
+        <view class="per-mid-list7-left-text per-mid-list-left-text">切换角色</view>
+      </view>
+      <view class="per-mid-list7-right per-mid-list-right">
+        <image src="../../images/jiantou_small.png"/>
+      </view>
+    </view>
   </view>
   <view wx:if="{{hasUserInfo}}" class="personal-logout" bindtap='bindLogout'>
     退出登录
@@ -92,6 +101,17 @@
       <input class="role-input" type="text" maxlength="30" placeholder="请输入职位角色" value="{{roleJobRole}}" bindinput="onRoleJobInput" />
     </view>
     <button class="role-confirm" loading="{{isSavingRole}}" disabled="{{isSavingRole}}" bindtap="confirmRoleDialog">确定</button>
+  </view>
+</view>
+
+<view wx:if="{{showSwitchRoleDialog}}" class="role-dialog-mask" catchtap="hideSwitchRoleDialog" catchtouchmove="noop">
+  <view class="switch-role-dialog" catchtap="noop">
+    <view class="switch-role-title">提示</view>
+    <view class="switch-role-content">您当前是{{switchRoleName}}，确定要咨询官方客服切换吗？</view>
+    <view class="switch-role-actions">
+      <view class="switch-role-cancel" bindtap="hideSwitchRoleDialog">取消</view>
+      <button class="switch-role-confirm" open-type="contact" session-from="{{switchRoleMessage}}" show-message-card="true" send-message-title="{{switchRoleMessage}}" bindcontact="hideSwitchRoleDialog">确定</button>
+    </view>
   </view>
 </view>
 

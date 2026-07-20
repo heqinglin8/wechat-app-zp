@@ -76,7 +76,6 @@ Page({
       titleText: this.withFallback(item.title, '求职标题'),
       salaryText: this.formatSalaryText(item),
       collectNumText: this.firstText(collectNum, '0'),
-      publisherText: this.withFallback(item.commitNickname, '发布人'),
       locationText: this.formatLocationText(item),
       educationText: this.withFallback(item.education, '学历'),
       intentText: this.withFallback(item.jobIntent, '求职方向'),

@@ -23,6 +23,9 @@ Page({
     selectedRole: 2,
     roleJobRole: '',
     isSavingRole: false,
+    showSwitchRoleDialog: false,
+    switchRoleName: '',
+    switchRoleMessage: '',
   },
 
   /**
@@ -125,6 +128,46 @@ Page({
     wx.navigateTo({
       url: '../servicephone/servicephone'
     })
+  },
+
+  getSwitchRoleContactData: function (role) {
+    var roleText = userRole.normalizeRole(role);
+    var roleName = '';
+    if (userRole.isJobSeekerRole(roleText)) {
+      roleName = '求职者';
+    } else if (userRole.isRecruiterRole(roleText)) {
+      roleName = '招聘者';
+    }
+
+    return {
+      roleName: roleName,
+      message: roleName ? '我现在是' + roleName + '，请帮我切换角色' : ''
+    };
+  },
+
+  bindShowSwitchRoleDialog: function () {
+    var roleInfo = this.data.roleInfo || {};
+    var contactData = this.getSwitchRoleContactData(roleInfo.role);
+    if (!contactData.roleName) {
+      wx.showToast({
+        title: this.data.hasUserInfo ? '当前身份不支持切换' : '请先登录',
+        icon: 'none',
+        duration: 1500
+      });
+      return;
+    }
+
+    this.setData({
+      showSwitchRoleDialog: true,
+      switchRoleName: contactData.roleName,
+      switchRoleMessage: contactData.message
+    });
+  },
+
+  hideSwitchRoleDialog: function () {
+    this.setData({
+      showSwitchRoleDialog: false
+    });
   },
 
   //点击个人中心里门店地址页面跳转
@@ -238,7 +281,10 @@ Page({
       showRoleDialog: false,
       selectedRole: 2,
       roleJobRole: '',
-      isSavingRole: false
+      isSavingRole: false,
+      showSwitchRoleDialog: false,
+      switchRoleName: '',
+      switchRoleMessage: ''
     });
     app.syncTodayTabBarByRole('');
     this.refreshFabVisibility();
