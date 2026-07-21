@@ -110,7 +110,7 @@
     <view class="switch-role-content">您当前是{{switchRoleName}}，确定要咨询官方客服切换吗？</view>
     <view class="switch-role-actions">
       <view class="switch-role-cancel" bindtap="hideSwitchRoleDialog">取消</view>
-      <button class="switch-role-confirm" open-type="contact" session-from="{{switchRoleMessage}}" show-message-card="true" send-message-title="{{switchRoleMessage}}" bindcontact="hideSwitchRoleDialog">确定</button>
+      <button class="switch-role-confirm" open-type="contact" session-from="source=personal&role_name={{switchRoleName}}&userNickname={{userInfo.nickname}}" show-message-card="true" send-message-title="{{switchRoleMessage}}" bindcontact="hideSwitchRoleDialog" show-message-card="true">确定</button>
     </view>
   </view>
 </view>
