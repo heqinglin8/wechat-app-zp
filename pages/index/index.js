@@ -62,12 +62,28 @@ Page({
     });
   },
   /**
-   * 轮播图片点击入口，当前暂未配置跳转目标。
+   * 点击轮播图时打开配置的网页地址。
    */
-  swipclick: function () {
-    //console.log(this.data.swiperCurrent);
+  swipclick: function (e) {
+    var jumpUrl = e.currentTarget.dataset.url;
+    if (!jumpUrl) {
+      wx.showToast({
+        title: '暂无跳转链接',
+        icon: 'none'
+      });
+      return;
+    }
+
+    if (!/^https?:\/\//.test(jumpUrl)) {
+      jumpUrl = 'https://' + jumpUrl;
+    }
+
+    wx.navigateTo({
+      url: '../webview/webview?url=' + encodeURIComponent(jumpUrl)
+    });
+    //  console.log('跳转到：' + jumpUrl);
     // wx.switchTab({
-    //  // url: this.data.links[this.data.swiperCurrent]
+    //  url: jumpUrl
     // })
   },
   /**
