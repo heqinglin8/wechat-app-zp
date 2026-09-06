@@ -1,6 +1,6 @@
 
 /**index.wxss**/
-@import "../../wxSearchView/wxSearchView.wxss";
+@import "../wxSearchView/wxSearchView.wxss";
 .container{
   padding:0;
   margin: 0;

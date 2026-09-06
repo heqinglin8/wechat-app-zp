@@ -1,7 +1,7 @@
 /* pages/myjobseeks/myjobseeks.wxss */
 /* pages/myjoin/myjoin.wxss */
 
-@import "../../wxSearchView/wxSearchView.wxss";
+@import "../wxSearchView/wxSearchView.wxss";
 
 .username{
   height:240rpx;

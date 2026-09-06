@@ -1,1 +1,1 @@
-<include src="../../wxSearchView/wxSearchView.wxml" />
+<include src="../wxSearchView/wxSearchView.wxml" />

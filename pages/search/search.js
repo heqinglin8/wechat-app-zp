@@ -1,6 +1,6 @@
   //search.js
 
-var WxSearch = require('../../wxSearchView/wxSearchView.js');
+var WxSearch = require('../wxSearchView/wxSearchView.js');
 
 Page({
   data: {},

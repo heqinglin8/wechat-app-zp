@@ -1,4 +1,4 @@
-@import "../../wxSearchView/wxSearchView.wxss";
+@import "../wxSearchView/wxSearchView.wxss";
 
 page{
   background: #f5f5f5;

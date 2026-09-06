@@ -1,4 +1,4 @@
-@import "../../wxSearchView/wxSearchView.wxss";
+@import "../wxSearchView/wxSearchView.wxss";
 
 .job-card{
   margin-bottom: 16rpx;
